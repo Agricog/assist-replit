@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -10,11 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
+import type { FarmField } from "@shared/schema";
 
 interface FarmDataModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: () => void;
+  editingField?: FarmField | null;
 }
 
 interface FarmFieldData {
@@ -49,7 +51,7 @@ const initialData: FarmFieldData = {
   notes: "",
 };
 
-export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModalProps) {
+export default function FarmDataModal({ isOpen, onClose, onSave, editingField }: FarmDataModalProps) {
   const [formData, setFormData] = useState<FarmFieldData>(initialData);
   const [customCrop, setCustomCrop] = useState("");
   const [showCustomCrop, setShowCustomCrop] = useState(false);
@@ -58,22 +60,30 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
 
   const saveMutation = useMutation({
     mutationFn: async (data: FarmFieldData) => {
-      const response = await apiRequest("POST", "/api/farm/fields", {
+      const payload = {
         fieldName: data.fieldName,
         size: parseFloat(data.size),
         cropType: data.cropType,
         soilType: data.soilType,
         expectedYield: data.expectedYield ? parseFloat(data.expectedYield) : null,
         notes: data.notes || null,
-      });
-      return response.json();
+      };
+      
+      if (editingField) {
+        const response = await apiRequest("PUT", `/api/farm/fields/${editingField.id}`, payload);
+        return response.json();
+      } else {
+        const response = await apiRequest("POST", "/api/farm/fields", payload);
+        return response.json();
+      }
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Field data saved successfully",
+        description: editingField ? "Field updated successfully" : "Field data saved successfully",
       });
       setFormData(initialData);
+      setAvailableCrops(BASE_CROPS);
       onSave();
     },
     onError: (error) => {
@@ -134,9 +144,34 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
   const handleClose = () => {
     if (!saveMutation.isPending) {
       setFormData(initialData);
+      setAvailableCrops(BASE_CROPS);
+      setShowCustomCrop(false);
+      setCustomCrop("");
       onClose();
     }
   };
+
+  // Pre-fill form data when editing
+  useEffect(() => {
+    if (editingField && isOpen) {
+      setFormData({
+        fieldName: editingField.fieldName || "",
+        size: editingField.size?.toString() || "",
+        cropType: editingField.cropType || "",
+        soilType: editingField.soilType || "",
+        expectedYield: editingField.expectedYield?.toString() || "",
+        notes: editingField.notes || "",
+      });
+      
+      // Add the current crop to available crops if it's not in the base list
+      if (editingField.cropType && !BASE_CROPS.includes(editingField.cropType)) {
+        setAvailableCrops(prev => [...prev, editingField.cropType]);
+      }
+    } else if (isOpen) {
+      setFormData(initialData);
+      setAvailableCrops(BASE_CROPS);
+    }
+  }, [editingField, isOpen]);
 
   const updateField = (field: keyof FarmFieldData, value: string) => {
     if (field === 'cropType' && value === 'custom') {
@@ -169,7 +204,7 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            Add Farm Data
+            {editingField ? "Edit Field Data" : "Add Farm Data"}
             <Button 
               variant="ghost" 
               size="sm" 

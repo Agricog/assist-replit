@@ -18,6 +18,7 @@ export default function Dashboard() {
   const [showFarmDataModal, setShowFarmDataModal] = useState(false);
   const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
   const [selectedField, setSelectedField] = useState<FarmField | null>(null);
+  const [editingField, setEditingField] = useState<FarmField | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
 
@@ -328,11 +329,16 @@ export default function Dashboard() {
       {/* Farm Data Modal */}
       <FarmDataModal 
         isOpen={showFarmDataModal}
-        onClose={() => setShowFarmDataModal(false)}
+        onClose={() => {
+          setShowFarmDataModal(false);
+          setEditingField(null);
+        }}
         onSave={() => {
           setShowFarmDataModal(false);
+          setEditingField(null);
           refetchFields();
         }}
+        editingField={editingField}
       />
 
       {/* Farm Data View Modal */}
@@ -343,6 +349,10 @@ export default function Dashboard() {
           setSelectedField(null);
         }}
         field={selectedField}
+        onEdit={(field) => {
+          setEditingField(field);
+          setShowFarmDataModal(true);
+        }}
       />
 
       {/* Location Modal */}

@@ -1,15 +1,69 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Edit, Trash2 } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField } from "@shared/schema";
 
 interface FarmDataViewModalProps {
   isOpen: boolean;
   onClose: () => void;
   field: FarmField | null;
+  onEdit?: (field: FarmField) => void;
 }
 
-export default function FarmDataViewModal({ isOpen, onClose, field }: FarmDataViewModalProps) {
+export default function FarmDataViewModal({ isOpen, onClose, field, onEdit }: FarmDataViewModalProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: async (fieldId: string) => {
+      const response = await apiRequest("DELETE", `/api/farm/fields/${fieldId}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Field deleted successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/farm/fields"] });
+      onClose();
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to delete field. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDelete = () => {
+    if (field && window.confirm(`Are you sure you want to delete the field "${field.fieldName}"? This action cannot be undone.`)) {
+      deleteMutation.mutate(field.id);
+    }
+  };
+
+  const handleEdit = () => {
+    if (field && onEdit) {
+      onEdit(field);
+      onClose();
+    }
+  };
+
   if (!field) return null;
 
   return (
@@ -85,11 +139,34 @@ export default function FarmDataViewModal({ isOpen, onClose, field }: FarmDataVi
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 pt-4 border-t">
+        <div className="flex justify-between pt-4 border-t">
+          <div className="flex space-x-2">
+            {onEdit && (
+              <Button
+                onClick={handleEdit}
+                variant="outline"
+                data-testid="button-edit-field"
+                disabled={deleteMutation.isPending}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+            )}
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              data-testid="button-delete-field"
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </Button>
+          </div>
           <Button
             onClick={onClose}
             variant="outline"
             data-testid="button-close-field-view"
+            disabled={deleteMutation.isPending}
           >
             Close
           </Button>
