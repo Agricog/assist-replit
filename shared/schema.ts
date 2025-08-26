@@ -31,7 +31,7 @@ export const users = pgTable("users", {
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  postcode: varchar("postcode"),
+  location: varchar("location"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -63,7 +63,7 @@ export const farmFields = pgTable("farm_fields", {
 // Weather cache table
 export const weatherCache = pgTable("weather_cache", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  postcode: varchar("postcode").notNull(),
+  location: varchar("location").notNull(),
   data: jsonb("data").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").defaultNow(),

@@ -9,28 +9,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
 
-interface PostcodeModalProps {
+interface LocationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentPostcode?: string;
+  currentLocation?: string;
 }
 
-export default function PostcodeModal({ isOpen, onClose, currentPostcode }: PostcodeModalProps) {
-  const [postcode, setPostcode] = useState(currentPostcode || "");
+export default function LocationModal({ isOpen, onClose, currentLocation }: LocationModalProps) {
+  const [location, setLocation] = useState(currentLocation || "");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const updatePostcodeMutation = useMutation({
-    mutationFn: async (newPostcode: string) => {
+  const updateLocationMutation = useMutation({
+    mutationFn: async (newLocation: string) => {
       const response = await apiRequest("PUT", "/api/user/profile", { 
-        postcode: newPostcode.toUpperCase().trim() 
+        location: newLocation.trim() 
       });
       return response.json();
     },
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "Postcode updated successfully",
+        description: "Location updated successfully",
       });
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       onClose();
@@ -49,7 +49,7 @@ export default function PostcodeModal({ isOpen, onClose, currentPostcode }: Post
       }
       toast({
         title: "Error",
-        description: "Failed to update postcode. Please try again.",
+        description: "Failed to update location. Please try again.",
         variant: "destructive",
       });
     },
@@ -58,32 +58,21 @@ export default function PostcodeModal({ isOpen, onClose, currentPostcode }: Post
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!postcode.trim()) {
+    if (!location.trim()) {
       toast({
         title: "Validation Error",
-        description: "Please enter a valid UK postcode",
+        description: "Please enter a town or village name",
         variant: "destructive",
       });
       return;
     }
 
-    // Basic UK postcode validation
-    const ukPostcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
-    if (!ukPostcodeRegex.test(postcode.trim())) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid UK postcode (e.g., SW1A 1AA)",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    updatePostcodeMutation.mutate(postcode);
+    updateLocationMutation.mutate(location);
   };
 
   const handleClose = () => {
-    if (!updatePostcodeMutation.isPending) {
-      setPostcode(currentPostcode || "");
+    if (!updateLocationMutation.isPending) {
+      setLocation(currentLocation || "");
       onClose();
     }
   };
@@ -98,8 +87,8 @@ export default function PostcodeModal({ isOpen, onClose, currentPostcode }: Post
               variant="ghost" 
               size="sm" 
               onClick={handleClose}
-              disabled={updatePostcodeMutation.isPending}
-              data-testid="button-close-postcode-modal"
+              disabled={updateLocationMutation.isPending}
+              data-testid="button-close-location-modal"
             >
               <X className="w-4 h-4" />
             </Button>
@@ -108,16 +97,14 @@ export default function PostcodeModal({ isOpen, onClose, currentPostcode }: Post
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="postcode">UK Postcode</Label>
+            <Label htmlFor="location">Town or Village</Label>
             <Input
-              id="postcode"
-              value={postcode}
-              onChange={(e) => setPostcode(e.target.value.toUpperCase())}
-              placeholder="e.g. SW1A 1AA"
-              disabled={updatePostcodeMutation.isPending}
-              data-testid="input-postcode"
-              className="uppercase"
-              maxLength={8}
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="e.g. Birmingham, London, Plymouth"
+              disabled={updateLocationMutation.isPending}
+              data-testid="input-location"
               required
             />
             <p className="text-xs text-muted-foreground mt-1">
@@ -130,23 +117,23 @@ export default function PostcodeModal({ isOpen, onClose, currentPostcode }: Post
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={updatePostcodeMutation.isPending}
-              data-testid="button-cancel-postcode"
+              disabled={updateLocationMutation.isPending}
+              data-testid="button-cancel-location"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={updatePostcodeMutation.isPending}
-              data-testid="button-save-postcode"
+              disabled={updateLocationMutation.isPending}
+              data-testid="button-save-location"
             >
-              {updatePostcodeMutation.isPending ? (
+              {updateLocationMutation.isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2"></div>
                   Saving...
                 </>
               ) : (
-                "Save Postcode"
+                "Save Location"
               )}
             </Button>
           </div>

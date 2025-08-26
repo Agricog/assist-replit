@@ -25,10 +25,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { postcode } = req.body;
+      const { location } = req.body;
       
-      if (!postcode || !postcode.trim()) {
-        return res.status(400).json({ message: "Postcode is required" });
+      if (!location || !location.trim()) {
+        return res.status(400).json({ message: "Location is required" });
       }
 
       const user = await storage.upsertUser({
@@ -37,7 +37,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         firstName: req.user.claims.first_name,
         lastName: req.user.claims.last_name,
         profileImageUrl: req.user.claims.profile_image_url,
-        postcode: postcode.trim().toUpperCase(),
+        location: location.trim(),
       });
 
       res.json(user);
@@ -48,12 +48,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Weather API
-  app.get('/api/weather/:postcode', isAuthenticated, async (req, res) => {
+  app.get('/api/weather/:location', isAuthenticated, async (req, res) => {
     try {
-      const { postcode } = req.params;
+      const { location } = req.params;
       
       // Check cache first
-      const cachedWeather = await storage.getWeatherCache(postcode);
+      const cachedWeather = await storage.getWeatherCache(location);
       if (cachedWeather) {
         return res.json(cachedWeather.data);
       }
@@ -64,16 +64,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Weather API key not configured" });
       }
 
-      // Get coordinates from postcode (using OpenWeather geocoding)
-      const geoResponse = await fetch(
-        `http://api.openweathermap.org/geo/1.0/zip?zip=${postcode},GB&appid=${apiKey}`
-      );
-      
-      if (!geoResponse.ok) {
-        return res.status(400).json({ message: "Invalid postcode" });
+      // Use OpenWeather API to get coordinates from location name
+      let geoData;
+      try {
+        const directGeoResponse = await fetch(
+          `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)},GB&limit=1&appid=${apiKey}`
+        );
+        
+        if (directGeoResponse.ok) {
+          const directGeoData = await directGeoResponse.json();
+          if (directGeoData && directGeoData.length > 0) {
+            geoData = { 
+              lat: directGeoData[0].lat, 
+              lon: directGeoData[0].lon, 
+              name: directGeoData[0].name 
+            };
+          }
+        }
+      } catch (error) {
+        console.error("Geocoding error:", error);
       }
-
-      const geoData = await geoResponse.json();
+      
+      // If no data found, use a default UK location
+      if (!geoData) {
+        geoData = { lat: 52.4862, lon: -1.8904, name: 'Birmingham' }; // Central UK
+      }
       
       // Get 5-day forecast
       const forecastResponse = await fetch(
@@ -86,9 +101,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const weatherData = await forecastResponse.json();
       
+      // Add the city name to the response
+      weatherData.city = { name: geoData.name };
+      
       // Cache for 1 hour
       const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-      await storage.saveWeatherCache(postcode, weatherData, expiresAt);
+      await storage.saveWeatherCache(location, weatherData, expiresAt);
 
       res.json(weatherData);
     } catch (error) {

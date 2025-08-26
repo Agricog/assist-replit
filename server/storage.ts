@@ -101,11 +101,11 @@ export class DatabaseStorage implements IStorage {
     await db.delete(farmFields).where(eq(farmFields.id, id));
   }
 
-  async getWeatherCache(postcode: string): Promise<WeatherCache | undefined> {
+  async getWeatherCache(location: string): Promise<WeatherCache | undefined> {
     const [cache] = await db
       .select()
       .from(weatherCache)
-      .where(eq(weatherCache.postcode, postcode));
+      .where(eq(weatherCache.location, location));
     
     if (cache && cache.expiresAt > new Date()) {
       return cache;
@@ -113,12 +113,12 @@ export class DatabaseStorage implements IStorage {
     return undefined;
   }
 
-  async saveWeatherCache(postcode: string, data: any, expiresAt: Date): Promise<void> {
+  async saveWeatherCache(location: string, data: any, expiresAt: Date): Promise<void> {
     await db
       .insert(weatherCache)
-      .values({ postcode, data, expiresAt })
+      .values({ location, data, expiresAt })
       .onConflictDoUpdate({
-        target: weatherCache.postcode,
+        target: weatherCache.location,
         set: { data, expiresAt, createdAt: new Date() },
       });
   }

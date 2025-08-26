@@ -6,7 +6,7 @@ import WeatherWidget from "@/components/weather-widget";
 import MarketChat from "@/components/market-chat";
 import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
-import PostcodeModal from "@/components/postcode-modal";
+import LocationModal from "@/components/postcode-modal";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
 import agricogLogo from "@assets/Agricog_1756233506512.png";
@@ -15,7 +15,7 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const [showFarmDataModal, setShowFarmDataModal] = useState(false);
-  const [showPostcodeModal, setShowPostcodeModal] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -115,7 +115,20 @@ export default function Dashboard() {
                 </button>
               </li>
               <li>
-                <button className="w-full flex items-center space-x-3 px-3 py-2 text-left text-foreground hover:bg-muted rounded-md transition-colors">
+                <button 
+                  onClick={() => {
+                    // Scroll the weather widget into view
+                    const weatherWidget = document.querySelector('[data-testid="weather-widget"]');
+                    if (weatherWidget) {
+                      weatherWidget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else if (!user?.location) {
+                      // If no location is set, open the location modal
+                      setShowLocationModal(true);
+                    }
+                  }}
+                  data-testid="button-weather"
+                  className="w-full flex items-center space-x-3 px-3 py-2 text-left text-foreground hover:bg-muted rounded-md transition-colors"
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                   </svg>
@@ -150,11 +163,11 @@ export default function Dashboard() {
                   {getUserName()}
                 </p>
                 <button 
-                  onClick={() => setShowPostcodeModal(true)}
+                  onClick={() => setShowLocationModal(true)}
                   data-testid="button-update-postcode"
                   className="text-xs text-muted-foreground hover:text-foreground text-left"
                 >
-                  {user?.postcode || "Add postcode"}
+                  {user?.location || "Add location"}
                 </button>
               </div>
               <button 
@@ -190,7 +203,7 @@ export default function Dashboard() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span className="text-foreground font-medium" data-testid="text-current-weather">
-                  {user?.postcode ? "Loading..." : "No location"}
+                  {user?.location ? "Loading..." : "No location"}
                 </span>
               </div>
             </div>
@@ -211,7 +224,7 @@ export default function Dashboard() {
           {/* Right Column: Weather & Farm Data */}
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
-            {user?.postcode && <WeatherWidget postcode={user.postcode} />}
+            {user?.location && <WeatherWidget postcode={user.location} />}
 
             {/* Farm Data Summary */}
             <div className="p-4">
@@ -298,11 +311,11 @@ export default function Dashboard() {
         }}
       />
 
-      {/* Postcode Modal */}
-      <PostcodeModal 
-        isOpen={showPostcodeModal}
-        onClose={() => setShowPostcodeModal(false)}
-        currentPostcode={user?.postcode || undefined}
+      {/* Location Modal */}
+      <LocationModal 
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        currentLocation={user?.location || undefined}
       />
     </div>
   );
