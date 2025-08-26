@@ -6,6 +6,7 @@ import WeatherWidget from "@/components/weather-widget";
 import MarketChat from "@/components/market-chat";
 import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
+import FarmDataViewModal from "@/components/farm-data-view-modal";
 import LocationModal from "@/components/postcode-modal";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
@@ -15,6 +16,8 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const [showFarmDataModal, setShowFarmDataModal] = useState(false);
+  const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
+  const [selectedField, setSelectedField] = useState<FarmField | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
 
   // Redirect to home if not authenticated
@@ -268,7 +271,16 @@ export default function Dashboard() {
                           <div key={field.id} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
                             <div className="flex items-center space-x-2">
                               <div className="w-2 h-2 bg-primary rounded-full"></div>
-                              <span className="text-sm text-foreground">{field.fieldName}</span>
+                              <button
+                                onClick={() => {
+                                  setSelectedField(field);
+                                  setShowFarmDataViewModal(true);
+                                }}
+                                className="text-sm text-foreground hover:text-primary underline cursor-pointer"
+                                data-testid={`button-view-field-${field.id}`}
+                              >
+                                {field.fieldName}
+                              </button>
                             </div>
                             <span className="text-sm text-muted-foreground">{field.size} acres</span>
                           </div>
@@ -309,6 +321,16 @@ export default function Dashboard() {
           setShowFarmDataModal(false);
           refetchFields();
         }}
+      />
+
+      {/* Farm Data View Modal */}
+      <FarmDataViewModal 
+        isOpen={showFarmDataViewModal}
+        onClose={() => {
+          setShowFarmDataViewModal(false);
+          setSelectedField(null);
+        }}
+        field={selectedField}
       />
 
       {/* Location Modal */}
