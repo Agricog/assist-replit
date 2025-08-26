@@ -114,13 +114,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async saveWeatherCache(location: string, data: any, expiresAt: Date): Promise<void> {
-    await db
-      .insert(weatherCache)
-      .values({ location, data, expiresAt })
-      .onConflictDoUpdate({
-        target: weatherCache.location,
-        set: { data, expiresAt, createdAt: new Date() },
-      });
+    try {
+      await db
+        .insert(weatherCache)
+        .values({ location, data, expiresAt });
+    } catch (error) {
+      // If insert fails due to conflict, update instead
+      await db
+        .update(weatherCache)
+        .set({ data, expiresAt, createdAt: new Date() })
+        .where(eq(weatherCache.location, location));
+    }
   }
 }
 

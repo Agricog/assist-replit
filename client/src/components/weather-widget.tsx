@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronRight, Cloud, Sun, CloudRain } from "lucide-react";
 
 interface WeatherWidgetProps {
-  postcode: string;
+  location: string;
 }
 
 interface WeatherData {
@@ -29,19 +29,19 @@ interface WeatherData {
   };
 }
 
-export default function WeatherWidget({ postcode }: WeatherWidgetProps) {
+export default function WeatherWidget({ location }: WeatherWidgetProps) {
   const [expandedDay, setExpandedDay] = useState<string | null>(null);
 
   const { data: weatherData, isLoading, error } = useQuery<WeatherData>({
-    queryKey: ["/api/weather", postcode],
-    enabled: !!postcode,
+    queryKey: ["/api/weather", location],
+    enabled: !!location,
     retry: false,
     refetchInterval: 60000, // Refresh every minute
   });
 
   if (isLoading) {
     return (
-      <div className="p-4">
+      <div className="p-4" data-testid="weather-widget">
         <div className="bg-card rounded-lg border border-border overflow-hidden">
           <div className="p-4">
             <div className="animate-pulse space-y-3">
@@ -58,7 +58,7 @@ export default function WeatherWidget({ postcode }: WeatherWidgetProps) {
 
   if (error || !weatherData) {
     return (
-      <div className="p-4">
+      <div className="p-4" data-testid="weather-widget">
         <div className="bg-card rounded-lg border border-border overflow-hidden">
           <div className="p-4 text-center">
             <svg className="w-8 h-8 text-muted-foreground mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,7 +109,7 @@ export default function WeatherWidget({ postcode }: WeatherWidgetProps) {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4" data-testid="weather-widget">
       <div className="bg-card rounded-lg border border-border overflow-hidden">
         <div className="p-4 border-b border-border">
           <div className="flex items-center space-x-3">
@@ -119,7 +119,7 @@ export default function WeatherWidget({ postcode }: WeatherWidgetProps) {
             <div>
               <h3 className="font-semibold text-foreground">5-Day Forecast</h3>
               <p className="text-sm text-muted-foreground" data-testid="text-weather-location">
-                {weatherData.city.name}, {postcode}
+                {weatherData.city.name}
               </p>
             </div>
           </div>

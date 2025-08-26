@@ -224,7 +224,7 @@ export default function Dashboard() {
           {/* Right Column: Weather & Farm Data */}
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
-            {user?.location && <WeatherWidget postcode={user.location} />}
+            {user?.location && <WeatherWidget location={user.location} />}
 
             {/* Farm Data Summary */}
             <div className="p-4">
