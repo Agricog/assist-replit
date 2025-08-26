@@ -26,6 +26,20 @@ interface FarmFieldData {
   notes: string;
 }
 
+const PREDEFINED_CROPS = [
+  "Winter Wheat",
+  "Spring Wheat", 
+  "Barley",
+  "Potatoes",
+  "Rapeseed",
+  "Maize",
+  "Oats",
+  "Sugar Beet",
+  "Carrots",
+  "Cabbage",
+  "Onions"
+];
+
 const initialData: FarmFieldData = {
   fieldName: "",
   size: "",
@@ -37,6 +51,8 @@ const initialData: FarmFieldData = {
 
 export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModalProps) {
   const [formData, setFormData] = useState<FarmFieldData>(initialData);
+  const [customCrop, setCustomCrop] = useState("");
+  const [showCustomCrop, setShowCustomCrop] = useState(false);
   const { toast } = useToast();
 
   const saveMutation = useMutation({
@@ -122,7 +138,24 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
   };
 
   const updateField = (field: keyof FarmFieldData, value: string) => {
+    if (field === 'cropType' && value === 'custom') {
+      setShowCustomCrop(true);
+      return;
+    }
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleCustomCropSave = () => {
+    if (customCrop.trim()) {
+      setFormData(prev => ({ ...prev, cropType: customCrop.trim() }));
+      setShowCustomCrop(false);
+      setCustomCrop("");
+    }
+  };
+
+  const handleCustomCropCancel = () => {
+    setShowCustomCrop(false);
+    setCustomCrop("");
   };
 
   return (
@@ -183,16 +216,47 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
                   <SelectValue placeholder="Select crop type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="wheat">Winter Wheat</SelectItem>
-                  <SelectItem value="barley">Barley</SelectItem>
-                  <SelectItem value="potato">Potatoes</SelectItem>
-                  <SelectItem value="rapeseed">Rapeseed</SelectItem>
-                  <SelectItem value="maize">Maize</SelectItem>
-                  <SelectItem value="oats">Oats</SelectItem>
-                  <SelectItem value="sugar_beet">Sugar Beet</SelectItem>
+                  {PREDEFINED_CROPS.map((crop) => (
+                    <SelectItem key={crop} value={crop}>{crop}</SelectItem>
+                  ))}
+                  <SelectItem value="custom">+ Add Custom Crop</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Custom Crop Input */}
+            {showCustomCrop && (
+              <div className="col-span-2 p-4 border rounded-lg bg-muted/20">
+                <Label htmlFor="customCrop">Enter Custom Crop Type *</Label>
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    id="customCrop"
+                    value={customCrop}
+                    onChange={(e) => setCustomCrop(e.target.value)}
+                    placeholder="e.g. Spring Barley, Organic Wheat"
+                    data-testid="input-custom-crop"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleCustomCropSave}
+                    size="sm"
+                    data-testid="button-save-custom-crop"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={handleCustomCropCancel}
+                    variant="outline"
+                    size="sm"
+                    data-testid="button-cancel-custom-crop"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+            
             <div>
               <Label htmlFor="soilType">Soil Type *</Label>
               <Select 
