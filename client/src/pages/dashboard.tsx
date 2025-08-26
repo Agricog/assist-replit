@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
   const [selectedField, setSelectedField] = useState<FarmField | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
+  const [showAllFields, setShowAllFields] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -260,14 +261,25 @@ export default function Dashboard() {
 
                   {/* Current Crops */}
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-2">Current Fields</h4>
-                    <div className="space-y-2">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium text-foreground">Current Fields</h4>
+                      {farmFields.length > 3 && (
+                        <button
+                          onClick={() => setShowAllFields(!showAllFields)}
+                          className="text-xs text-primary hover:text-primary/80 underline"
+                          data-testid="button-toggle-all-fields"
+                        >
+                          {showAllFields ? 'Show Less' : `View All (${farmFields.length})`}
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
                       {farmFields.length === 0 ? (
                         <p className="text-sm text-muted-foreground text-center py-4">
-                          No fields added yet. Click "Farm Data" to add your first field.
+                          No fields added yet. Click "Add Field Data" to add your first field.
                         </p>
                       ) : (
-                        farmFields.slice(0, 3).map((field: FarmField) => (
+                        (showAllFields ? farmFields : farmFields.slice(0, 3)).map((field: FarmField) => (
                           <div key={field.id} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
                             <div className="flex items-center space-x-2">
                               <div className="w-2 h-2 bg-primary rounded-full"></div>
