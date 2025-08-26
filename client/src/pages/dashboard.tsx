@@ -6,6 +6,7 @@ import WeatherWidget from "@/components/weather-widget";
 import MarketChat from "@/components/market-chat";
 import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
+import PostcodeModal from "@/components/postcode-modal";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
 import agricogLogo from "@assets/Agricog_1756233506512.png";
@@ -14,6 +15,7 @@ export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const [showFarmDataModal, setShowFarmDataModal] = useState(false);
+  const [showPostcodeModal, setShowPostcodeModal] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -147,9 +149,13 @@ export default function Dashboard() {
                 <p className="text-sm font-medium text-foreground" data-testid="text-user-name">
                   {getUserName()}
                 </p>
-                <p className="text-xs text-muted-foreground" data-testid="text-user-postcode">
-                  {user?.postcode || "No postcode"}
-                </p>
+                <button 
+                  onClick={() => setShowPostcodeModal(true)}
+                  data-testid="button-update-postcode"
+                  className="text-xs text-muted-foreground hover:text-foreground text-left"
+                >
+                  {user?.postcode || "Add postcode"}
+                </button>
               </div>
               <button 
                 onClick={handleLogout}
@@ -290,6 +296,13 @@ export default function Dashboard() {
           setShowFarmDataModal(false);
           refetchFields();
         }}
+      />
+
+      {/* Postcode Modal */}
+      <PostcodeModal 
+        isOpen={showPostcodeModal}
+        onClose={() => setShowPostcodeModal(false)}
+        currentPostcode={user?.postcode || undefined}
       />
     </div>
   );

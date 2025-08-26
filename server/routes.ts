@@ -21,6 +21,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update user profile (including postcode)
+  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { postcode } = req.body;
+      
+      if (!postcode || !postcode.trim()) {
+        return res.status(400).json({ message: "Postcode is required" });
+      }
+
+      const user = await storage.upsertUser({
+        id: userId,
+        email: req.user.claims.email,
+        firstName: req.user.claims.first_name,
+        lastName: req.user.claims.last_name,
+        profileImageUrl: req.user.claims.profile_image_url,
+        postcode: postcode.trim().toUpperCase(),
+      });
+
+      res.json(user);
+    } catch (error) {
+      console.error("Update profile error:", error);
+      res.status(500).json({ message: "Failed to update profile" });
+    }
+  });
+
   // Weather API
   app.get('/api/weather/:postcode', isAuthenticated, async (req, res) => {
     try {
@@ -102,7 +128,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -119,6 +145,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       if (!perplexityResponse.ok) {
+        const errorText = await perplexityResponse.text();
+        console.error("Perplexity API error:", perplexityResponse.status, errorText);
         return res.status(500).json({ message: "Failed to get market intelligence" });
       }
 
