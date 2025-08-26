@@ -26,7 +26,7 @@ interface FarmFieldData {
   notes: string;
 }
 
-const PREDEFINED_CROPS = [
+const BASE_CROPS = [
   "Winter Wheat",
   "Spring Wheat", 
   "Barley",
@@ -53,6 +53,7 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
   const [formData, setFormData] = useState<FarmFieldData>(initialData);
   const [customCrop, setCustomCrop] = useState("");
   const [showCustomCrop, setShowCustomCrop] = useState(false);
+  const [availableCrops, setAvailableCrops] = useState<string[]>(BASE_CROPS);
   const { toast } = useToast();
 
   const saveMutation = useMutation({
@@ -147,7 +148,12 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
 
   const handleCustomCropSave = () => {
     if (customCrop.trim()) {
-      setFormData(prev => ({ ...prev, cropType: customCrop.trim() }));
+      const cropName = customCrop.trim();
+      // Add the custom crop to the available crops list
+      if (!availableCrops.includes(cropName)) {
+        setAvailableCrops(prev => [...prev, cropName]);
+      }
+      setFormData(prev => ({ ...prev, cropType: cropName }));
       setShowCustomCrop(false);
       setCustomCrop("");
     }
@@ -213,20 +219,12 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
                 disabled={saveMutation.isPending}
               >
                 <SelectTrigger data-testid="select-crop-type">
-                  <SelectValue placeholder="Select crop type">
-                    {formData.cropType || "Select crop type"}
-                  </SelectValue>
+                  <SelectValue placeholder="Select crop type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {PREDEFINED_CROPS.map((crop) => (
+                  {availableCrops.map((crop) => (
                     <SelectItem key={crop} value={crop}>{crop}</SelectItem>
                   ))}
-                  {/* Show custom crop if one is set and it's not in predefined list */}
-                  {formData.cropType && !PREDEFINED_CROPS.includes(formData.cropType) && (
-                    <SelectItem key={formData.cropType} value={formData.cropType}>
-                      {formData.cropType}
-                    </SelectItem>
-                  )}
                   <SelectItem value="custom">+ Add Custom Crop</SelectItem>
                 </SelectContent>
               </Select>
@@ -243,12 +241,19 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
                     onChange={(e) => setCustomCrop(e.target.value)}
                     placeholder="e.g. Spring Barley, Organic Wheat"
                     data-testid="input-custom-crop"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleCustomCropSave();
+                      }
+                    }}
                   />
                   <Button
                     type="button"
                     onClick={handleCustomCropSave}
                     size="sm"
                     data-testid="button-save-custom-crop"
+                    disabled={!customCrop.trim()}
                   >
                     Save
                   </Button>
