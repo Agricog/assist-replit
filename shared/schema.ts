@@ -84,6 +84,9 @@ export const insertFarmFieldSchema = createInsertSchema(farmFields).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  size: z.number().positive("Size must be positive"),
+  expectedYield: z.number().positive("Expected yield must be positive").optional(),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
