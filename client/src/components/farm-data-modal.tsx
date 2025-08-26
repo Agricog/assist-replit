@@ -213,12 +213,20 @@ export default function FarmDataModal({ isOpen, onClose, onSave }: FarmDataModal
                 disabled={saveMutation.isPending}
               >
                 <SelectTrigger data-testid="select-crop-type">
-                  <SelectValue placeholder="Select crop type" />
+                  <SelectValue placeholder="Select crop type">
+                    {formData.cropType || "Select crop type"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {PREDEFINED_CROPS.map((crop) => (
                     <SelectItem key={crop} value={crop}>{crop}</SelectItem>
                   ))}
+                  {/* Show custom crop if one is set and it's not in predefined list */}
+                  {formData.cropType && !PREDEFINED_CROPS.includes(formData.cropType) && (
+                    <SelectItem key={formData.cropType} value={formData.cropType}>
+                      {formData.cropType}
+                    </SelectItem>
+                  )}
                   <SelectItem value="custom">+ Add Custom Crop</SelectItem>
                 </SelectContent>
               </Select>
