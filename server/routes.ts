@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
+import { sendWelcomeEmail } from "./emailService";
 import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -66,6 +67,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         location: location.trim(),
         profileImageUrl: req.user.claims.profile_image_url,
         onboardingCompleted: true,
+      });
+
+      // Send welcome email (don't block the response if email fails)
+      sendWelcomeEmail({
+        to: email.trim(),
+        firstName: firstName.trim(),
+        farmName: farmName.trim(),
+        location: location.trim(),
+      }).catch(error => {
+        console.error('Failed to send welcome email:', error);
       });
 
       res.json(user);
