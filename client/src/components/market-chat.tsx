@@ -119,7 +119,7 @@ export default function MarketChat() {
               variant="ghost"
               size="sm"
               onClick={handleClearChat}
-              disabled={clearChatMutation.isPending}
+              disabled={clearChatMutation.isPending || sendMessageMutation.isPending}
               className="text-muted-foreground hover:text-foreground"
               data-testid="button-clear-market-chat"
               title="Clear chat history"
