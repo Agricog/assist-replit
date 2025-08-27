@@ -83,7 +83,7 @@ export default function Landing() {
                   Sign In to Continue
                 </button>
                 <p className="text-sm text-muted-foreground">
-                  🆓 Free to use • New users automatically registered
+                  New users automatically registered
                 </p>
               </div>
             </div>
