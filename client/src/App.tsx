@@ -5,24 +5,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import Landing from "@/pages/landing";
-import DashboardMinimal from "@/pages/dashboard-minimal";
+import BasicTest from "@/pages/basic-test";
 import NotFound from "@/pages/not-found";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  return (
-    <Switch>
-      {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : (
-        <>
-          <Route path="/" component={DashboardMinimal} />
-        </>
-      )}
-      <Route component={NotFound} />
-    </Switch>
-  );
+  // Bypass all authentication and routing for basic test
+  return <BasicTest />;
 }
 
 function App() {
