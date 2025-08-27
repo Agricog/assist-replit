@@ -203,16 +203,24 @@ export default function Dashboard() {
             </div>
             
             {/* Quick Weather Summary */}
-            <div className="flex items-center space-x-4 bg-muted/30 px-4 py-2 rounded-lg">
+            <button 
+              onClick={() => setShowLocationModal(true)}
+              className="flex items-center space-x-4 bg-muted/30 px-4 py-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
+              title="Click to change weather location"
+              data-testid="button-edit-weather-location"
+            >
               <div className="flex items-center space-x-2">
                 <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span className="text-foreground font-medium" data-testid="text-current-weather">
-                  {user?.location ? user.location : "No location"}
+                  {user?.location ? user.location : "Add location"}
                 </span>
+                <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
               </div>
-            </div>
+            </button>
           </div>
         </header>
 
