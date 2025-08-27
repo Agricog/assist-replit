@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 import type { ChatMessage } from "@shared/schema";
 
 export default function MarketChat() {
@@ -47,10 +49,49 @@ export default function MarketChat() {
     },
   });
 
+  // Clear chat mutation
+  const clearChatMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("DELETE", "/api/chat/market/clear");
+      return response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Chat history cleared successfully",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/chat/market/history"] });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to clear chat history. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || sendMessageMutation.isPending) return;
     sendMessageMutation.mutate(input.trim());
+  };
+
+  const handleClearChat = () => {
+    if (window.confirm("Are you sure you want to clear all chat history? This action cannot be undone.")) {
+      clearChatMutation.mutate();
+    }
   };
 
 
@@ -62,16 +103,31 @@ export default function MarketChat() {
   return (
     <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden flex flex-col">
       <div className="bg-accent/10 border-b border-border p-4">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-            </svg>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+              <svg className="w-5 h-5 text-accent-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="font-semibold text-foreground">Market Intelligence</h3>
+              <p className="text-sm text-muted-foreground">Real-time commodity prices</p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-foreground">Market Intelligence</h3>
-            <p className="text-sm text-muted-foreground">Real-time commodity prices</p>
-          </div>
+          {messages.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearChat}
+              disabled={clearChatMutation.isPending || sendMessageMutation.isPending}
+              className="text-muted-foreground hover:text-foreground"
+              data-testid="button-clear-market-chat"
+              title="Clear chat history"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </div>
 
