@@ -47,6 +47,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Complete user onboarding
+  app.put('/api/user/onboarding', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const { firstName, lastName, email, farmName, location } = req.body;
+      
+      if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !location?.trim()) {
+        return res.status(400).json({ message: "First name, last name, email, and location are required" });
+      }
+
+      const user = await storage.upsertUser({
+        id: userId,
+        email: email.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        farmName: farmName?.trim() || null,
+        location: location.trim(),
+        profileImageUrl: req.user.claims.profile_image_url,
+        onboardingCompleted: true,
+      });
+
+      res.json(user);
+    } catch (error) {
+      console.error("Onboarding error:", error);
+      res.status(500).json({ message: "Failed to complete onboarding" });
+    }
+  });
+
   // Weather API
   app.get('/api/weather/:location', isAuthenticated, async (req, res) => {
     try {
