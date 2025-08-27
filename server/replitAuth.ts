@@ -92,6 +92,8 @@ export async function setupAuth(app: Express) {
     domains.push(customDomain);
   }
 
+  console.log("Setting up authentication for domains:", domains);
+
   for (const domain of domains) {
     const strategy = new Strategy(
       {
@@ -103,13 +105,17 @@ export async function setupAuth(app: Express) {
       verify,
     );
     passport.use(strategy);
+    console.log(`Registered auth strategy: replitauth:${domain}`);
   }
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
+    const strategyName = `replitauth:${req.hostname}`;
+    console.log(`Attempting authentication with strategy: ${strategyName} for hostname: ${req.hostname}`);
+    
+    passport.authenticate(strategyName, {
       prompt: "login consent",
       scope: ["openid", "email", "profile", "offline_access"],
     })(req, res, next);
