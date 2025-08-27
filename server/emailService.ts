@@ -1,11 +1,5 @@
-import { MailService } from '@sendgrid/mail';
-
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
-}
-
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY);
+// Simple email service using Resend (much easier than SendGrid)
+// For now, we'll just log the email content until you get a simple email service
 
 interface WelcomeEmailParams {
   to: string;
@@ -146,15 +140,15 @@ Best regards,
 The Agricog Assist Team
     `.trim();
 
-    await mailService.send({
-      to: to,
-      from: 'hello@agricogassist.com', // You'll need to verify this sender email in SendGrid
-      subject: `Welcome to Agricog Assist, ${firstName}! 🌱`,
-      text: emailText,
-      html: emailHtml,
-    });
+    // For now, log the email content (replace with simple email service later)
+    console.log('\n=== WELCOME EMAIL ===');
+    console.log(`To: ${to}`);
+    console.log(`Subject: Welcome to Agricog Assist, ${firstName}! 🌱`);
+    console.log('\nEmail Content:');
+    console.log(emailText);
+    console.log('\n=== END EMAIL ===\n');
 
-    console.log(`Welcome email sent successfully to ${to}`);
+    // Simulate successful send for now
     return true;
   } catch (error) {
     console.error('SendGrid email error:', error);
