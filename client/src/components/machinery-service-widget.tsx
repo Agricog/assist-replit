@@ -15,7 +15,7 @@ export default function MachineryServiceWidget() {
 
   const { data: machinery = [], isLoading, error, refetch } = useQuery({
     queryKey: ["/api/machinery"],
-    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
+    refetchInterval: false, // Disable auto-refetch to prevent loops
     retry: 3,
   });
 

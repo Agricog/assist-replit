@@ -232,10 +232,10 @@ export default function Dashboard() {
             {/* Weather Widget */}
             {user?.location && <WeatherWidget location={user.location} />}
             
-            {/* Machinery Service Widget */}
-            <div className="p-4">
+            {/* Machinery Service Widget - Temporarily disabled */}
+            {/* <div className="p-4">
               <MachineryServiceWidget />
-            </div>
+            </div> */}
 
             {/* Farm Data Summary */}
             <div className="p-4">
