@@ -69,6 +69,19 @@ export const weatherCache = pgTable("weather_cache", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Machinery service table
+export const machinery = pgTable("machinery", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(),
+  lastServiceDate: timestamp("last_service_date"),
+  serviceInterval: integer("service_interval").notNull(), // days
+  status: varchar("status").notNull(), // 'good', 'service_due_soon', 'overdue'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
@@ -96,3 +109,11 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertFarmField = z.infer<typeof insertFarmFieldSchema>;
 export type FarmField = typeof farmFields.$inferSelect;
 export type WeatherCache = typeof weatherCache.$inferSelect;
+
+export const insertMachinerySchema = createInsertSchema(machinery).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertMachinery = z.infer<typeof insertMachinerySchema>;
+export type Machinery = typeof machinery.$inferSelect;

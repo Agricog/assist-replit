@@ -8,6 +8,7 @@ import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
 import FarmDataViewModal from "@/components/farm-data-view-modal";
 import LocationModal from "@/components/postcode-modal";
+import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
 import agricogLogo from "@assets/Agricog_1756233506512.png";
@@ -230,6 +231,11 @@ export default function Dashboard() {
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
             {user?.location && <WeatherWidget location={user.location} />}
+            
+            {/* Machinery Service Widget */}
+            <div className="p-4">
+              <MachineryServiceWidget />
+            </div>
 
             {/* Farm Data Summary */}
             <div className="p-4">

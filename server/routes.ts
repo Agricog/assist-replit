@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertChatMessageSchema, insertFarmFieldSchema } from "@shared/schema";
+import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -347,6 +347,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Delete farm field error:", error);
       res.status(500).json({ message: "Failed to delete farm field" });
+    }
+  });
+
+  // Machinery service endpoints
+  app.get('/api/machinery', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const machinery = await storage.getMachinery(userId);
+      res.json(machinery);
+    } catch (error) {
+      console.error("Get machinery error:", error);
+      res.status(500).json({ message: "Failed to fetch machinery" });
+    }
+  });
+
+  // Make.com webhook endpoint for machinery data
+  app.post('/api/webhook/machinery', async (req, res) => {
+    try {
+      console.log('Received webhook data:', req.body);
+      
+      // Validate webhook payload structure
+      const webhookSchema = z.object({
+        userId: z.string(),
+        machines: z.array(z.object({
+          name: z.string(),
+          type: z.string(),
+          lastServiceDate: z.string().optional().nullable(),
+          serviceInterval: z.number(),
+          status: z.enum(['good', 'service_due_soon', 'overdue']),
+        }))
+      });
+      
+      const validatedData = webhookSchema.parse(req.body);
+      
+      // Process each machine from the webhook
+      const results = [];
+      for (const machineData of validatedData.machines) {
+        const machineryInput = {
+          userId: validatedData.userId,
+          name: machineData.name,
+          type: machineData.type,
+          lastServiceDate: machineData.lastServiceDate ? new Date(machineData.lastServiceDate) : null,
+          serviceInterval: machineData.serviceInterval,
+          status: machineData.status,
+        };
+        
+        const machine = await storage.upsertMachinery(machineryInput);
+        results.push(machine);
+      }
+      
+      res.json({ success: true, processed: results.length, machines: results });
+    } catch (error) {
+      console.error("Webhook processing error:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid webhook data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to process webhook data" });
     }
   });
 

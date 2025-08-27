@@ -3,6 +3,7 @@ import {
   chatMessages,
   farmFields,
   weatherCache,
+  machinery,
   type User,
   type UpsertUser,
   type InsertChatMessage,
@@ -10,6 +11,8 @@ import {
   type InsertFarmField,
   type FarmField,
   type WeatherCache,
+  type InsertMachinery,
+  type Machinery,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and } from "drizzle-orm";
@@ -30,8 +33,13 @@ export interface IStorage {
   deleteFarmField(id: string): Promise<void>;
   
   // Weather operations
-  getWeatherCache(postcode: string): Promise<WeatherCache | undefined>;
-  saveWeatherCache(postcode: string, data: any, expiresAt: Date): Promise<void>;
+  getWeatherCache(location: string): Promise<WeatherCache | undefined>;
+  saveWeatherCache(location: string, data: any, expiresAt: Date): Promise<void>;
+  
+  // Machinery operations
+  getMachinery(userId: string): Promise<Machinery[]>;
+  upsertMachinery(machinery: InsertMachinery): Promise<Machinery>;
+  updateMachineryStatus(id: string, status: string): Promise<Machinery>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -125,6 +133,38 @@ export class DatabaseStorage implements IStorage {
         .set({ data, expiresAt, createdAt: new Date() })
         .where(eq(weatherCache.location, location));
     }
+  }
+
+  async getMachinery(userId: string): Promise<Machinery[]> {
+    return await db
+      .select()
+      .from(machinery)
+      .where(eq(machinery.userId, userId))
+      .orderBy(desc(machinery.createdAt));
+  }
+
+  async upsertMachinery(machineryData: InsertMachinery): Promise<Machinery> {
+    const [machine] = await db
+      .insert(machinery)
+      .values(machineryData)
+      .onConflictDoUpdate({
+        target: [machinery.userId, machinery.name],
+        set: {
+          ...machineryData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return machine;
+  }
+
+  async updateMachineryStatus(id: string, status: string): Promise<Machinery> {
+    const [machine] = await db
+      .update(machinery)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(machinery.id, id))
+      .returning();
+    return machine;
   }
 }
 
