@@ -196,9 +196,11 @@ export default function Dashboard() {
         <header className="bg-card border-b border-border p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Farm Dashboard</h1>
+              <h1 className="text-2xl font-bold text-foreground">
+                Welcome {user?.firstName} to your {user?.farmName} Dashboard
+              </h1>
               <p className="text-muted-foreground">
-                Welcome back, {getUserName().split(' ')[0]}! Here's your agricultural overview.
+                Here's your agricultural overview for today.
               </p>
             </div>
             
