@@ -25,6 +25,7 @@ export interface IStorage {
   // Chat operations
   getChatHistory(userId: string, chatType: string): Promise<ChatMessage[]>;
   saveChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  clearChatHistory(userId: string, chatType: string): Promise<void>;
   
   // Farm data operations
   getFarmFields(userId: string): Promise<FarmField[]>;
@@ -133,6 +134,12 @@ export class DatabaseStorage implements IStorage {
         .set({ data, expiresAt, createdAt: new Date() })
         .where(eq(weatherCache.location, location));
     }
+  }
+
+  async clearChatHistory(userId: string, chatType: string): Promise<void> {
+    await db
+      .delete(chatMessages)
+      .where(and(eq(chatMessages.userId, userId), eq(chatMessages.chatType, chatType)));
   }
 
   async getMachinery(userId: string): Promise<Machinery[]> {

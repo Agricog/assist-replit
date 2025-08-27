@@ -272,6 +272,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear chat history
+  app.delete('/api/chat/:type/clear', isAuthenticated, async (req: any, res) => {
+    try {
+      const { type } = req.params;
+      const userId = req.user.claims.sub;
+      
+      if (!['market', 'farm'].includes(type)) {
+        return res.status(400).json({ message: 'Invalid chat type' });
+      }
+      
+      await storage.clearChatHistory(userId, type);
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Clear chat history error:', error);
+      res.status(500).json({ message: 'Failed to clear chat history' });
+    }
+  });
+
   // Farm data API
   app.get('/api/farm/fields', isAuthenticated, async (req: any, res) => {
     try {
