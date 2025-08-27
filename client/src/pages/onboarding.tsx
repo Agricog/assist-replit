@@ -65,7 +65,7 @@ export default function Onboarding() {
     e.preventDefault();
     
     // Basic validation
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.location.trim()) {
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.farmName.trim() || !formData.location.trim()) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
@@ -179,7 +179,7 @@ export default function Onboarding() {
               {/* Farm Name */}
               <div className="space-y-2">
                 <Label htmlFor="farmName" className="text-foreground font-medium">
-                  Farm Name <span className="text-muted-foreground text-sm">(Optional)</span>
+                  Farm Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="farmName"
@@ -189,6 +189,7 @@ export default function Onboarding() {
                   placeholder="Enter your farm name"
                   data-testid="input-farm-name"
                   className="w-full"
+                  required
                 />
               </div>
 

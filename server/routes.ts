@@ -53,8 +53,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const { firstName, lastName, email, farmName, location } = req.body;
       
-      if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !location?.trim()) {
-        return res.status(400).json({ message: "First name, last name, email, and location are required" });
+      if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !farmName?.trim() || !location?.trim()) {
+        return res.status(400).json({ message: "All fields are required" });
       }
 
       const user = await storage.upsertUser({
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         email: email.trim(),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        farmName: farmName?.trim() || null,
+        farmName: farmName.trim(),
         location: location.trim(),
         profileImageUrl: req.user.claims.profile_image_url,
         onboardingCompleted: true,
