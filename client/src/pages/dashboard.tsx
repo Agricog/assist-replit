@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import WeatherWidget from "@/components/weather-widget";
-import MarketChatSimple from "@/components/market-chat-simple";
+import MarketChat from "@/components/market-chat";
 import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
 import FarmDataViewModal from "@/components/farm-data-view-modal";
@@ -221,7 +221,7 @@ export default function Dashboard() {
           {/* Left Column: Dual Chat Interface */}
           <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
             {/* Market Intelligence Chat */}
-            <MarketChatSimple />
+            <MarketChat />
 
             {/* Farm Assistant Chat */}
             <FarmAssistant />
@@ -232,10 +232,10 @@ export default function Dashboard() {
             {/* Weather Widget */}
             {user?.location && <WeatherWidget location={user.location} />}
             
-            {/* Machinery Service Widget - Temporarily disabled */}
-            {/* <div className="p-4">
+            {/* Machinery Service Widget */}
+            <div className="p-4">
               <MachineryServiceWidget />
-            </div> */}
+            </div>
 
             {/* Farm Data Summary */}
             <div className="p-4">
