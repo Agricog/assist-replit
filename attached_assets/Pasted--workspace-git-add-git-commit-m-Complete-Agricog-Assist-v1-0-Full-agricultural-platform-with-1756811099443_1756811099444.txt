@@ -1,0 +1,56 @@
+~/workspace$ git add .
+git commit -m "Complete Agricog Assist v1.0 - Full agricultural platform with auth, onboarding, dashboard, and custom domain"
+git push origin main
+On branch main
+nothing to commit, working tree clean
+fatal: 'origin' does not appear to be a git repository
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+~/workspace$ git remote add origin https://github.com/Agricog/assist-replit.git
+git branch -M main
+git push -u origin main
+remote: Permission to Agricog/assist-replit.git denied to micks43.
+fatal: unable to access 'https://github.com/Agricog/assist-replit.git/': The requested URL returned error: 403
+~/workspace$ # First, create a new repo on GitHub.com under your account
+# Then run:
+git remote remove origin
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+git push -u origin main
+remote: Repository not found.
+fatal: repository 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git/' not found
+~/workspace$ git remote add origin https://github.com/Agricog/agricog-assist-app.git
+git branch -M main
+git push -u origin main
+error: remote origin already exists.
+remote: Repository not found.
+fatal: repository 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git/' not found
+~/workspace$ git remote remove origin
+git remote add origin https://github.com/micks43/agricog-assist.git
+git branch -M main
+git push -u origin maigit remote remove origin
+git remote add origin https://github.com/agricog/agricog-assist-replit.git
+git branch -M main
+git push -u origin main
+error: src refspec maigit does not match any
+error: src refspec remote does not match any
+error: src refspec remove does not match any
+error: src refspec origin does not match any
+error: failed to push some refs to 'https://github.com/micks43/agricog-assist.git'
+error: remote origin already exists.
+remote: Repository not found.
+fatal: repository 'https://github.com/micks43/agricog-assist.git/' not found
+~/workspace$ git remote remove origin
+git remote add origin https://github.com/agricog/agricog-assist-replit.git
+git branch -M main
+git push -u origin main
+remote: Repository not found.
+fatal: repository 'https://github.com/agricog/agricog-assist-replit.git/' not found
+~/workspace$ git remote add origin https://github.com/Agricog/assist-replit.git
+git branch -M main
+git push -u origin main
+error: remote origin already exists.
+remote: Repository not found.
+fatal: repository 'https://github.com/agricog/agricog-assist-replit.git/' not found
+~/workspace$ 
