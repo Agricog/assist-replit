@@ -7,6 +7,11 @@ import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema }
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Redirect root path to SmartSuite form page
+  app.get('/', (req, res) => {
+    res.redirect('/smartsuite.html');
+  });
+
   // Auth middleware
   await setupAuth(app);
 
