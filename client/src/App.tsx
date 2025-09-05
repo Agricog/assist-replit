@@ -3,7 +3,7 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { useAuth } from "@/hooks/useAuth";
+// Removed useAuth - using SmartSuite form instead of Replit auth
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
@@ -20,29 +20,11 @@ function SignupPage() {
 }
 
 function Router() {
-  const { isAuthenticated, isLoading, user } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Bypass authentication - always show Landing page with SmartSuite form
   return (
     <Switch>
       <Route path="/signup" component={SignupPage} />
-      {!isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : user && !user.onboardingCompleted ? (
-        <Route path="/" component={Onboarding} />
-      ) : (
-        <Route path="/" component={Dashboard} />
-      )}
+      <Route path="/" component={Landing} />
       <Route component={NotFound} />
     </Switch>
   );
