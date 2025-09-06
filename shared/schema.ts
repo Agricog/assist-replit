@@ -24,7 +24,7 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table (mandatory for Replit Auth)
+// User storage table (supports both Replit Auth and traditional signup)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
@@ -34,6 +34,10 @@ export const users = pgTable("users", {
   farmName: varchar("farm_name"),
   location: varchar("location"),
   onboardingCompleted: boolean("onboarding_completed").default(false),
+  // Traditional authentication fields
+  username: varchar("username").unique(),
+  password: varchar("password"), // hashed password
+  authType: varchar("auth_type").default("replit"), // "replit" or "traditional"
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -88,6 +92,11 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+  authType: true,
+  profileImageUrl: true,
+  farmName: true,
+  location: true,
+  onboardingCompleted: true,
 });
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
@@ -106,6 +115,9 @@ export const insertFarmFieldSchema = createInsertSchema(farmFields).omit({
 
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+
+// Registration type for traditional signup
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertFarmField = z.infer<typeof insertFarmFieldSchema>;

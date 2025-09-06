@@ -3,8 +3,25 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { sendWelcomeEmail } from "./emailService";
-import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema } from "@shared/schema";
+import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
+
+async function comparePasswords(supplied: string, stored: string) {
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Redirect root path to SmartSuite form page
@@ -15,6 +32,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Signup page route
   app.get('/signup', (req, res) => {
     res.sendFile('signup.html', { root: 'client/public' });
+  });
+
+  // Traditional user registration API
+  app.post('/api/register', async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      
+      // Check if username or email already exists
+      const existingUser = await storage.getUserByUsername(validatedData.username);
+      if (existingUser) {
+        return res.status(400).send('Username already exists');
+      }
+      
+      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      if (existingEmail) {
+        return res.status(400).send('Email already exists');
+      }
+      
+      // Hash password and create user
+      const hashedPassword = await hashPassword(validatedData.password);
+      const user = await storage.createUser({
+        ...validatedData,
+        password: hashedPassword,
+        authType: 'traditional',
+        onboardingCompleted: true,
+      });
+      
+      // Remove password from response
+      const { password, ...userResponse } = user;
+      res.status(201).json(userResponse);
+      
+    } catch (error) {
+      console.error('Registration error:', error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).send('Invalid input data');
+      }
+      res.status(500).send('Registration failed');
+    }
   });
 
   // Auth middleware
