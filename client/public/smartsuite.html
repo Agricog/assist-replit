@@ -35,8 +35,44 @@
                         frameborder="0"
                         class="rounded-lg"
                         title="Agricog Assist Registration Form"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
                     ></iframe>
                 </div>
+                
+                <!-- Fallback message if iframe doesn't load -->
+                <div id="form-fallback" style="display: none;" class="text-center p-8">
+                    <p class="text-lg text-green-700 mb-4">Having trouble loading the form?</p>
+                    <a href="https://app.smartsuite.com/form/sba974gi/HRmqVuQoG6?header=false" 
+                       target="_blank" 
+                       class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+                        Open Registration Form
+                    </a>
+                </div>
+                
+                <script>
+                // Show fallback if iframe fails to load
+                setTimeout(function() {
+                    var iframe = document.querySelector('iframe');
+                    var fallback = document.getElementById('form-fallback');
+                    
+                    iframe.onerror = function() {
+                        fallback.style.display = 'block';
+                    };
+                    
+                    // Check if iframe loaded after 5 seconds
+                    setTimeout(function() {
+                        try {
+                            if (!iframe.contentDocument && !iframe.contentWindow) {
+                                fallback.style.display = 'block';
+                            }
+                        } catch(e) {
+                            // If we can't access iframe content, assume it's loaded from external source
+                        }
+                    }, 5000);
+                }, 100);
+                </script>
             </div>
         </div>
 
