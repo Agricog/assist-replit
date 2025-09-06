@@ -77,6 +77,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Traditional user login API
+  app.post('/api/login-traditional', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).send('Username and password are required');
+      }
+      
+      // Find user by username or email
+      let user = await storage.getUserByUsername(username);
+      if (!user) {
+        user = await storage.getUserByEmail(username);
+      }
+      
+      if (!user || user.authType !== 'traditional' || !user.password) {
+        return res.status(401).send('Invalid credentials');
+      }
+      
+      // Verify password
+      const passwordMatch = await comparePasswords(password, user.password);
+      if (!passwordMatch) {
+        return res.status(401).send('Invalid credentials');
+      }
+      
+      // Remove password from response
+      const { password: _, ...userResponse } = user;
+      res.json(userResponse);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).send('Login failed');
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
 
