@@ -219,51 +219,65 @@
     </div>
 
     <script>
-        document.getElementById('signup-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, setting up form listener');
             
-            const form = e.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            
-            // Validate passwords match
-            if (data.password !== data.confirmPassword) {
-                showError('Passwords do not match');
+            const form = document.getElementById('signup-form');
+            if (!form) {
+                console.error('Signup form not found!');
                 return;
             }
             
-            showLoading();
-            
-            try {
-                const response = await fetch('/api/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        firstName: data.firstName,
-                        lastName: data.lastName,
-                        email: data.email,
-                        username: data.username,
-                        password: data.password
-                    })
-                });
+            form.addEventListener('submit', async function(e) {
+                console.log('Form submitted!');
+                e.preventDefault();
                 
-                console.log('Response status:', response.status);
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData);
+                console.log('Form data:', data);
                 
-                if (response.ok) {
-                    const user = await response.json();
-                    console.log('User created successfully:', user);
-                    showSuccess();
-                } else {
-                    const error = await response.text();
-                    console.error('Registration error:', error);
-                    showError(error || 'Account creation failed');
+                // Validate passwords match
+                if (data.password !== data.confirmPassword) {
+                    console.log('Password mismatch');
+                    showError('Passwords do not match');
+                    return;
                 }
-            } catch (error) {
-                console.error('Network error:', error);
-                showError('Network error. Please try again.');
-            }
+                
+                console.log('Showing loading state');
+                showLoading();
+                
+                try {
+                    console.log('Making API request...');
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            firstName: data.firstName,
+                            lastName: data.lastName,
+                            email: data.email,
+                            username: data.username,
+                            password: data.password
+                        })
+                    });
+                    
+                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const user = await response.json();
+                        console.log('User created successfully:', user);
+                        showSuccess();
+                    } else {
+                        const error = await response.text();
+                        console.error('Registration error:', error);
+                        showError(error || 'Account creation failed');
+                    }
+                } catch (error) {
+                    console.error('Network error:', error);
+                    showError('Network error. Please try again.');
+                }
+            });
         });
         
         function showLoading() {
