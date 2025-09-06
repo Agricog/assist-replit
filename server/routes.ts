@@ -50,18 +50,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertUserSchema.parse(req.body);
       
       // Check if username or email already exists
-      const existingUser = await storage.getUserByUsername(validatedData.username);
+      const existingUser = await storage.getUserByUsername(validatedData.username || '');
       if (existingUser) {
         return res.status(400).send('Username already exists');
       }
       
-      const existingEmail = await storage.getUserByEmail(validatedData.email);
+      const existingEmail = await storage.getUserByEmail(validatedData.email || '');
       if (existingEmail) {
         return res.status(400).send('Email already exists');
       }
       
       // Hash password and create user
-      const hashedPassword = await hashPassword(validatedData.password);
+      const hashedPassword = await hashPassword(validatedData.password || '');
       const user = await storage.createUser({
         ...validatedData,
         password: hashedPassword,
