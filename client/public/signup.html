@@ -249,13 +249,19 @@
                     })
                 });
                 
+                console.log('Response status:', response.status);
+                
                 if (response.ok) {
+                    const user = await response.json();
+                    console.log('User created successfully:', user);
                     showSuccess();
                 } else {
                     const error = await response.text();
+                    console.error('Registration error:', error);
                     showError(error || 'Account creation failed');
                 }
             } catch (error) {
+                console.error('Network error:', error);
                 showError('Network error. Please try again.');
             }
         });
