@@ -12,6 +12,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.redirect('/smartsuite.html');
   });
 
+  // Signup page route
+  app.get('/signup', (req, res) => {
+    res.sendFile('signup.html', { root: 'client/public' });
+  });
+
   // Auth middleware
   await setupAuth(app);
 
