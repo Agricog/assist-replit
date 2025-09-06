@@ -34,6 +34,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile('signup.html', { root: 'client/public' });
   });
 
+  // Login page route
+  app.get('/login', (req, res) => {
+    res.sendFile('login.html', { root: 'client/public' });
+  });
+
   // Traditional user registration API
   app.post('/api/register', async (req, res) => {
     try {
