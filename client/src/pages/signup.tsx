@@ -61,7 +61,8 @@ export default function SignupPage() {
           console.log('Notification failed but signup succeeded');
         }
         
-        setSuccess(true);
+        // Redirect to dashboard after successful signup
+        window.location.href = '/dashboard';
       } else {
         const errorText = await response.text();
         setError(errorText || 'Account creation failed');

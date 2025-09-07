@@ -33,10 +33,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Redirect root path to payment page now
-  app.get('/', (req, res) => {
-    res.redirect('/payment');
-  });
+  // Landing page with SmartSuite form (restored)
+  // Root path now shows landing page, not payment
 
   // Signup page route
 
@@ -140,6 +138,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Password reset error:', error);
       res.status(500).send('Password reset failed');
+    }
+  });
+
+  // Traditional user login API
+  app.post('/api/login', async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).send('Username and password are required');
+      }
+      
+      // Find user by username
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.password) {
+        return res.status(401).send('Invalid username or password');
+      }
+      
+      // Verify password
+      const isValidPassword = await comparePasswords(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).send('Invalid username or password');
+      }
+      
+      // Remove password from response
+      const { password: _, ...userResponse } = user;
+      res.status(200).json(userResponse);
+      
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).send('Login failed');
     }
   });
 
