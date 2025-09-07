@@ -61,20 +61,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stripe payment intent creation
+  // Stripe payment intent creation for Agricog Assist
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
       if (!stripe) {
         return res.status(500).json({ message: "Stripe not configured. Please add STRIPE_SECRET_KEY environment variable." });
       }
 
-      const { amount = 1, currency = 'gbp' } = req.body;
-      
+      // Using your specific Agricog Assist product
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to pence
-        currency: currency,
+        amount: 100, // £1.00 in pence
+        currency: 'gbp',
         metadata: {
-          product: 'agricog-assist-access'
+          product_id: 'prod_T0iuXjDmpUCb43',
+          product_name: 'Agricog Assist Access',
+          service: 'agricultural-ai-platform'
         }
       });
       
