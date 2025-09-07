@@ -24,14 +24,7 @@ export default function LoginPage() {
       });
       
       if (response.ok) {
-        console.log('✅ Login successful, testing auth before redirect...');
-        
-        // Test session first for debugging
-        const sessionTest = await fetch('/api/debug/session', {
-          credentials: 'include'
-        });
-        const sessionData = await sessionTest.json();
-        console.log('🔍 Session Debug:', sessionData);
+        console.log('✅ Login successful, testing authentication...');
         
         // Test authentication immediately after login
         const authTest = await fetch('/api/user', {
