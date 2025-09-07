@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 
 export default function SignupPage() {
   return (
-    <div style={{ padding: '50px', background: 'red', color: 'white', fontSize: '30px' }}>
-      <h1>REACT SIGNUP COMPONENT IS WORKING!</h1>
-      <p>This is the React component, not a static HTML file.</p>
-      <p>Current time: {new Date().toLocaleTimeString()}</p>
+    <div style={{ padding: '50px', background: 'blue', color: 'yellow', fontSize: '40px' }}>
+      <h1>VERSION 2.0 - CACHE BUSTED!</h1>
+      <p>If you see this, the React routing is working.</p>
+      <p>Time: {new Date().toLocaleTimeString()}</p>
+      <p>Random: {Math.random()}</p>
     </div>
   );
 
