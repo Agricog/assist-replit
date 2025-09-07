@@ -221,9 +221,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('User created successfully:', user.username);
       
-      // Remove password from response
-      const { password, ...userResponse } = user;
-      res.status(201).json(userResponse);
+      // Automatically log the user in after registration
+      req.login(user, (err) => {
+        if (err) {
+          console.error('Auto-login after registration failed:', err);
+          // Still return success even if auto-login fails
+          const { password, ...userResponse } = user;
+          return res.status(201).json(userResponse);
+        }
+        // Remove password from response
+        const { password, ...userResponse } = user;
+        res.status(201).json(userResponse);
+      });
       
     } catch (error) {
       console.error('Registration error:', error);

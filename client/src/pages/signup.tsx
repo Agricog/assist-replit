@@ -31,6 +31,7 @@ export default function SignupPage() {
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
@@ -57,12 +58,12 @@ export default function SignupPage() {
           console.log('Notification failed but signup succeeded');
         }
         
-        // Show success message and redirect to login (since we're not creating session during signup)
+        // Show success message and redirect to dashboard (user is now logged in)
         setSuccess(true);
         
-        // After 2 seconds, redirect to login
+        // After 2 seconds, redirect to dashboard
         setTimeout(() => {
-          window.location.href = '/login';
+          window.location.href = '/dashboard';
         }, 2000);
       } else {
         const errorText = await response.text();
