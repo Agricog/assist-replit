@@ -24,14 +24,28 @@ export default function LoginPage() {
       });
       
       if (response.ok) {
-        // Force a fresh auth check by waiting a moment and clearing cache
-        setTimeout(() => {
-          // Clear React Query cache to force fresh auth check
+        console.log('✅ Login successful, testing auth before redirect...');
+        
+        // Test authentication immediately after login
+        const authTest = await fetch('/api/user', {
+          credentials: 'include'
+        });
+        
+        if (authTest.ok) {
+          const userData = await authTest.json();
+          console.log('✅ Auth confirmed:', userData.username);
+          
+          // Clear cache and redirect
           import('@/lib/queryClient').then(({ queryClient }) => {
-            queryClient.removeQueries({ queryKey: ["/api/user"] });
-            window.location.href = '/dashboard';
+            queryClient.clear(); // Clear all cache
+            setTimeout(() => {
+              window.location.href = '/dashboard';
+            }, 100);
           });
-        }, 100);
+        } else {
+          console.log('❌ Auth test failed:', authTest.status);
+          setError('Login succeeded but authentication failed. Please try again.');
+        }
       } else {
         const errorText = await response.text();
         setError(errorText || 'Login failed');
