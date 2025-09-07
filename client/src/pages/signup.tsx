@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 
 export default function SignupPage() {
+  return (
+    <div style={{ padding: '50px', background: 'red', color: 'white', fontSize: '30px' }}>
+      <h1>REACT SIGNUP COMPONENT IS WORKING!</h1>
+      <p>This is the React component, not a static HTML file.</p>
+      <p>Current time: {new Date().toLocaleTimeString()}</p>
+    </div>
+  );
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
