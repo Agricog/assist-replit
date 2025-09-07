@@ -25,6 +25,9 @@ export interface IStorage {
   createUser(user: UpsertUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   
+  // Admin operations
+  getAllUsers(): Promise<User[]>;
+  
   // Chat operations
   getChatHistory(userId: string, chatType: string): Promise<ChatMessage[]>;
   saveChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -193,6 +196,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(machinery.id, id))
       .returning();
     return machine;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db
+      .select()
+      .from(users)
+      .orderBy(desc(users.createdAt));
   }
 }
 

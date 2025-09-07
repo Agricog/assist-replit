@@ -41,6 +41,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile('test-signup.html', { root: 'client/public' });
   });
 
+  // Admin API to view user signups
+  app.get('/api/admin/users', async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      res.status(500).send('Failed to fetch users');
+    }
+  });
+
   // Traditional user registration API
   app.post('/api/register', async (req, res) => {
     try {

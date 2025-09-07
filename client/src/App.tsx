@@ -10,6 +10,7 @@ import Dashboard from "@/pages/dashboard";
 import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
+import AdminPage from "@/pages/admin";
 
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/signup" component={SignupPage} />
+      <Route path="/admin" component={AdminPage} />
       <Route path="/" component={Landing} />
       <Route component={NotFound} />
     </Switch>
