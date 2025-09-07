@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // Debug: Component loaded
+  console.log('🔥 LoginPage component loaded');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
@@ -87,7 +90,10 @@ export default function LoginPage() {
             <p style={{ color: '#15803d' }}>Signing you in...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={(e) => {
+            console.log('🎯 Form onSubmit triggered');
+            handleSubmit(e);
+          }}>
             {error && (
               <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
                 {error}
