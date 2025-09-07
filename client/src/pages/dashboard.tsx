@@ -14,8 +14,10 @@ import type { FarmField, User } from "@shared/schema";
 import agricogLogo from "@assets/Agricog_1756233506512.png";
 
 export default function Dashboard() {
+  console.log('🔍 Dashboard component loaded');
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
+  console.log('🔍 Dashboard useAuth result:', { user: user?.username || 'none', isAuthenticated, isLoading });
   const [showFarmDataModal, setShowFarmDataModal] = useState(false);
   const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
   const [selectedField, setSelectedField] = useState<FarmField | null>(null);
@@ -54,6 +56,7 @@ export default function Dashboard() {
   };
 
   if (isLoading) {
+    console.log('Dashboard: Still loading...');
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -65,6 +68,7 @@ export default function Dashboard() {
   }
 
   if (!isAuthenticated) {
+    console.log('Dashboard: Not authenticated, returning null');
     return null; // Will redirect via useEffect
   }
 

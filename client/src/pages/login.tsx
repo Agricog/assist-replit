@@ -23,6 +23,7 @@ export default function LoginPage() {
       });
       
       if (response.ok) {
+        console.log('✅ Login successful, redirecting to dashboard...');
         // Redirect to dashboard after successful login
         window.location.href = '/dashboard';
       } else {
