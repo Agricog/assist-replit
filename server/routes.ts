@@ -162,6 +162,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).send('Invalid username or password');
       }
       
+      // Create session for traditional users (mimic Replit auth structure)
+      (req.session as any).user = {
+        id: user.id,
+        claims: {
+          sub: user.id,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          profile_image_url: null
+        },
+        authType: 'traditional',
+        expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+      };
+      
       // Remove password from response
       const { password: _, ...userResponse } = user;
       res.status(200).json(userResponse);
@@ -196,6 +210,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         authType: 'traditional',
         onboardingCompleted: true,
       });
+      
+      // Create session for traditional users (mimic Replit auth structure)
+      (req.session as any).user = {
+        id: user.id,
+        claims: {
+          sub: user.id,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          profile_image_url: null
+        },
+        authType: 'traditional',
+        expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
+      };
       
       // Remove password from response
       const { password, ...userResponse } = user;

@@ -141,9 +141,22 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // Check for traditional auth session first
+  if ((req.session as any)?.user) {
+    const sessionUser = (req.session as any).user;
+    const now = Math.floor(Date.now() / 1000);
+    
+    if (sessionUser.expires_at && now <= sessionUser.expires_at) {
+      // Set req.user for traditional auth compatibility
+      req.user = sessionUser;
+      return next();
+    }
+  }
+
+  // Fall back to Replit OAuth check
   const user = req.user as any;
 
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated() || !user?.expires_at) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
