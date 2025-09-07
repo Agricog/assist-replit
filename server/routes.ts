@@ -24,6 +24,36 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
+// Universal authentication middleware that works with both traditional and Replit auth
+const universalAuth = (req: any, res: any, next: any) => {
+  let user = null;
+  let userId = null;
+  
+  // Check traditional auth session first
+  if ((req.session as any).user) {
+    const sessionUser = (req.session as any).user;
+    // Verify session hasn't expired
+    if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
+      user = sessionUser;
+      userId = sessionUser.id;
+    }
+  }
+  // Check Replit auth (Passport)
+  else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+    user = req.user;
+    userId = req.user.claims?.sub;
+  }
+  
+  if (!user || !userId) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  
+  // Attach user info to request for easier access
+  req.authUser = user;
+  req.authUserId = userId;
+  next();
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication and sessions FIRST (before any routes that need sessions)
   await setupAuth(app);
@@ -357,9 +387,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Update user profile (including postcode)
-  app.put('/api/user/profile', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/profile', universalAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       const { location } = req.body;
       
       if (!location || !location.trim()) {
@@ -383,9 +413,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Complete user onboarding
-  app.put('/api/user/onboarding', isAuthenticated, async (req: any, res) => {
+  app.put('/api/user/onboarding', universalAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       const { firstName, lastName, email, farmName, location } = req.body;
       
       if (!firstName?.trim() || !lastName?.trim() || !email?.trim() || !farmName?.trim() || !location?.trim()) {
@@ -421,7 +451,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Weather API
-  app.get('/api/weather/:location', isAuthenticated, async (req, res) => {
+  app.get('/api/weather/:location', universalAuth, async (req, res) => {
     try {
       const { location } = req.params;
       
@@ -489,10 +519,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chat API - Market Intelligence (Perplexity)
-  app.post('/api/chat/market', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/market', universalAuth, async (req: any, res) => {
     try {
       const { message } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
 
       if (!message) {
         return res.status(400).json({ message: "Message is required" });
@@ -560,10 +590,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Chat API - Farm Assistant (FastBots)
-  app.post('/api/chat/farm', isAuthenticated, async (req: any, res) => {
+  app.post('/api/chat/farm', universalAuth, async (req: any, res) => {
     try {
       const { message } = req.body;
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
 
       if (!message) {
         return res.status(400).json({ message: "Message is required" });
@@ -628,10 +658,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Get chat history
-  app.get('/api/chat/:type/history', isAuthenticated, async (req: any, res) => {
+  app.get('/api/chat/:type/history', universalAuth, async (req: any, res) => {
     try {
       const { type } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
 
       if (!['market', 'farm'].includes(type)) {
         return res.status(400).json({ message: "Invalid chat type" });
@@ -646,10 +676,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Clear chat history
-  app.delete('/api/chat/:type/clear', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/chat/:type/clear', universalAuth, async (req: any, res) => {
     try {
       const { type } = req.params;
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       
       if (!['market', 'farm'].includes(type)) {
         return res.status(400).json({ message: 'Invalid chat type' });
@@ -664,9 +694,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Farm data API
-  app.get('/api/farm/fields', isAuthenticated, async (req: any, res) => {
+  app.get('/api/farm/fields', universalAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       const fields = await storage.getFarmFields(userId);
       res.json(fields);
     } catch (error) {
@@ -675,9 +705,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/farm/fields', isAuthenticated, async (req: any, res) => {
+  app.post('/api/farm/fields', universalAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       const fieldData = insertFarmFieldSchema.parse({ ...req.body, userId });
       
       const field = await storage.createFarmField(fieldData);
@@ -717,7 +747,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/farm/fields/:id', isAuthenticated, async (req: any, res) => {
+  app.put('/api/farm/fields/:id', universalAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       const fieldData = req.body;
@@ -730,7 +760,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/farm/fields/:id', isAuthenticated, async (req: any, res) => {
+  app.delete('/api/farm/fields/:id', universalAuth, async (req: any, res) => {
     try {
       const { id } = req.params;
       await storage.deleteFarmField(id);
@@ -742,9 +772,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Machinery service endpoints
-  app.get('/api/machinery', isAuthenticated, async (req: any, res) => {
+  app.get('/api/machinery', universalAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.authUserId;
       const machinery = await storage.getMachinery(userId);
       res.json(machinery);
     } catch (error) {
