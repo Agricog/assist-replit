@@ -91,7 +91,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
       
-      res.json({ clientSecret: paymentIntent.client_secret });
+      res.json({ 
+        clientSecret: paymentIntent.client_secret,
+        amount: amount 
+      });
     } catch (error: any) {
       console.error('Stripe payment intent error:', error);
       res.status(500).json({ message: "Error creating payment intent: " + error.message });

@@ -7,7 +7,7 @@ if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
 }
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
-const PaymentForm = ({ clientSecret }: { clientSecret: string }) => {
+const PaymentForm = ({ clientSecret, amount }: { clientSecret: string; amount: number }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [isLoading, setIsLoading] = useState(false);
@@ -61,7 +61,7 @@ const PaymentForm = ({ clientSecret }: { clientSecret: string }) => {
         }}
         data-testid="button-pay"
       >
-        {isLoading ? 'Processing...' : 'Pay £1 & Access Agricog Assist'}
+        {isLoading ? 'Processing...' : `Pay £${(amount / 100).toFixed(2)} & Access Agricog Assist`}
       </button>
       
       {message && (
@@ -75,6 +75,7 @@ const PaymentForm = ({ clientSecret }: { clientSecret: string }) => {
 
 export default function PaymentPage() {
   const [clientSecret, setClientSecret] = useState('');
+  const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -83,22 +84,29 @@ export default function PaymentPage() {
     fetch('/api/create-payment-intent', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        amount: 1, // £1
-        currency: 'gbp'
-      }),
+      body: JSON.stringify({}), // Backend fetches price from Stripe product
     })
-    .then((res) => res.json())
+    .then(async (res) => {
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || 'Payment setup failed');
+      }
+      return res.json();
+    })
     .then((data) => {
+      console.log('Payment data received:', data);
       if (data.clientSecret) {
         setClientSecret(data.clientSecret);
+        // Extract amount from the client secret response
+        setAmount(data.amount || 0);
       } else {
-        setError('Failed to initialize payment');
+        setError(data.message || 'Failed to initialize payment');
       }
       setLoading(false);
     })
-    .catch(() => {
-      setError('Network error. Please refresh and try again.');
+    .catch((error) => {
+      console.error('Payment setup error:', error);
+      setError(error.message || 'Network error. Please refresh and try again.');
       setLoading(false);
     });
   }, []);
@@ -156,7 +164,7 @@ export default function PaymentPage() {
             Unlock Your Dashboard
           </h2>
           <div style={{ backgroundColor: '#f0fdf4', padding: '16px', borderRadius: '8px', border: '2px solid #10b981' }}>
-            <p style={{ fontSize: '32px', fontWeight: '700', color: '#166534', margin: 0 }}>£1</p>
+            <p style={{ fontSize: '32px', fontWeight: '700', color: '#166534', margin: 0 }}>£{(amount / 100).toFixed(2)}</p>
             <p style={{ fontSize: '14px', color: '#15803d', margin: '4px 0 0 0' }}>One-time payment • Instant access</p>
           </div>
         </div>
@@ -174,7 +182,7 @@ export default function PaymentPage() {
         </div>
 
         <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
-          <PaymentForm clientSecret={clientSecret} />
+          <PaymentForm clientSecret={clientSecret} amount={amount} />
         </Elements>
 
         <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '12px', color: '#9ca3af' }}>
