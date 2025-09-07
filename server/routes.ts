@@ -52,6 +52,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Password reset functionality
+  app.post('/api/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(400).send('Email is required');
+      }
+
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if email exists or not for security
+        return res.status(200).send('Password reset email sent if account exists');
+      }
+
+      // Generate a simple temporary password (in production, you'd use proper tokens)
+      const tempPassword = Math.random().toString(36).slice(-8);
+      const hashedTempPassword = await hashPassword(tempPassword);
+      
+      // Update user with temporary password
+      await storage.updateUserPassword(user.id, hashedTempPassword);
+      
+      // Send email with temporary password
+      try {
+        await sendWelcomeEmail(email, user.firstName || 'User', tempPassword);
+        res.status(200).send('Password reset email sent');
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError);
+        res.status(500).send('Failed to send password reset email');
+      }
+      
+    } catch (error) {
+      console.error('Password reset error:', error);
+      res.status(500).send('Password reset failed');
+    }
+  });
+
   // Traditional user registration API
   app.post('/api/register', async (req, res) => {
     try {

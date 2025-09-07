@@ -28,6 +28,9 @@ export interface IStorage {
   // Admin operations
   getAllUsers(): Promise<User[]>;
   
+  // Password reset operations
+  updateUserPassword(id: string, hashedPassword: string): Promise<User>;
+  
   // Chat operations
   getChatHistory(userId: string, chatType: string): Promise<ChatMessage[]>;
   saveChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -203,6 +206,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .orderBy(desc(users.createdAt));
+  }
+
+  async updateUserPassword(id: string, hashedPassword: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
   }
 }
 

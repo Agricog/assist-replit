@@ -11,6 +11,7 @@ import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
 import AdminPage from "@/pages/admin";
+import ForgotPasswordPage from "@/pages/forgot-password";
 
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/signup" component={SignupPage} />
+      <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={Landing} />
       <Route component={NotFound} />

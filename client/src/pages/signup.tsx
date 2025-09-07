@@ -121,6 +121,10 @@ export default function SignupPage() {
             Already have an account? 
             <a href="/login" style={{ color: '#10b981', fontWeight: '600', textDecoration: 'none', marginLeft: '4px' }}>Sign in here</a>
           </p>
+          <p style={{ color: '#15803d', marginTop: '8px' }}>
+            Forgot your password? 
+            <a href="/forgot-password" style={{ color: '#10b981', fontWeight: '600', textDecoration: 'none', marginLeft: '4px' }}>Reset it here</a>
+          </p>
         </div>
       </div>
 
