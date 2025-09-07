@@ -25,13 +25,22 @@ export default function Dashboard() {
 
   // Redirect to home if not authenticated  
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      // Give time for auth to load, then redirect
-      setTimeout(() => {
+    console.log('Dashboard auth check:', { isLoading, isAuthenticated, user: user?.username || 'none' });
+    
+    // Only redirect if we're definitely sure user is not authenticated
+    // Give more time for authentication to load
+    if (!isLoading && !isAuthenticated && !user) {
+      console.log('Dashboard: No user found after loading complete, will redirect...');
+      const timer = setTimeout(() => {
+        console.log('Dashboard: Redirecting to landing page');
         window.location.href = "/";
-      }, 3000);
+      }, 5000); // Give 5 seconds for auth to complete
+      
+      return () => clearTimeout(timer);
+    } else if (user) {
+      console.log('Dashboard: ✅ User authenticated:', user.username);
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, user]);
 
   // Fetch farm fields
   const { data: farmFields = [], refetch: refetchFields } = useQuery<FarmField[]>({
