@@ -30,9 +30,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Signup page route
-  app.get('/signup', (req, res) => {
-    res.sendFile('signup.html', { root: 'client/public' });
-  });
 
   // Login page route
   app.get('/login', (req, res) => {
