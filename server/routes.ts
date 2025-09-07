@@ -296,26 +296,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Traditional auth user endpoint
   app.get('/api/user', async (req, res) => {
-    console.log('🔍 /api/user called');
-    console.log('req.isAuthenticated():', req.isAuthenticated());
-    console.log('req.user:', req.user ? 'User exists' : 'No user');
-    console.log('Session ID:', req.sessionID);
-    
     if (!req.isAuthenticated()) {
-      console.log('❌ Not authenticated, returning 401');
       return res.status(401).json({ message: 'Unauthorized' });
     }
     
     try {
-      // For traditional auth, user data is directly in req.user
       const user = req.user;
       if (!user) {
-        console.log('❌ No user data, returning 401');
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
-      console.log('✅ Returning user data for:', user.username);
-      // Return user data (password already excluded from User type)  
       res.json(user);
     } catch (error) {
       console.error('Error fetching user:', error);
