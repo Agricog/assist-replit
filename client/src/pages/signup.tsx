@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 
 export default function SignupPage() {
-  return (
-    <div style={{ padding: '50px', background: 'blue', color: 'yellow', fontSize: '40px' }}>
-      <h1>VERSION 2.0 - CACHE BUSTED!</h1>
-      <p>If you see this, the React routing is working.</p>
-      <p>Time: {new Date().toLocaleTimeString()}</p>
-      <p>Random: {Math.random()}</p>
-    </div>
-  );
-
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
