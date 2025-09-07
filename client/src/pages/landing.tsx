@@ -13,35 +13,27 @@ export default function Landing() {
           </p>
         </div>
 
-        {/* Call to Action - Industry Standard */}
-        <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
-          <div className="p-8 text-center">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">
-              Get Instant Access
+        {/* SmartSuite Embedded Form */}
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden">
+          <div className="p-8">
+            <h2 className="text-2xl font-semibold text-green-800 text-center mb-6">
+              Get Started with Your Agricultural Intelligence Platform
             </h2>
-            <div className="bg-green-50 p-6 rounded-lg border-2 border-green-200 mb-6">
-              <div className="text-4xl font-bold text-green-800 mb-2">£1</div>
-              <p className="text-green-600 mb-4">One-time payment • Lifetime access</p>
+            
+            {/* SmartSuite Form Embed */}
+            <div className="w-full" style={{ minHeight: '600px' }}>
+              <iframe 
+                src="https://app.smartsuite.com/form/sba974gi/HRmqVuQoG6?header=false"
+                width="100%"
+                height="700"
+                frameBorder="0"
+                className="rounded-lg"
+                title="Agricog Assist Registration Form"
+              />
             </div>
             
-            <p className="text-gray-600 mb-8 text-lg">
-              Join thousands of farmers already using AI-powered agricultural intelligence. 
-              Get instant access to your personalized dashboard.
-            </p>
-            
-            <a 
-              href="/payment"
-              className="inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-lg text-xl transition-colors duration-200 shadow-lg"
-              data-testid="button-get-access"
-            >
-              🚀 Get Access Now - £1
-            </a>
-            
-            <div className="mt-6 text-sm text-gray-500">
-              <p>✅ Secure payment • ✅ Instant access • ✅ 24/7 support</p>
-            </div>
-            
-            <div className="mt-8 text-center">
+            {/* Login link for existing users */}
+            <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 mb-2">Already have an account?</p>
               <a href="/login" className="text-green-600 hover:text-green-700 font-semibold" data-testid="link-login">
                 Sign in to your dashboard →
