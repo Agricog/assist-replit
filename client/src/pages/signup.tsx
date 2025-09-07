@@ -66,6 +66,7 @@ export default function SignupPage() {
         // After 3 seconds, redirect to dashboard  
         setTimeout(() => {
           console.log('🔄 Redirecting to dashboard now...');
+          console.log('Current URL before redirect:', window.location.href);
           window.location.href = '/dashboard';
         }, 3000);
       } else {

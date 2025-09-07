@@ -25,18 +25,22 @@ export default function Dashboard() {
 
   // Redirect to home if not authenticated
   useEffect(() => {
-    console.log('Dashboard auth check:', { isLoading, isAuthenticated, user });
+    console.log('🔍 Dashboard auth check:', { isLoading, isAuthenticated, user: user ? `${user.firstName} ${user.lastName}` : 'null' });
     if (!isLoading && !isAuthenticated) {
-      console.log('Dashboard redirecting - not authenticated');
+      console.log('❌ Dashboard redirecting - not authenticated');
+      console.log('Current URL:', window.location.href);
       toast({
         title: "Unauthorized",
         description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
       setTimeout(() => {
+        console.log('🔄 Redirecting to login page...');
         window.location.href = "/login";
       }, 500);
       return;
+    } else if (!isLoading && isAuthenticated) {
+      console.log('✅ Dashboard auth passed - user is authenticated');
     }
   }, [isAuthenticated, isLoading, toast, user]);
 
