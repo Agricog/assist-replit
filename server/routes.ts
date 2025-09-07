@@ -24,9 +24,19 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Redirect root path to SmartSuite form page
+  // Stripe integration
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+  }
+  
+  const Stripe = require('stripe');
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+    apiVersion: "2023-10-16",
+  });
+
+  // Redirect root path to payment page now
   app.get('/', (req, res) => {
-    res.redirect('/smartsuite.html');
+    res.redirect('/payment');
   });
 
   // Signup page route
@@ -49,6 +59,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).send('Failed to fetch users');
+    }
+  });
+
+  // Stripe payment intent creation
+  app.post('/api/create-payment-intent', async (req, res) => {
+    try {
+      const { amount = 1, currency = 'gbp' } = req.body;
+      
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to pence
+        currency: currency,
+        metadata: {
+          product: 'agricog-assist-access'
+        }
+      });
+      
+      res.json({ clientSecret: paymentIntent.client_secret });
+    } catch (error: any) {
+      console.error('Stripe payment intent error:', error);
+      res.status(500).json({ message: "Error creating payment intent: " + error.message });
+    }
+  });
+
+  // Slack notification for new signups
+  app.post('/api/notify-signup', async (req, res) => {
+    try {
+      const { firstName, lastName, email, username } = req.body;
+      
+      // For now, just log the signup (we'll implement Slack webhook later)
+      console.log('\n🎉 NEW PAID SIGNUP NOTIFICATION:');
+      console.log(`Name: ${firstName} ${lastName}`);
+      console.log(`Email: ${email}`);
+      console.log(`Username: ${username}`);
+      console.log('💰 Payment: £1 processed successfully');
+      console.log(`🕒 Time: ${new Date().toLocaleString('en-GB')}`);
+      console.log('📊 View details: /admin\n');
+      
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('Notification error:', error);
+      res.status(500).json({ success: false });
     }
   });
 

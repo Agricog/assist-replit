@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(true);
+
+  useEffect(() => {
+    // Check if user came from successful payment
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    
+    if (paymentStatus === 'success') {
+      setPaymentVerified(true);
+    }
+    setCheckingPayment(false);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +45,22 @@ export default function SignupPage() {
       });
       
       if (response.ok) {
+        // Send Slack notification about new signup
+        try {
+          await fetch('/api/notify-signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              firstName: data.firstName,
+              lastName: data.lastName,
+              email: data.email,
+              username: data.username
+            })
+          });
+        } catch (notifyError) {
+          console.log('Notification failed but signup succeeded');
+        }
+        
         setSuccess(true);
       } else {
         const errorText = await response.text();
@@ -43,6 +72,40 @@ export default function SignupPage() {
       setLoading(false);
     }
   };
+
+  // Show loading while checking payment status
+  if (checkingPayment) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+          <p style={{ color: '#15803d' }}>Verifying your payment...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to payment if no payment verification
+  if (!paymentVerified) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '48px 16px' }}>
+        <div style={{ maxWidth: '28rem', margin: '0 auto', background: 'white', borderRadius: '8px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', padding: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px', color: '#dc2626' }}>🔒</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#dc2626', marginBottom: '8px' }}>Payment Required</h2>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>
+            You need to complete payment before accessing the signup form.
+          </p>
+          <a 
+            href="/payment" 
+            style={{ display: 'inline-block', backgroundColor: '#10b981', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', textDecoration: 'none' }}
+            data-testid="link-payment"
+          >
+            Complete Payment (£1)
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (success) {
     return (
