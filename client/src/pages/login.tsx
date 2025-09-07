@@ -57,7 +57,7 @@ export default function LoginPage() {
             <p style={{ color: '#15803d' }}>Signing you in...</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} style={{ space: '20px' }}>
+          <form onSubmit={handleSubmit}>
             {error && (
               <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
                 {error}
@@ -99,8 +99,8 @@ export default function LoginPage() {
             <button
               type="submit"
               style={{ width: '100%', backgroundColor: '#10b981', color: 'white', padding: '16px 24px', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.2s' }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#059669'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#10b981'}
+              onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#059669'}
+              onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#10b981'}
               data-testid="button-login"
             >
               Sign In to Dashboard
