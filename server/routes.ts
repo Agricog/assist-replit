@@ -25,6 +25,9 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication and sessions FIRST (before any routes that need sessions)
+  await setupAuth(app);
+
   // Stripe integration - will be enabled when keys are provided
   let stripe: Stripe | null = null;
   if (process.env.STRIPE_SECRET_KEY) {
@@ -280,8 +283,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Auth middleware
-  await setupAuth(app);
+  // Auth middleware already set up above
 
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
