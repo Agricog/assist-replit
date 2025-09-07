@@ -7,6 +7,7 @@ import { insertChatMessageSchema, insertFarmFieldSchema, insertMachinerySchema, 
 import { z } from "zod";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
+import Stripe from "stripe";
 
 const scryptAsync = promisify(scrypt);
 
@@ -25,11 +26,10 @@ async function comparePasswords(supplied: string, stored: string) {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe integration - will be enabled when keys are provided
-  let stripe: any = null;
+  let stripe: Stripe | null = null;
   if (process.env.STRIPE_SECRET_KEY) {
-    const Stripe = require('stripe');
     stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2023-10-16",
+      apiVersion: "2025-08-27.basil",
     });
   }
 
