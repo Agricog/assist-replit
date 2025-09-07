@@ -324,19 +324,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware already set up above
 
-  // Debug endpoint to check session state
-  app.get('/api/debug/session', (req, res) => {
-    const sessionData = {
-      sessionExists: !!(req.session as any),
-      sessionUser: (req.session as any).user || null,
-      isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
-      cookies: req.headers.cookie || 'none',
-      sessionID: req.sessionID || 'none'
-    };
-    console.log('🔍 Session Debug:', sessionData);
-    res.json(sessionData);
-  });
-
   // Universal auth user endpoint (handles both traditional and Replit auth)
   app.get('/api/user', async (req, res) => {
     try {

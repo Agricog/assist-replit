@@ -4,17 +4,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   
-  // Debug: Component loaded
-  console.log('🔥 LoginPage component loaded');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
-      console.log('🚀 FORM SUBMITTED - handleSubmit called');
-      
       const formData = new FormData(e.currentTarget);
       const data = Object.fromEntries(formData);
-      console.log('📝 Form data:', data);
       
       setLoading(true);
       setError('');
@@ -82,9 +77,6 @@ export default function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>🌾</div>
           <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#166534' }}>Sign In to Your Account</h2>
-          <div style={{ background: '#fef3c7', color: '#92400e', padding: '8px', borderRadius: '4px', fontSize: '12px', marginTop: '8px' }}>
-            🔥 React Component Loaded Successfully
-          </div>
         </div>
         
         {loading ? (
@@ -93,10 +85,7 @@ export default function LoginPage() {
             <p style={{ color: '#15803d' }}>Signing you in...</p>
           </div>
         ) : (
-          <form onSubmit={(e) => {
-            console.log('🎯 Form onSubmit triggered');
-            handleSubmit(e);
-          }}>
+          <form onSubmit={handleSubmit}>
             {error && (
               <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '14px' }}>
                 {error}
@@ -140,13 +129,9 @@ export default function LoginPage() {
               style={{ width: '100%', backgroundColor: '#10b981', color: 'white', padding: '16px 24px', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600', cursor: 'pointer', transition: 'background-color 0.2s' }}
               onMouseOver={(e) => (e.target as HTMLElement).style.backgroundColor = '#059669'}
               onMouseOut={(e) => (e.target as HTMLElement).style.backgroundColor = '#10b981'}
-              onClick={(e) => {
-                console.log('🔵 Button clicked!');
-                alert('🔵 Button clicked - JS is working!');
-              }}
               data-testid="button-login"
             >
-              🚀 REACT LOGIN BUTTON
+              Sign In to Dashboard
             </button>
             
             <div style={{ textAlign: 'center', marginTop: '16px' }}>
