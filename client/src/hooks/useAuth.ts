@@ -9,8 +9,8 @@ export function useAuth() {
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
     refetchOnWindowFocus: false, // Don't refetch on focus to prevent loops
-    staleTime: 60000,           // Cache for 60 seconds for more stability  
-    gcTime: 300000,             // Keep in memory for 5 minutes
+    staleTime: 10000,           // Reduced to 10 seconds for faster auth updates
+    gcTime: 60000,              // Reduced cache time
   });
 
   // If there's an error (like 401), consider loading complete

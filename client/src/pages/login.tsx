@@ -24,8 +24,14 @@ export default function LoginPage() {
       });
       
       if (response.ok) {
-        // Redirect to dashboard after successful login
-        window.location.href = '/dashboard';
+        // Force a fresh auth check by waiting a moment and clearing cache
+        setTimeout(() => {
+          // Clear React Query cache to force fresh auth check
+          import('@/lib/queryClient').then(({ queryClient }) => {
+            queryClient.removeQueries({ queryKey: ["/api/user"] });
+            window.location.href = '/dashboard';
+          });
+        }, 100);
       } else {
         const errorText = await response.text();
         setError(errorText || 'Login failed');
