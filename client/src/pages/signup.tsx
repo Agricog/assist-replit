@@ -41,6 +41,8 @@ export default function SignupPage() {
       });
       
       if (response.ok) {
+        console.log('✅ Registration API call successful');
+        
         // Send Slack notification about new signup
         try {
           await fetch('/api/notify-signup', {
@@ -67,7 +69,9 @@ export default function SignupPage() {
           window.location.href = '/dashboard';
         }, 3000);
       } else {
+        console.log('❌ Registration failed:', response.status);
         const errorText = await response.text();
+        console.log('Error response:', errorText);
         setError(errorText || 'Account creation failed');
       }
     } catch (error) {
