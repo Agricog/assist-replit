@@ -28,7 +28,6 @@ function Router() {
   // Bypass authentication - always show Landing page with SmartSuite form
   return (
     <Switch>
-      <Route path="/signup" component={SignupPage} />
       <Route path="/" component={Landing} />
       <Route component={NotFound} />
     </Switch>
