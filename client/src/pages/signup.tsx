@@ -59,12 +59,14 @@ export default function SignupPage() {
         }
         
         // Show success message and redirect to dashboard (user is now logged in)
+        console.log('✅ Signup successful, redirecting to dashboard in 3 seconds...');
         setSuccess(true);
         
-        // After 2 seconds, redirect to dashboard
+        // After 3 seconds, redirect to dashboard  
         setTimeout(() => {
+          console.log('🔄 Redirecting to dashboard now...');
           window.location.href = '/dashboard';
-        }, 2000);
+        }, 3000);
       } else {
         const errorText = await response.text();
         setError(errorText || 'Account creation failed');
