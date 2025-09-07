@@ -294,6 +294,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware already set up above
 
+  // Traditional auth user endpoint
+  app.get('/api/user', async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+    
+    try {
+      // For traditional auth, user data is directly in req.user
+      const user = req.user;
+      if (!user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      
+      // Return user data (password already excluded from User type)  
+      res.json(user);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Failed to fetch user' });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

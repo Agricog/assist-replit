@@ -3,7 +3,7 @@ import type { User } from "@shared/schema";
 
 export function useAuth() {
   const { data: user, isLoading, error } = useQuery<User>({
-    queryKey: ["/api/auth/user"],
+    queryKey: ["/api/user"],
     retry: false,
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -12,13 +12,6 @@ export function useAuth() {
   // If there's an error (like 401), consider loading complete
   const actuallyLoading = isLoading && !error;
 
-  // Debug logging
-  console.log('useAuth debug:', {
-    user,
-    isLoading: actuallyLoading,
-    error,
-    isAuthenticated: !!user
-  });
 
   return {
     user,
