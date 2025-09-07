@@ -256,6 +256,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).send('Invalid credentials');
       }
       
+      // Create session for traditional auth user
+      const sessionUser = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        authType: user.authType,
+        expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 1 week
+      };
+      
+      // Store user in session
+      (req.session as any).user = sessionUser;
+      
       // Remove password from response
       const { password: _, ...userResponse } = user;
       res.json(userResponse);
@@ -272,8 +286,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
+      let user;
+      
+      // Check if traditional auth user
+      if (req.user && req.user.authType === 'traditional') {
+        // Traditional auth - user data is directly in req.user
+        user = await storage.getUser(req.user.id);
+      } else if (req.user && req.user.claims) {
+        // Replit auth - user id is in claims.sub
+        const userId = req.user.claims.sub;
+        user = await storage.getUser(userId);
+      } else {
+        return res.status(401).json({ message: "Invalid user session" });
+      }
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
       res.json(user);
     } catch (error) {
       console.error("Error fetching user:", error);
