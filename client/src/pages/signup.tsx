@@ -8,8 +8,7 @@ export default function SignupPage() {
   const [checkingPayment, setCheckingPayment] = useState(true);
 
   useEffect(() => {
-    // Allow access to signup form (payment verification temporarily disabled)
-    // TODO: Re-implement proper payment verification after fixing Stripe redirects
+    // Skip payment verification for now - allow direct access to signup
     setPaymentVerified(true);
     setCheckingPayment(false);
   }, []);
