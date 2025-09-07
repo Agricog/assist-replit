@@ -12,12 +12,14 @@ import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
 import AdminPage from "@/pages/admin";
 import ForgotPasswordPage from "@/pages/forgot-password";
+import PaymentPage from "@/pages/payment";
 
 
 function Router() {
   // Bypass authentication - always show Landing page with SmartSuite form
   return (
     <Switch>
+      <Route path="/payment" component={PaymentPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />

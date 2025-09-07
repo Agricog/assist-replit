@@ -24,15 +24,14 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Stripe integration
-  if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
+  // Stripe integration - will be enabled when keys are provided
+  let stripe: any = null;
+  if (process.env.STRIPE_SECRET_KEY) {
+    const Stripe = require('stripe');
+    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2023-10-16",
+    });
   }
-  
-  const Stripe = require('stripe');
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2023-10-16",
-  });
 
   // Redirect root path to payment page now
   app.get('/', (req, res) => {
@@ -65,6 +64,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Stripe payment intent creation
   app.post('/api/create-payment-intent', async (req, res) => {
     try {
+      if (!stripe) {
+        return res.status(500).json({ message: "Stripe not configured. Please add STRIPE_SECRET_KEY environment variable." });
+      }
+
       const { amount = 1, currency = 'gbp' } = req.body;
       
       const paymentIntent = await stripe.paymentIntents.create({
