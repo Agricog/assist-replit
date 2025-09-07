@@ -59,15 +59,55 @@ export default function SignupPage() {
           console.log('Notification failed but signup succeeded');
         }
         
-        // Show success message and redirect to dashboard (user is now logged in)
-        console.log('✅ Signup successful, redirecting to dashboard in 3 seconds...');
+        // Show success message
+        console.log('✅ Signup successful');
         setSuccess(true);
         
-        // After 2 seconds, redirect to dashboard  
-        setTimeout(() => {
-          console.log('Signup complete - redirecting to dashboard...');
-          window.location.href = '/dashboard';
-        }, 2000);
+        // Wait a moment, then test authentication before redirecting
+        setTimeout(async () => {
+          try {
+            console.log('Testing authentication before redirect...');
+            const testResponse = await fetch('/api/user', {
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+            
+            if (testResponse.ok) {
+              const userData = await testResponse.json();
+              console.log('✅ Authentication confirmed for:', userData.username);
+              console.log('Redirecting to dashboard...');
+              window.location.href = '/dashboard';
+            } else {
+              console.log('❌ Authentication failed, status:', testResponse.status);
+              // Try logging in again with the same credentials
+              const reLoginResponse = await fetch('/api/login-traditional', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ username: formData.username, password: formData.password }),
+              });
+              
+              if (reLoginResponse.ok) {
+                console.log('✅ Re-login successful, redirecting to dashboard');
+                setTimeout(() => {
+                  window.location.href = '/dashboard';
+                }, 500);
+              } else {
+                console.log('❌ Re-login failed');
+                setError('Login failed after signup. Please try logging in manually.');
+                setSuccess(false);
+              }
+            }
+          } catch (error) {
+            console.error('Error testing authentication:', error);
+            setError('Authentication check failed. Please try logging in manually.');
+            setSuccess(false);
+          }
+        }, 1000);
       } else {
         console.log('❌ Registration failed:', response.status);
         const errorText = await response.text();
