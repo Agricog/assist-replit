@@ -25,7 +25,9 @@ export default function Dashboard() {
 
   // Redirect to home if not authenticated
   useEffect(() => {
+    console.log('Dashboard auth check:', { isLoading, isAuthenticated, user });
     if (!isLoading && !isAuthenticated) {
+      console.log('Dashboard redirecting - not authenticated');
       toast({
         title: "Unauthorized",
         description: "You are logged out. Logging in again...",
@@ -36,7 +38,7 @@ export default function Dashboard() {
       }, 500);
       return;
     }
-  }, [isAuthenticated, isLoading, toast]);
+  }, [isAuthenticated, isLoading, toast, user]);
 
   // Fetch farm fields
   const { data: farmFields = [], refetch: refetchFields } = useQuery<FarmField[]>({

@@ -12,6 +12,14 @@ export function useAuth() {
   // If there's an error (like 401), consider loading complete
   const actuallyLoading = isLoading && !error;
 
+  // Debug logging
+  console.log('useAuth debug:', {
+    user,
+    isLoading: actuallyLoading,
+    error,
+    isAuthenticated: !!user
+  });
+
   return {
     user,
     isLoading: actuallyLoading,
