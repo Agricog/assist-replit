@@ -5,17 +5,16 @@ export default function LoginPage() {
   const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('🚀 FORM SUBMITTED - handleSubmit called');
-    
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    console.log('📝 Form data:', data);
-    
-    setLoading(true);
-    setError('');
-    
     try {
+      e.preventDefault();
+      console.log('🚀 FORM SUBMITTED - handleSubmit called');
+      
+      const formData = new FormData(e.currentTarget);
+      const data = Object.fromEntries(formData);
+      console.log('📝 Form data:', data);
+      
+      setLoading(true);
+      setError('');
       const response = await fetch('/api/login-traditional', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,8 +60,8 @@ export default function LoginPage() {
         setError(errorText || 'Login failed');
       }
     } catch (error) {
+      console.error('❌ Login error:', error);
       setError('Network error. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
