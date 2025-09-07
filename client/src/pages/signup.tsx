@@ -102,7 +102,7 @@ export default function SignupPage() {
             style={{ display: 'inline-block', backgroundColor: '#10b981', color: 'white', padding: '12px 24px', borderRadius: '8px', fontWeight: '600', textDecoration: 'none' }}
             data-testid="link-payment"
           >
-            Complete Payment (£1)
+            Complete Payment (£0.01)
           </a>
         </div>
       </div>
