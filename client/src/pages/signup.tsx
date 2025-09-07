@@ -63,12 +63,11 @@ export default function SignupPage() {
         console.log('✅ Signup successful, redirecting to dashboard in 3 seconds...');
         setSuccess(true);
         
-        // After 3 seconds, redirect to dashboard  
+        // After 2 seconds, redirect to dashboard  
         setTimeout(() => {
-          console.log('🔄 Redirecting to dashboard now...');
-          console.log('Current URL before redirect:', window.location.href);
+          console.log('Signup complete - redirecting to dashboard...');
           window.location.href = '/dashboard';
-        }, 3000);
+        }, 2000);
       } else {
         console.log('❌ Registration failed:', response.status);
         const errorText = await response.text();
