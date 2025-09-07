@@ -72,9 +72,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Signup page route
 
   // Login page route
-  app.get('/login', (req, res) => {
-    res.sendFile('login.html', { root: 'client/public' });
-  });
 
   // Test signup page
   app.get('/test-signup', (req, res) => {
