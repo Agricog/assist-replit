@@ -16,6 +16,7 @@ export default function LoginPage() {
       const response = await fetch('/api/login-traditional', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // ✅ CRITICAL: Include cookies for session management
         body: JSON.stringify({
           username: data.username,
           password: data.password
