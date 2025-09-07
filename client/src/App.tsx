@@ -1,3 +1,4 @@
+import React from "react";
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -11,10 +12,14 @@ import NotFound from "@/pages/not-found";
 
 // Simple inline signup component for testing
 function SignupPage() {
+  // Redirect to the static signup HTML file
+  React.useEffect(() => {
+    window.location.href = '/signup.html';
+  }, []);
+  
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Signup Page Works!</h1>
-      <p>This is the signup page</p>
+      <p>Redirecting to signup...</p>
     </div>
   );
 }
