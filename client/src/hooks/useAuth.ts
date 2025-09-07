@@ -13,6 +13,14 @@ export function useAuth() {
     gcTime: 60000,              // Reduced cache time
   });
 
+  // Debug logging
+  console.log('🔍 useAuth Debug:', {
+    user: user ? `${user.username} (${user.authType})` : 'null',
+    isLoading,
+    error: error ? error.message : 'none',
+    isAuthenticated: !!user
+  });
+
   // If there's an error (like 401), consider loading complete
   const actuallyLoading = isLoading && !error;
 

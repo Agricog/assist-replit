@@ -25,14 +25,20 @@ export default function Dashboard() {
 
   // Redirect to home if not authenticated  
   useEffect(() => {
+    console.log('🏠 Dashboard Auth Check:', { isLoading, isAuthenticated, user: user?.username || 'none' });
+    
     // Only redirect if we're definitely sure user is not authenticated
     // Give more time for authentication to load
     if (!isLoading && !isAuthenticated && !user) {
+      console.log('❌ Dashboard: Redirecting to home in 8 seconds - auth failed');
       const timer = setTimeout(() => {
+        console.log('❌ Dashboard: Redirecting to home now');
         window.location.href = "/";
       }, 8000); // Give 8 seconds for auth to complete
       
       return () => clearTimeout(timer);
+    } else if (isAuthenticated && user) {
+      console.log('✅ Dashboard: User authenticated successfully:', user.username);
     }
   }, [isAuthenticated, isLoading, user]);
 
