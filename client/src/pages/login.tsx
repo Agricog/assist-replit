@@ -6,8 +6,11 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('🚀 FORM SUBMITTED - handleSubmit called');
+    
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
+    console.log('📝 Form data:', data);
     
     setLoading(true);
     setError('');
