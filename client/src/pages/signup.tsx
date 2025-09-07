@@ -8,13 +8,9 @@ export default function SignupPage() {
   const [checkingPayment, setCheckingPayment] = useState(true);
 
   useEffect(() => {
-    // Check if user came from successful payment
-    const urlParams = new URLSearchParams(window.location.search);
-    const paymentStatus = urlParams.get('payment');
-    
-    if (paymentStatus === 'success') {
-      setPaymentVerified(true);
-    }
+    // Allow access to signup form (payment verification temporarily disabled)
+    // TODO: Re-implement proper payment verification after fixing Stripe redirects
+    setPaymentVerified(true);
     setCheckingPayment(false);
   }, []);
 
