@@ -8,7 +8,24 @@ interface WelcomeEmailParams {
   location: string;
 }
 
-export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean> {
+export async function sendWelcomeEmail(params: WelcomeEmailParams): Promise<boolean>;
+export async function sendWelcomeEmail(to: string, firstName: string, tempPassword?: string): Promise<boolean>;
+export async function sendWelcomeEmail(paramsOrTo: WelcomeEmailParams | string, firstName?: string, tempPassword?: string): Promise<boolean> {
+  // Handle both parameter patterns
+  if (typeof paramsOrTo === 'string') {
+    // Password reset email
+    const to = paramsOrTo;
+    const name = firstName || 'User';
+    
+    if (tempPassword) {
+      return sendPasswordResetEmail(to, name, tempPassword);
+    } else {
+      throw new Error('Temporary password required for password reset');
+    }
+  }
+  
+  // Original welcome email
+  const params = paramsOrTo as WelcomeEmailParams;
   try {
     const { to, firstName, farmName, location } = params;
 
@@ -152,6 +169,44 @@ The Agricog Assist Team
     return true;
   } catch (error) {
     console.error('SendGrid email error:', error);
+    return false;
+  }
+}
+
+// Password reset email function
+async function sendPasswordResetEmail(to: string, firstName: string, tempPassword: string): Promise<boolean> {
+  try {
+    const emailText = `
+Hi ${firstName},
+
+You requested a password reset for your Agricog Assist account.
+
+Your temporary password is: ${tempPassword}
+
+Please use this temporary password to log in, then update your password immediately for security.
+
+Login at: https://agricogassist.com/signup
+
+For security reasons, this temporary password will expire in 24 hours.
+
+If you didn't request this password reset, please contact us immediately.
+
+Best regards,
+The Agricog Assist Team
+    `.trim();
+
+    // For now, log the email content (replace with simple email service later)
+    console.log('\n=== PASSWORD RESET EMAIL ===');
+    console.log(`To: ${to}`);
+    console.log(`Subject: Password Reset for Agricog Assist`);
+    console.log('\nEmail Content:');
+    console.log(emailText);
+    console.log('\n=== END EMAIL ===\n');
+
+    // Simulate successful send for now
+    return true;
+  } catch (error) {
+    console.error('Password reset email error:', error);
     return false;
   }
 }
