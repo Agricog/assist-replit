@@ -294,14 +294,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware already set up above
 
-  // Traditional auth user endpoint
+  // Universal auth user endpoint (handles both traditional and Replit auth)
   app.get('/api/user', async (req, res) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-    
     try {
-      const user = req.user;
+      let user = null;
+      
+      // Check for traditional auth session first
+      if ((req.session as any).user) {
+        const sessionUser = (req.session as any).user;
+        // Verify session hasn't expired
+        if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
+          // Get full user data from database (exclude password)
+          user = await storage.getUser(sessionUser.id);
+          if (user) {
+            const { password, ...userWithoutPassword } = user;
+            user = userWithoutPassword;
+          }
+        }
+      } 
+      // Check for Replit auth (Passport)
+      else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+        user = req.user;
+      }
+      
       if (!user) {
         return res.status(401).json({ message: 'Unauthorized' });
       }

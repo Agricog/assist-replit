@@ -8,8 +8,9 @@ export function useAuth() {
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
-    refetchOnWindowFocus: false,
-    staleTime: 0, // Always fetch fresh
+    refetchOnWindowFocus: true,  // Refetch when window gets focus
+    staleTime: 0,               // Always fetch fresh - no caching
+    gcTime: 0,                  // Don't cache in memory
   });
 
   // If there's an error (like 401), consider loading complete

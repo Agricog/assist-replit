@@ -88,7 +88,7 @@ export default function SignupPage() {
                   'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify({ username: formData.username, password: formData.password }),
+                body: JSON.stringify({ username: data.username, password: data.password }),
               });
               
               if (reLoginResponse.ok) {
