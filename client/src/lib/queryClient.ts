@@ -47,8 +47,8 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "returnNull" }),  // Don't throw on auth errors
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0,  // Always fetch fresh for auth checks
       retry: false,
+      // Remove staleTime: 0 to allow useAuth hook to control its own caching
     },
     mutations: {
       retry: false,
