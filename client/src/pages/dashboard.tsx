@@ -23,19 +23,22 @@ export default function Dashboard() {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
 
-  // Redirect to home if not authenticated
+  // Redirect to home if not authenticated  
   useEffect(() => {
+    console.log('Dashboard useEffect triggered:', { isLoading, isAuthenticated, user: user?.username });
+    
     if (!isLoading && !isAuthenticated) {
-      console.log('Dashboard: Redirecting to login - user not authenticated');
-      // Redirect back to landing page instead of login
+      console.log('Dashboard: Will redirect to landing in 2 seconds');
+      // Give more time for auth to load
       setTimeout(() => {
+        console.log('Dashboard: Redirecting to landing page now');
         window.location.href = "/";
-      }, 1000);
+      }, 2000);
       return;
     } else if (!isLoading && isAuthenticated) {
-      console.log('Dashboard: User is authenticated, showing dashboard');
+      console.log('Dashboard: ✅ User authenticated, staying on dashboard');
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, user]);
 
   // Fetch farm fields
   const { data: farmFields = [], refetch: refetchFields } = useQuery<FarmField[]>({
