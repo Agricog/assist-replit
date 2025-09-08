@@ -5,9 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 // import WeatherWidget from "@/components/weather-widget";
 // import MarketChat from "@/components/market-chat";
 // import FarmAssistant from "@/components/farm-assistant";
-import FarmDataModal from "@/components/farm-data-modal";
-import FarmDataViewModal from "@/components/farm-data-view-modal";
-import LocationModal from "@/components/postcode-modal";
+// import FarmDataModal from "@/components/farm-data-modal";
+// import FarmDataViewModal from "@/components/farm-data-view-modal";
+// import LocationModal from "@/components/postcode-modal";
 // import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
@@ -354,7 +354,7 @@ export default function Dashboard() {
       </main>
 
       {/* Farm Data Modal */}
-      <FarmDataModal 
+      {/* <FarmDataModal 
         isOpen={showFarmDataModal}
         onClose={() => {
           setShowFarmDataModal(false);
@@ -366,28 +366,28 @@ export default function Dashboard() {
           refetchFields();
         }}
         editingField={editingField}
-      />
+      /> */}
 
       {/* Farm Data View Modal */}
-      <FarmDataViewModal 
+      {/* <FarmDataViewModal 
         isOpen={showFarmDataViewModal}
         onClose={() => {
           setShowFarmDataViewModal(false);
           setSelectedField(null);
         }}
         field={selectedField}
-        onEdit={(field) => {
+        onEdit={(field: any) => {
           setEditingField(field);
           setShowFarmDataModal(true);
         }}
-      />
+      /> */}
 
       {/* Location Modal */}
-      <LocationModal 
+      {/* <LocationModal 
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}
         currentLocation={user?.location || undefined}
-      />
+      /> */}
     </div>
   );
 }
