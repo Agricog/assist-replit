@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronRight, Cloud, Sun, CloudRain } from "lucide-react";
 
 interface WeatherWidgetProps {
-  location: string;
+  location?: string;
 }
 
 interface WeatherData {

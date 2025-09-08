@@ -246,7 +246,7 @@ export default function Dashboard() {
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
             <div className="p-4">
-              <WeatherWidget />
+              <WeatherWidget location={user?.location || undefined} />
             </div>
             
             {/* Machinery Service Widget */}
