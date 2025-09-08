@@ -42,12 +42,11 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, user]);
 
-  // Fetch farm fields
-  const { data: farmFields = [], refetch: refetchFields } = useQuery<FarmField[]>({
-    queryKey: ["/api/farm/fields"],
-    enabled: isAuthenticated,
-    retry: false,
-  });
+  // Fetch farm fields - TEMPORARILY DISABLED FOR DEBUGGING
+  const farmFields: FarmField[] = [];
+  const refetchFields = () => {
+    console.log('Refetch fields called');
+  };
 
   const handleLogout = () => {
     window.location.href = "/api/logout";
@@ -248,7 +247,11 @@ export default function Dashboard() {
           {/* Right Column: Weather & Farm Data */}
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
-            {user?.location && <WeatherWidget location={user.location} />}
+            <div className="p-4">
+              <div className="bg-card border border-border rounded-lg p-4">
+                <p className="text-center text-muted-foreground">Weather Widget - Temporarily Disabled</p>
+              </div>
+            </div>
             
             {/* Machinery Service Widget */}
             <div className="p-4">
