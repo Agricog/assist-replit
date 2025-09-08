@@ -14,6 +14,7 @@ import AdminPage from "@/pages/admin";
 import ForgotPasswordPage from "@/pages/forgot-password";
 import PaymentPage from "@/pages/payment";
 import LoginPage from "@/pages/login";
+import DashboardSimple from "@/pages/dashboard-simple";
 
 
 function Router() {
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/test-dashboard" component={DashboardSimple} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={Landing} />
