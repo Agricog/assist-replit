@@ -1,0 +1,133 @@
+index-Bd8f511T.js:148 🔍 useAuth Debug: {user: 'null', isLoading: true, error: 'none', isAuthenticated: false}
+index-Bd8f511T.js:192 🏠 Dashboard Auth Check: {isLoading: true, isAuthenticated: false, user: 'none'}
+shared-a830c0854094070144293afc7759dfbb.js:1 Fetch finished loading: GET "https://js.stripe.com/v3/.deploy_status_henson.json".
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+e @ shared-a830c0854094070144293afc7759dfbb.js:1
+c @ shared-a830c0854094070144293afc7759dfbb.js:1
+k @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+value @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+55531 @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e.O @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+shared-a830c0854094070144293afc7759dfbb.js:1 Fetch finished loading: GET "https://js.stripe.com/v3/.deploy_status_henson.json".
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+e @ shared-a830c0854094070144293afc7759dfbb.js:1
+c @ shared-a830c0854094070144293afc7759dfbb.js:1
+k @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+log @ shared-a830c0854094070144293afc7759dfbb.js:1
+log @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+55531 @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+e.O @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+6Fetch finished loading: GET "<URL>".
+index-Bd8f511T.js:148 🔍 useAuth Debug: {user: 'Abi1 (traditional)', isLoading: false, error: 'none', isAuthenticated: true}
+index-Bd8f511T.js:192 🏠 Dashboard Auth Check: {isLoading: false, isAuthenticated: true, user: 'Abi1'}
+index-Bd8f511T.js:192 ✅ Dashboard: User authenticated successfully: Abi1
+index-Bd8f511T.js:148 🔍 useAuth Debug: {user: 'Abi1 (traditional)', isLoading: false, error: 'none', isAuthenticated: true}
+10XHR finished loading: POST "<URL>".
+2shared-a830c0854094070144293afc7759dfbb.js:1 Fetch finished loading: POST "https://r.stripe.com/b".
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+e @ shared-a830c0854094070144293afc7759dfbb.js:1
+c @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+Toaster.svelte_svelte_type_style_lang.CTR6EwSl.js:1 {environment: 'production'}
+vcd15cbe7772f49c399c6a5babf22c1241717689176015:1 XHR finished loading: POST "https://app.fastbots.ai/cdn-cgi/rum?".
+t.sendObjectBeacon @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+P @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+Promise.then
+R @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+setTimeout
+(anonymous) @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+c @ rocket-loader.min.js:1
+l @ rocket-loader.min.js:1
+t.simulateStateAfterDeferScriptsActivation @ rocket-loader.min.js:1
+callback @ rocket-loader.min.js:1
+t.run @ rocket-loader.min.js:1
+P @ rocket-loader.min.js:1
+callback @ rocket-loader.min.js:1
+t.run @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+Chatbox.BUCREuEn.js:4 Socket is not available, skipping subscription to unauth user channel
+Chatbox.BUCREuEn.js:4 No Firebase service worker found, registering one...
+entry.BRwP-LIn.js:1 Fetch finished loading: POST "https://app.fastbots.ai/api/live-chat/guest-users".
+window.fetch @ entry.BRwP-LIn.js:1
+(anonymous) @ Chatbox.BUCREuEn.js:4
+z @ scheduler.C_rByT5a.js:1
+(anonymous) @ index.CAOh1elI.js:4
+at @ scheduler.C_rByT5a.js:1
+Mt @ index.CAOh1elI.js:4
+bt @ app.D1YaFkSr.js:2
+ft @ entry.BRwP-LIn.js:1
+pn @ entry.BRwP-LIn.js:1
+await in pn
+_n @ entry.BRwP-LIn.js:1
+(anonymous) @ VM65:17
+Promise.then
+(anonymous) @ VM65:16
+t.activateScript @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+t.run @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+Chatbox.BUCREuEn.js:4 Service Worker registered with scope: https://app.fastbots.ai/
+firebase-messaging-sw.js:30 [firebase-messaging-sw.js] Service Worker installed
+firebase-messaging-sw.js:39 [firebase-messaging-sw.js] Service Worker activated
+shared-a830c0854094070144293afc7759dfbb.js:1 Fetch finished loading: POST "https://r.stripe.com/b".
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+e @ shared-a830c0854094070144293afc7759dfbb.js:1
+c @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+setTimeout
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+(anonymous) @ shared-a830c0854094070144293afc7759dfbb.js:1
+value @ shared-a830c0854094070144293afc7759dfbb.js:1
+log @ shared-a830c0854094070144293afc7759dfbb.js:1
+log @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+value @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+value @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+(anonymous) @ controller-with-preconnect-e2f2937dd4e4335cff33336c6aae78ac.js:1
+logHelper.js:4580 XHR finished loading: POST "https://browser.pipe.aria.microsoft.com/Collector/3.0/?qsp=true&content-type=application%2Fbond-compact-binary&client-id=NO_AUTH&sdk-version=AWT-Web-JS-1.8.4&x-apikey=9cf7b68164b34e7e995562121503c72a-72856c17-5747-49e6-bd96-fde5bb08a4f4-7006&client-time-epoch-millis=1757315397703&time-delta-to-apply-millis=use-collector-delta".
+sendPOST @ logHelper.js:4580
+AWTHttpManager2._sendRequest @ logHelper.js:4680
+AWTHttpManager2.sendQueuedRequests @ logHelper.js:4595
+AWTQueueManager2.sendEventsForPriorityAndAbove @ logHelper.js:4876
+AWTTransmissionManagerCore2._batchAndSendEvents @ logHelper.js:5812
+(anonymous) @ logHelper.js:5677
+setTimeout
+AWTTransmissionManagerCore2.scheduleTimer @ logHelper.js:5676
+AWTTransmissionManagerCore2.sendEvent @ logHelper.js:5742
+AWTLogger2._sendEvent @ logHelper.js:6077
+AWTLogger2._logEvent @ logHelper.js:6060
+AWTLogger2.logEvent @ logHelper.js:5899
+AWTLogger2.logSession @ logHelper.js:5935
+init @ logHelper.js:6634
+init @ logHelper.js:6840
+(anonymous) @ logHelper.js:6868
+logHelper.js:4580 XHR finished loading: POST "https://browser.pipe.aria.microsoft.com/Collector/3.0/?qsp=true&content-typ
