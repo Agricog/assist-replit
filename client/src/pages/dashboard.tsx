@@ -235,10 +235,14 @@ export default function Dashboard() {
           {/* Left Column: Dual Chat Interface */}
           <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
             {/* Market Intelligence Chat */}
-            <MarketChat />
+            <div className="flex-1 bg-card border border-border rounded-lg p-4">
+              <p className="text-center text-muted-foreground">Market Chat - Temporarily Disabled</p>
+            </div>
 
             {/* Farm Assistant Chat */}
-            <FarmAssistant />
+            <div className="flex-1 bg-card border border-border rounded-lg p-4">
+              <p className="text-center text-muted-foreground">Farm Assistant - Temporarily Disabled</p>
+            </div>
           </div>
 
           {/* Right Column: Weather & Farm Data */}
@@ -248,7 +252,9 @@ export default function Dashboard() {
             
             {/* Machinery Service Widget */}
             <div className="p-4">
-              <MachineryServiceWidget />
+              <div className="bg-card border border-border rounded-lg p-4">
+                <p className="text-center text-muted-foreground">Machinery Service - Temporarily Disabled</p>
+              </div>
             </div>
 
             {/* Farm Data Summary */}
