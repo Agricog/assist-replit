@@ -42,12 +42,11 @@ export default function Dashboard() {
     }
   }, [isAuthenticated, isLoading, user]);
 
-  // Fetch farm fields
-  const { data: farmFields = [], refetch: refetchFields } = useQuery<FarmField[]>({
-    queryKey: ["/api/farm/fields"],
-    enabled: isAuthenticated,
-    retry: false,
-  });
+  // Fetch farm fields - DISABLED FOR TESTING
+  const farmFields: FarmField[] = [];
+  const refetchFields = () => {
+    console.log('Refetch fields called');
+  };
 
   const handleLogout = () => {
     window.location.href = "/api/logout";
