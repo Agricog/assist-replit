@@ -2,13 +2,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import WeatherWidget from "@/components/weather-widget";
-import MarketChat from "@/components/market-chat";
-import FarmAssistant from "@/components/farm-assistant";
+// import WeatherWidget from "@/components/weather-widget";
+// import MarketChat from "@/components/market-chat";
+// import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
 import FarmDataViewModal from "@/components/farm-data-view-modal";
 import LocationModal from "@/components/postcode-modal";
-import MachineryServiceWidget from "@/components/machinery-service-widget";
+// import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
 // import agricogLogo from "@assets/Agricog_1756233506512.png"; // TEMPORARILY DISABLED
@@ -244,9 +244,11 @@ export default function Dashboard() {
 
           {/* Right Column: Weather & Farm Data */}
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
-            {/* Weather Widget */}
+            {/* Weather Widget - DISABLED - CAUSES BLANK PAGE */}
             <div className="p-4">
-              <WeatherWidget location={user?.location || undefined} />
+              <div className="bg-card border border-border rounded-lg p-4">
+                <p className="text-center text-muted-foreground">Weather Widget - Temporarily Disabled</p>
+              </div>
             </div>
             
             {/* Machinery Service Widget */}
