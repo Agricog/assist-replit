@@ -97,9 +97,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Fetch the actual price from your Stripe product
-      const product = await stripe.products.retrieve('prod_T0iuXjDmpUCb43');
+      const product = await stripe.products.retrieve('prod_T1CIXEEYrvQx6v');
       const prices = await stripe.prices.list({
-        product: 'prod_T0iuXjDmpUCb43',
+        product: 'prod_T1CIXEEYrvQx6v',
         active: true
       });
       
@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: amount,
         currency: 'gbp',
         metadata: {
-          product_id: 'prod_T0iuXjDmpUCb43',
+          product_id: 'prod_T1CIXEEYrvQx6v',
           product_name: 'Agricog Assist Access',
           service: 'agricultural-ai-platform',
           price_id: price.id
