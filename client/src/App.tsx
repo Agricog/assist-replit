@@ -25,7 +25,7 @@ function Router() {
       <Route path="/payment" component={PaymentPage} />
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard" component={DashboardSimple} />
       <Route path="/test-dashboard" component={DashboardSimple} />
       <Route path="/minimal-dashboard" component={DashboardMinimal} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
