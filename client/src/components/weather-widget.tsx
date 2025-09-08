@@ -56,7 +56,7 @@ export default function WeatherWidget({ location }: WeatherWidgetProps) {
     );
   }
 
-  if (error || !weatherData) {
+  if (error || !weatherData || !weatherData.list || !weatherData.city) {
     return (
       <div className="p-4" data-testid="weather-widget">
         <div className="bg-card rounded-lg border border-border overflow-hidden">
