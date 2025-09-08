@@ -31,6 +31,7 @@ export function getSession() {
     ttl: sessionTtl,
     tableName: "sessions",
   });
+  
   return session({
     secret: process.env.SESSION_SECRET!,
     store: sessionStore,
@@ -38,7 +39,7 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Allow HTTP in development
+      secure: 'auto', // Auto-detect HTTPS - secure for HTTPS, insecure for HTTP
       sameSite: 'lax', // Allow cross-origin requests
       maxAge: sessionTtl,
     },
