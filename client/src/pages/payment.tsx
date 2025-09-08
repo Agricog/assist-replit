@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Check for Stripe key inside component instead of at module level
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLIC_KEY 
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+  : null;
 
 const PaymentForm = ({ clientSecret, amount }: { clientSecret: string; amount: number }) => {
   const stripe = useStripe();
@@ -74,6 +74,17 @@ const PaymentForm = ({ clientSecret, amount }: { clientSecret: string; amount: n
 };
 
 export default function PaymentPage() {
+  // Check for Stripe key when component mounts
+  if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h1>
+          <p>Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY</p>
+        </div>
+      </div>
+    );
+  }
   const [clientSecret, setClientSecret] = useState('');
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(true);
