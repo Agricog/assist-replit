@@ -29,6 +29,7 @@ function Router() {
       <Route path="/test-dashboard" component={DashboardSimple} />
       <Route path="/minimal-dashboard" component={DashboardMinimal} />
       <Route path="/working-dashboard" component={DashboardSimple} />
+      <Route path="/complex-dashboard" component={Dashboard} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={Landing} />
