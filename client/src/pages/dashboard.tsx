@@ -246,9 +246,7 @@ export default function Dashboard() {
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
             <div className="p-4">
-              <div className="bg-card border border-border rounded-lg p-4">
-                <p className="text-center text-muted-foreground">Weather Widget - Temporarily Disabled</p>
-              </div>
+              <WeatherWidget />
             </div>
             
             {/* Machinery Service Widget */}
