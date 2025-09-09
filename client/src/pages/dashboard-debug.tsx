@@ -11,7 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 // import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
-import agricogLogo from "@assets/Agricog_1756233506512.png";
+// import agricogLogo from "@assets/Agricog_1756233506512.png";
 
 export default function DashboardDebug() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
@@ -82,7 +82,7 @@ export default function DashboardDebug() {
       <header className="bg-primary text-primary-foreground border-b border-border">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-4">
-            <img src={agricogLogo} alt="Agricog Assist" className="h-10 w-auto" />
+            <div className="h-10 w-10 bg-primary-foreground/20 rounded flex items-center justify-center text-sm font-bold">AG</div>
             <h1 className="text-2xl font-bold">Agricog Assist</h1>
           </div>
           
