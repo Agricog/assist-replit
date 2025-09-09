@@ -11,6 +11,7 @@ import DashboardMinimal from "@/pages/dashboard-minimal";
 import DashboardDebug from "@/pages/dashboard-debug";
 import DashboardTest from "@/pages/dashboard-test";
 import DashboardStep1 from "@/pages/dashboard-step1";
+import DashboardStep2 from "@/pages/dashboard-step2";
 import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
@@ -32,6 +33,7 @@ function Router() {
       <Route path="/dashboard-debug" component={DashboardDebug} />
       <Route path="/dashboard-test" component={DashboardTest} />
       <Route path="/dashboard-step1" component={DashboardStep1} />
+      <Route path="/dashboard-step2" component={DashboardStep2} />
       <Route path="/complex-dashboard" component={Dashboard} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
