@@ -85,9 +85,9 @@ export default function Dashboard() {
     return user?.email || "User";
   };
 
-  // Calculate farm statistics
-  const totalAcres = farmFields.reduce((sum: number, field: FarmField) => sum + parseFloat(field.size || "0"), 0);
-  const cropTypes = new Set(farmFields.map((field: FarmField) => field.cropType)).size;
+  // Calculate farm statistics - handle null/undefined farmFields
+  const totalAcres = (farmFields || []).reduce((sum: number, field: FarmField) => sum + parseFloat(field.size || "0"), 0);
+  const cropTypes = new Set((farmFields || []).map((field: FarmField) => field.cropType)).size;
 
   return (
     <div className="h-full flex overflow-hidden">

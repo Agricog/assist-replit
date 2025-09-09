@@ -29,25 +29,44 @@ const universalAuth = (req: any, res: any, next: any) => {
   let user = null;
   let userId = null;
   
+  console.log('🔐 universalAuth Debug:', {
+    hasSession: !!req.session,
+    hasUser: !!(req.session as any)?.user,
+    hasPassport: !!(req.session as any)?.passport,
+    isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+    hasReqUser: !!req.user
+  });
+  
   // Check traditional auth session first
   if ((req.session as any).user) {
     const sessionUser = (req.session as any).user;
+    console.log('📝 Traditional auth found:', { id: sessionUser.id, expires_at: sessionUser.expires_at });
     // Verify session hasn't expired
     if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
       user = sessionUser;
       userId = sessionUser.id;
     }
   }
-  // Check Replit auth (Passport)
+  // Check for Passport session (could be Replit or traditional via passport)
+  else if ((req.session as any)?.passport?.user) {
+    const passportUser = (req.session as any).passport.user;
+    console.log('🎫 Passport auth found:', { id: passportUser.id });
+    user = passportUser;
+    userId = passportUser.id;
+  }
+  // Check Replit auth (Passport authenticated)
   else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+    console.log('🔐 Replit auth found:', { claims: !!req.user.claims });
     user = req.user;
     userId = req.user.claims?.sub;
   }
   
   if (!user || !userId) {
+    console.log('❌ universalAuth: No valid authentication found');
     return res.status(401).json({ message: 'Unauthorized' });
   }
   
+  console.log('✅ universalAuth: Success for userId:', userId);
   // Attach user info to request for easier access
   req.authUser = user;
   req.authUserId = userId;
