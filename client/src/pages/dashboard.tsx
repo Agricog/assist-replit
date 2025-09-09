@@ -11,7 +11,7 @@ import LocationModal from "@/components/postcode-modal";
 import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
-import agricogLogo from "@assets/Agricog_1756233506512.png";
+// import agricogLogo from "@assets/Agricog_1756233506512.png";
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
@@ -98,12 +98,9 @@ export default function Dashboard() {
           <div className="p-6 border-b border-border">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-10 flex items-center justify-center">
-                <img 
-                  src={agricogLogo} 
-                  alt="Agricog Logo" 
-                  className="h-full w-auto object-contain"
-                  data-testid="img-dashboard-logo"
-                />
+                <div className="h-10 w-10 bg-primary-foreground/20 rounded flex items-center justify-center text-sm font-bold text-primary">
+                  AG
+                </div>
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Agricog</h2>
