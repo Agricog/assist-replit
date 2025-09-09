@@ -15,13 +15,14 @@ import type { FarmField, User } from "@shared/schema";
 
 export default function DashboardDebug() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
-  const { toast } = useToast();
-  const [showFarmDataModal, setShowFarmDataModal] = useState(false);
-  const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
-  const [selectedField, setSelectedField] = useState<FarmField | null>(null);
-  const [editingField, setEditingField] = useState<FarmField | null>(null);
-  const [showLocationModal, setShowLocationModal] = useState(false);
-  const [showAllFields, setShowAllFields] = useState(false);
+  // Remove unused state and toast that might cause issues
+  // const { toast } = useToast();
+  // const [showFarmDataModal, setShowFarmDataModal] = useState(false);
+  // const [showFarmDataViewModal, setShowFarmDataViewModal] = useState(false);
+  // const [selectedField, setSelectedField] = useState<FarmField | null>(null);
+  // const [editingField, setEditingField] = useState<FarmField | null>(null);
+  // const [showLocationModal, setShowLocationModal] = useState(false);
+  // const [showAllFields, setShowAllFields] = useState(false);
 
   // Redirect to home if not authenticated  
   useEffect(() => {
