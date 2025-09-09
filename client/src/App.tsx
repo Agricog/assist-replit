@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import DashboardMinimal from "@/pages/dashboard-minimal";
+import DashboardDebug from "@/pages/dashboard-debug";
 import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
@@ -26,6 +27,7 @@ function Router() {
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/dashboard-minimal" component={DashboardMinimal} />
+      <Route path="/dashboard-debug" component={DashboardDebug} />
       <Route path="/complex-dashboard" component={Dashboard} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
