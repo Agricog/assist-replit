@@ -16,6 +16,7 @@ import PaymentPage from "@/pages/payment";
 import LoginPage from "@/pages/login";
 import DashboardSimple from "@/pages/dashboard-simple";
 import DashboardMinimal from "@/pages/dashboard-minimal";
+import DashboardTestMinimal from "@/pages/dashboard-test-minimal";
 
 
 function Router() {
@@ -29,7 +30,7 @@ function Router() {
       <Route path="/test-dashboard" component={DashboardSimple} />
       <Route path="/minimal-dashboard" component={DashboardMinimal} />
       <Route path="/working-dashboard" component={DashboardSimple} />
-      <Route path="/complex-dashboard" component={Dashboard} />
+      <Route path="/complex-dashboard" component={DashboardTestMinimal} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
       <Route path="/" component={Landing} />
