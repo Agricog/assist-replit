@@ -96,28 +96,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: "Stripe not configured. Please add STRIPE_SECRET_KEY environment variable." });
       }
 
-      // Fetch the actual price from your Stripe product
-      const product = await stripe.products.retrieve('prod_T0iuXjDmpUCb43');
-      const prices = await stripe.prices.list({
-        product: 'prod_T0iuXjDmpUCb43',
-        active: true
-      });
-      
-      if (prices.data.length === 0) {
-        return res.status(500).json({ message: "No active price found for product" });
-      }
-      
-      const price = prices.data[0];
-      const amount = price.unit_amount || 0; // This will be your £0.00 for testing
+      // Use a fixed amount for testing - £1.00 for Agricog Assist access
+      const amount = 100; // £1.00 in pence
       
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: 'gbp',
         metadata: {
-          product_id: 'prod_T0iuXjDmpUCb43',
           product_name: 'Agricog Assist Access',
           service: 'agricultural-ai-platform',
-          price_id: price.id
+          description: 'One-time payment for full access to Agricog Assist platform'
         }
       });
       
