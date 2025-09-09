@@ -49,7 +49,7 @@ export default function Onboarding() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";  // Traditional auth login page
         }, 500);
         return;
       }

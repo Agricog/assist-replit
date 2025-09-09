@@ -16,6 +16,8 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('🚀 Signup form submitted!');
+    console.log('🌍 Current URL:', window.location.href);
+    console.log('🍪 Current cookies:', document.cookie);
     
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
@@ -27,6 +29,8 @@ export default function SignupPage() {
       username: data.username,
       passwordLength: data.password ? (data.password as string).length : 0
     });
+    
+    console.log('🎯 About to call /api/register endpoint');
     
     if (data.password !== data.confirmPassword) {
       console.log('❌ Password mismatch error');
@@ -55,9 +59,13 @@ export default function SignupPage() {
       
       console.log('📡 API Response status:', response.status);
       console.log('📡 API Response ok:', response.ok);
+      console.log('📡 Response headers:', Array.from(response.headers.entries()));
       
       if (response.ok) {
+        const userData = await response.json();
         console.log('✅ Registration API call successful');
+        console.log('👤 User data received:', userData);
+        console.log('🔑 Auth type:', userData.authType);
         
         // Send Slack notification about new signup
         try {

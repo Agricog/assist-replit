@@ -43,7 +43,7 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";  // Traditional auth login page
         }, 500);
         return;
       }

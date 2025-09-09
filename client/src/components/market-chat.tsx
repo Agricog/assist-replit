@@ -45,7 +45,7 @@ export default function MarketChat() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";  // Traditional auth login page
         }, 500);
         return;
       }
@@ -78,7 +78,7 @@ export default function MarketChat() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";  // Traditional auth login page
         }, 500);
         return;
       }

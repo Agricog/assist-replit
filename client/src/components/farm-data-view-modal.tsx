@@ -39,7 +39,7 @@ export default function FarmDataViewModal({ isOpen, onClose, field, onEdit }: Fa
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";  // Traditional auth login page
         }, 500);
         return;
       }
