@@ -334,9 +334,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       let user = null;
       
+      // Debug session data
+      console.log('🔍 Session Debug:', {
+        hasSession: !!req.session,
+        sessionData: req.session ? Object.keys(req.session) : 'none',
+        hasUser: !!(req.session as any)?.user,
+        hasPassport: !!(req.session as any)?.passport,
+        isAuthenticated: req.isAuthenticated ? req.isAuthenticated() : false,
+        hasReqUser: !!req.user
+      });
+      
       // Check for traditional auth session first
       if ((req.session as any).user) {
         const sessionUser = (req.session as any).user;
+        console.log('📝 Traditional session user found:', { id: sessionUser.id, expires_at: sessionUser.expires_at });
         // Verify session hasn't expired
         if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
           // Get full user data from database (exclude password)
@@ -346,16 +357,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
             user = userWithoutPassword;
           }
         }
-      } 
-      // Check for Replit auth (Passport)
+      }
+      // Check for Passport session (could be Replit or traditional via passport)
+      else if ((req.session as any)?.passport?.user) {
+        const passportUser = (req.session as any).passport.user;
+        console.log('🎫 Passport session user found:', { id: passportUser.id, authType: passportUser.authType });
+        user = await storage.getUser(passportUser.id);
+        if (user) {
+          const { password, ...userWithoutPassword } = user;
+          user = userWithoutPassword;
+        }
+      }
+      // Check for Replit auth (Passport authenticated)
       else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+        console.log('🔐 Replit auth user found via req.user');
         user = req.user;
       }
       
       if (!user) {
+        console.log('❌ No authenticated user found');
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
+      console.log('✅ User authenticated:', { id: user.id, username: user.username });
       res.json(user);
     } catch (error) {
       console.error('Error fetching user:', error);
