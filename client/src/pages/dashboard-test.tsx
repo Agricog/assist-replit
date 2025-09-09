@@ -52,7 +52,18 @@ export default function DashboardTest() {
               Welcome, {user?.firstName || user?.username || 'User'}
             </span>
             <button 
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={async () => {
+                try {
+                  await fetch('/api/logout-traditional', {
+                    method: 'POST',
+                    credentials: 'include',
+                  });
+                  window.location.href = "/";
+                } catch (error) {
+                  console.error('Logout error:', error);
+                  window.location.href = "/";
+                }
+              }}
               className="bg-primary-foreground text-primary px-4 py-2 rounded-md text-sm font-medium"
             >
               Logout

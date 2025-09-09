@@ -46,7 +46,18 @@ export default function DashboardMinimal() {
           <div className="flex items-center space-x-4">
             <span>Welcome, {user?.username || user?.firstName || 'User'}</span>
             <button 
-              onClick={() => window.location.href = "/api/logout"}
+              onClick={async () => {
+                try {
+                  await fetch('/api/logout-traditional', {
+                    method: 'POST',
+                    credentials: 'include',
+                  });
+                  window.location.href = "/";
+                } catch (error) {
+                  console.error('Logout error:', error);
+                  window.location.href = "/";
+                }
+              }}
               className="bg-primary-foreground text-primary px-4 py-2 rounded"
             >
               Logout

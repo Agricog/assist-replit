@@ -310,6 +310,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Traditional logout API
+  app.post('/api/logout-traditional', async (req, res) => {
+    try {
+      // Clear the session
+      if (req.session) {
+        req.session.destroy((err) => {
+          if (err) {
+            console.error('Session destruction error:', err);
+            return res.status(500).send('Logout failed');
+          }
+          console.log('Traditional auth session cleared successfully');
+          res.status(200).json({ message: 'Logged out successfully' });
+        });
+      } else {
+        res.status(200).json({ message: 'No session to clear' });
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).send('Logout failed');
+    }
+  });
+
   // Traditional user login API
   app.post('/api/login-traditional', async (req, res) => {
     try {

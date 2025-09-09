@@ -49,8 +49,19 @@ export default function Dashboard() {
     retry: false,
   });
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout-traditional', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      // Redirect to home page after logout
+      window.location.href = "/";
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Fallback redirect even if logout fails
+      window.location.href = "/";
+    }
   };
 
   if (isLoading) {

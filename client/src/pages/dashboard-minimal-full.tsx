@@ -18,8 +18,17 @@ export default function DashboardMinimalFull() {
     }
   }, [isAuthenticated, isLoading, user]);
 
-  const handleLogout = () => {
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout-traditional', {
+        method: 'POST',
+        credentials: 'include',
+      });
+      window.location.href = "/";
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = "/";
+    }
   };
 
   if (isLoading) {
