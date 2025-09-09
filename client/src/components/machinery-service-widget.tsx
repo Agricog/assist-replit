@@ -13,7 +13,7 @@ export default function MachineryServiceWidget() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: machinery = [], isLoading, error, refetch } = useQuery<Machinery[]>({
+  const { data: machinery = [], isLoading, error, refetch } = useQuery({
     queryKey: ["/api/machinery"],
     refetchInterval: 60000, // Refetch every 60 seconds (reduced from 30s)
     retry: 3,
@@ -176,7 +176,7 @@ export default function MachineryServiceWidget() {
         </Button>
       </CardHeader>
       <CardContent>
-        {isLoading && (!machinery || machinery.length === 0) ? (
+        {isLoading && machinery.length === 0 ? (
           <div className="space-y-3">
             {[1, 2, 3].map(i => (
               <div key={i} className="animate-pulse">
@@ -186,7 +186,7 @@ export default function MachineryServiceWidget() {
               </div>
             ))}
           </div>
-        ) : (!machinery || machinery.length === 0) ? (
+        ) : machinery.length === 0 ? (
           <div className="text-center py-6 text-muted-foreground">
             <Wrench className="h-12 w-12 mx-auto mb-4" />
             <p className="mb-2">No machinery data available</p>
@@ -196,7 +196,7 @@ export default function MachineryServiceWidget() {
           </div>
         ) : (
           <div className="space-y-4">
-            {machinery.map((machine: Machinery) => {
+            {(machinery as Machinery[]).map((machine: Machinery) => {
               const serviceInfo = calculateNextServiceInfo(machine);
               return (
                 <div

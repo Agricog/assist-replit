@@ -97,9 +97,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Fetch the actual price from your Stripe product
-      const product = await stripe.products.retrieve('prod_T1CIXEEYrvQx6v');
+      const product = await stripe.products.retrieve('prod_T0iuXjDmpUCb43');
       const prices = await stripe.prices.list({
-        product: 'prod_T1CIXEEYrvQx6v',
+        product: 'prod_T0iuXjDmpUCb43',
         active: true
       });
       
@@ -114,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         amount: amount,
         currency: 'gbp',
         metadata: {
-          product_id: 'prod_T1CIXEEYrvQx6v',
+          product_id: 'prod_T0iuXjDmpUCb43',
           product_name: 'Agricog Assist Access',
           service: 'agricultural-ai-platform',
           price_id: price.id
@@ -322,18 +322,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware already set up above
 
   // Universal auth user endpoint (handles both traditional and Replit auth)
-  app.get('/api/user', universalAuth, async (req: any, res) => {
+  app.get('/api/user', async (req, res) => {
     try {
-      const userId = req.authUserId;
-      const user = await storage.getUser(userId);
+      let user = null;
       
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+      // Check for traditional auth session first
+      if ((req.session as any).user) {
+        const sessionUser = (req.session as any).user;
+        // Verify session hasn't expired
+        if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
+          // Get full user data from database (exclude password)
+          user = await storage.getUser(sessionUser.id);
+          if (user) {
+            const { password, ...userWithoutPassword } = user;
+            user = userWithoutPassword;
+          }
+        }
+      } 
+      // Check for Replit auth (Passport)
+      else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
+        user = req.user;
       }
       
-      // Remove password if it exists (for traditional auth users)
-      const { password, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      if (!user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      }
+      
+      res.json(user);
     } catch (error) {
       console.error('Error fetching user:', error);
       res.status(500).json({ message: 'Failed to fetch user' });

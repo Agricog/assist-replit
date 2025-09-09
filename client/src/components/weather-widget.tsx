@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { ChevronDown, ChevronRight, Cloud, Sun, CloudRain } from "lucide-react";
 
 interface WeatherWidgetProps {
-  location?: string;
+  location: string;
 }
 
 interface WeatherData {
@@ -56,7 +56,7 @@ export default function WeatherWidget({ location }: WeatherWidgetProps) {
     );
   }
 
-  if (error || !weatherData || !weatherData.list || !weatherData.city) {
+  if (error || !weatherData) {
     return (
       <div className="p-4" data-testid="weather-widget">
         <div className="bg-card rounded-lg border border-border overflow-hidden">

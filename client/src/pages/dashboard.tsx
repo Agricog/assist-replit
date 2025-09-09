@@ -2,16 +2,16 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-// import WeatherWidget from "@/components/weather-widget";
-// import MarketChat from "@/components/market-chat";
-// import FarmAssistant from "@/components/farm-assistant";
-// import FarmDataModal from "@/components/farm-data-modal";
-// import FarmDataViewModal from "@/components/farm-data-view-modal";
-// import LocationModal from "@/components/postcode-modal";
-// import MachineryServiceWidget from "@/components/machinery-service-widget";
+import WeatherWidget from "@/components/weather-widget";
+import MarketChat from "@/components/market-chat";
+import FarmAssistant from "@/components/farm-assistant";
+import FarmDataModal from "@/components/farm-data-modal";
+import FarmDataViewModal from "@/components/farm-data-view-modal";
+import LocationModal from "@/components/postcode-modal";
+import MachineryServiceWidget from "@/components/machinery-service-widget";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { FarmField, User } from "@shared/schema";
-// import agricogLogo from "@assets/Agricog_1756233506512.png"; // TEMPORARILY DISABLED
+import agricogLogo from "@assets/Agricog_1756233506512.png";
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading } = useAuth() as { user: User | undefined; isAuthenticated: boolean; isLoading: boolean };
@@ -98,9 +98,12 @@ export default function Dashboard() {
           <div className="p-6 border-b border-border">
             <div className="flex items-center space-x-3">
               <div className="w-12 h-10 flex items-center justify-center">
-                <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-                  <span className="text-primary-foreground font-bold text-sm">A</span>
-                </div>
+                <img 
+                  src={agricogLogo} 
+                  alt="Agricog Logo" 
+                  className="h-full w-auto object-contain"
+                  data-testid="img-dashboard-logo"
+                />
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-foreground">Agricog</h2>
@@ -232,30 +235,20 @@ export default function Dashboard() {
           {/* Left Column: Dual Chat Interface */}
           <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
             {/* Market Intelligence Chat */}
-            <div className="flex-1 bg-card border border-border rounded-lg p-4">
-              <p className="text-center text-muted-foreground">Market Chat - Temporarily Disabled</p>
-            </div>
+            <MarketChat />
 
             {/* Farm Assistant Chat */}
-            <div className="flex-1 bg-card border border-border rounded-lg p-4">
-              <p className="text-center text-muted-foreground">Farm Assistant - Temporarily Disabled</p>
-            </div>
+            <FarmAssistant />
           </div>
 
           {/* Right Column: Weather & Farm Data */}
           <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
-            {/* Weather Widget - DISABLED - CAUSES BLANK PAGE */}
-            <div className="p-4">
-              <div className="bg-card border border-border rounded-lg p-4">
-                <p className="text-center text-muted-foreground">Weather Widget - Temporarily Disabled</p>
-              </div>
-            </div>
+            {/* Weather Widget */}
+            {user?.location && <WeatherWidget location={user.location} />}
             
             {/* Machinery Service Widget */}
             <div className="p-4">
-              <div className="bg-card border border-border rounded-lg p-4">
-                <p className="text-center text-muted-foreground">Machinery Service - Temporarily Disabled</p>
-              </div>
+              <MachineryServiceWidget />
             </div>
 
             {/* Farm Data Summary */}
@@ -354,7 +347,7 @@ export default function Dashboard() {
       </main>
 
       {/* Farm Data Modal */}
-      {/* <FarmDataModal 
+      <FarmDataModal 
         isOpen={showFarmDataModal}
         onClose={() => {
           setShowFarmDataModal(false);
@@ -366,28 +359,28 @@ export default function Dashboard() {
           refetchFields();
         }}
         editingField={editingField}
-      /> */}
+      />
 
       {/* Farm Data View Modal */}
-      {/* <FarmDataViewModal 
+      <FarmDataViewModal 
         isOpen={showFarmDataViewModal}
         onClose={() => {
           setShowFarmDataViewModal(false);
           setSelectedField(null);
         }}
         field={selectedField}
-        onEdit={(field: any) => {
+        onEdit={(field) => {
           setEditingField(field);
           setShowFarmDataModal(true);
         }}
-      /> */}
+      />
 
       {/* Location Modal */}
-      {/* <LocationModal 
+      <LocationModal 
         isOpen={showLocationModal}
         onClose={() => setShowLocationModal(false)}
         currentLocation={user?.location || undefined}
-      /> */}
+      />
     </div>
   );
 }
