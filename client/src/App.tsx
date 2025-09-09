@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 // Removed useAuth - using SmartSuite form instead of Replit auth
 import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
+import DashboardMinimal from "@/pages/dashboard-minimal";
 import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/signup" component={SignupPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard-minimal" component={DashboardMinimal} />
       <Route path="/complex-dashboard" component={Dashboard} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
