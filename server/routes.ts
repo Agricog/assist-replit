@@ -329,8 +329,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware already set up above
 
-  // Universal auth user endpoint (handles both traditional and Replit auth)
+  // Universal auth user endpoint (handles both traditional and Replit auth)  
   app.get('/api/user', async (req, res) => {
+    console.log('🚨 /api/user endpoint HIT - Start processing');
     try {
       let user = null;
       
@@ -379,7 +380,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: 'Unauthorized' });
       }
       
-      console.log('✅ User authenticated:', { id: user.id, username: user.username });
+      console.log('✅ User authenticated:', { id: (user as any).id, username: (user as any).username || (user as any).email });
       res.json(user);
     } catch (error) {
       console.error('Error fetching user:', error);
