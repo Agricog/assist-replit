@@ -14,6 +14,7 @@ import DashboardStep1 from "@/pages/dashboard-step1";
 import DashboardStep2 from "@/pages/dashboard-step2";
 import DashboardStep3 from "@/pages/dashboard-step3";
 import DashboardStep3NoApi from "@/pages/dashboard-step3-noapi";
+import DashboardStep3Disabled from "@/pages/dashboard-step3-disabled";
 import Onboarding from "@/pages/onboarding";
 import NotFound from "@/pages/not-found";
 import SignupPage from "@/pages/signup";
@@ -38,6 +39,7 @@ function Router() {
       <Route path="/dashboard-step2" component={DashboardStep2} />
       <Route path="/dashboard-step3" component={DashboardStep3} />
       <Route path="/dashboard-step3-noapi" component={DashboardStep3NoApi} />
+      <Route path="/dashboard-step3-disabled" component={DashboardStep3Disabled} />
       <Route path="/complex-dashboard" component={Dashboard} />
       <Route path="/forgot-password" component={ForgotPasswordPage} />
       <Route path="/admin" component={AdminPage} />
