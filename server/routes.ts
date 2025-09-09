@@ -250,11 +250,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Traditional user registration API
   app.post('/api/register', async (req, res) => {
-    console.log('🎯 /api/register endpoint HIT');
-    console.log('📝 Request body:', req.body);
-    console.log('🍪 Session before registration:', req.session);
-    console.log('🔐 Is authenticated?:', req.isAuthenticated ? req.isAuthenticated() : false);
-    
     try {
       const validatedData = insertUserSchema.parse(req.body);
       
@@ -303,9 +298,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Remove password from response
       const { password, ...userResponse } = user;
-      
-      console.log('🎉 Registration complete - sending response');
-      console.log('🍪 Final session state:', req.session);
       
       res.status(201).json(userResponse);
       
