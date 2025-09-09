@@ -169,10 +169,13 @@ export default function MarketChat() {
                 }`}>
                   <p className="text-sm text-foreground whitespace-pre-wrap">{message.content}</p>
                   <span className="text-xs text-muted-foreground mt-1 block">
-                    {new Date(message.createdAt!).toLocaleTimeString('en-GB', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {message.createdAt 
+                      ? new Date(message.createdAt).toLocaleTimeString('en-GB', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      : 'Just now'
+                    }
                   </span>
                 </div>
               </div>
