@@ -13,11 +13,19 @@ export default function MarketChat() {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch chat history
-  const { data: messages = [] } = useQuery<ChatMessage[]>({
+  // Fetch chat history with error handling
+  const { data: messages = [], isError, error } = useQuery<ChatMessage[]>({
     queryKey: ["/api/chat/market/history"],
     retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 30000,
+    // Handle errors gracefully instead of crashing
   });
+
+  // Log errors to console without breaking the component
+  if (isError && error) {
+    console.warn('MarketChat history failed:', error);
+  }
 
   // Send message mutation
   const sendMessageMutation = useMutation({
@@ -115,7 +123,7 @@ export default function MarketChat() {
               <p className="text-sm text-muted-foreground">Real-time commodity prices</p>
             </div>
           </div>
-          {messages.length > 0 && (
+          {(messages as ChatMessage[]).length > 0 && (
             <Button
               variant="ghost"
               size="sm"
@@ -133,7 +141,15 @@ export default function MarketChat() {
 
       {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" data-testid="market-chat-messages">
-        {messages.length === 0 ? (
+        {isError ? (
+          <div className="text-center text-muted-foreground py-8">
+            <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 15.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <p>Unable to load chat history.</p>
+            <p className="text-sm mt-2">You can still send new messages.</p>
+          </div>
+        ) : (messages as ChatMessage[]).length === 0 ? (
           <div className="text-center text-muted-foreground py-8">
             <svg className="w-12 h-12 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -142,7 +158,7 @@ export default function MarketChat() {
             <p className="text-sm mt-2">Try: "What are current wheat prices in the UK?"</p>
           </div>
         ) : (
-          messages.map((message) => (
+          (messages as ChatMessage[]).map((message: ChatMessage) => (
             <div key={message.id} className="chat-message">
               <div 
                 className={`flex items-start space-x-3 ${
