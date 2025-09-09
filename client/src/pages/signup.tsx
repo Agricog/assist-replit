@@ -15,18 +15,31 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    console.log('🚀 Signup form submitted!');
+    
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     
+    console.log('📝 Form data collected:', {
+      firstName: data.firstName,
+      lastName: data.lastName, 
+      email: data.email,
+      username: data.username,
+      passwordLength: data.password ? (data.password as string).length : 0
+    });
+    
     if (data.password !== data.confirmPassword) {
+      console.log('❌ Password mismatch error');
       setError('Passwords do not match');
       return;
     }
     
+    console.log('✅ Form validation passed, making API call...');
     setLoading(true);
     setError('');
     
     try {
+      console.log('🌐 Making API call to /api/register...');
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -39,6 +52,9 @@ export default function SignupPage() {
           password: data.password
         })
       });
+      
+      console.log('📡 API Response status:', response.status);
+      console.log('📡 API Response ok:', response.ok);
       
       if (response.ok) {
         console.log('✅ Registration API call successful');
