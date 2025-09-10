@@ -119,15 +119,26 @@ export class DatabaseStorage implements IStorage {
   async createFarmField(field: InsertFarmField): Promise<FarmField> {
     const [savedField] = await db
       .insert(farmFields)
-      .values(field)
+      .values({
+        ...field,
+        size: field.size?.toString() || "0",
+        expectedYield: field.expectedYield?.toString() || undefined,
+      })
       .returning();
     return savedField;
   }
 
   async updateFarmField(id: string, field: Partial<InsertFarmField>): Promise<FarmField> {
+    const updateData = { 
+      ...field, 
+      updatedAt: new Date(),
+      size: field.size?.toString(),
+      expectedYield: field.expectedYield?.toString() || undefined,
+    };
+    
     const [updatedField] = await db
       .update(farmFields)
-      .set({ ...field, updatedAt: new Date() })
+      .set(updateData)
       .where(eq(farmFields.id, id))
       .returning();
     return updatedField;

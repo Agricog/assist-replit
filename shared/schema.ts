@@ -109,8 +109,8 @@ export const insertFarmFieldSchema = createInsertSchema(farmFields).omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
-  size: z.number().positive("Size must be positive"),
-  expectedYield: z.number().positive("Expected yield must be positive").optional(),
+  size: z.string().refine(val => !isNaN(Number(val)) && Number(val) > 0, "Size must be a positive number"),
+  expectedYield: z.string().refine(val => !isNaN(Number(val)) && Number(val) > 0, "Expected yield must be a positive number").optional(),
 });
 
 export type UpsertUser = typeof users.$inferInsert;
