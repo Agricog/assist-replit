@@ -1,0 +1,189 @@
+index-BV7QMjKY.js:148 🔍 useAuth Debug: {user: 'null', isLoading: true, error: 'none', isAuthenticated: false}
+index-BV7QMjKY.js:192 🏠 Dashboard Auth Check: {isLoading: true, isAuthenticated: false, user: 'none'}
+shared-df53ec9db9d9d627e90923f13bf42ff7.js:1 Fetch finished loading: GET "https://js.stripe.com/v3/.deploy_status_henson.json".
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+e @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+c @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+k @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+value @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+11133 @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e.O @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+shared-df53ec9db9d9d627e90923f13bf42ff7.js:1 Fetch finished loading: GET "https://js.stripe.com/v3/.deploy_status_henson.json".
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+e @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+c @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+k @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+log @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+log @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+11133 @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+e.O @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+index-BV7QMjKY.js:48 Fetch finished loading: GET "https://agricogassist.com/api/user".
+(anonymous) @ index-BV7QMjKY.js:48
+s @ index-BV7QMjKY.js:48
+b @ index-BV7QMjKY.js:48
+start @ index-BV7QMjKY.js:48
+fetch @ index-BV7QMjKY.js:48
+hs @ index-BV7QMjKY.js:48
+onSubscribe @ index-BV7QMjKY.js:48
+subscribe @ index-BV7QMjKY.js:48
+(anonymous) @ index-BV7QMjKY.js:48
+og @ index-BV7QMjKY.js:38
+Qa @ index-BV7QMjKY.js:40
+ao @ index-BV7QMjKY.js:40
+gp @ index-BV7QMjKY.js:40
+nr @ index-BV7QMjKY.js:38
+Db @ index-BV7QMjKY.js:40
+ar @ index-BV7QMjKY.js:40
+Mg @ index-BV7QMjKY.js:40
+C @ index-BV7QMjKY.js:25
+L @ index-BV7QMjKY.js:25
+index-BV7QMjKY.js:148 🔍 useAuth Debug: {user: 'simon1 (traditional)', isLoading: false, error: 'none', isAuthenticated: true}
+index-BV7QMjKY.js:192 🏠 Dashboard Auth Check: {isLoading: false, isAuthenticated: true, user: 'simon1'}
+index-BV7QMjKY.js:192 ✅ Dashboard: User authenticated successfully: simon1
+index-BV7QMjKY.js:48 Fetch finished loading: GET "https://agricogassist.com/api/machinery".
+(anonymous) @ index-BV7QMjKY.js:48
+s @ index-BV7QMjKY.js:48
+b @ index-BV7QMjKY.js:48
+start @ index-BV7QMjKY.js:48
+fetch @ index-BV7QMjKY.js:48
+hs @ index-BV7QMjKY.js:48
+onSubscribe @ index-BV7QMjKY.js:48
+subscribe @ index-BV7QMjKY.js:48
+(anonymous) @ index-BV7QMjKY.js:48
+og @ index-BV7QMjKY.js:38
+Qa @ index-BV7QMjKY.js:40
+ao @ index-BV7QMjKY.js:40
+Db @ index-BV7QMjKY.js:40
+ar @ index-BV7QMjKY.js:40
+gp @ index-BV7QMjKY.js:40
+nr @ index-BV7QMjKY.js:38
+(anonymous) @ index-BV7QMjKY.js:40
+setTimeout
+O1 @ index-BV7QMjKY.js:48
+a @ index-BV7QMjKY.js:48
+batch @ index-BV7QMjKY.js:48
+en @ index-BV7QMjKY.js:48
+setData @ index-BV7QMjKY.js:48
+fetch @ index-BV7QMjKY.js:48
+await in fetch
+hs @ index-BV7QMjKY.js:48
+onSubscribe @ index-BV7QMjKY.js:48
+subscribe @ index-BV7QMjKY.js:48
+(anonymous) @ index-BV7QMjKY.js:48
+og @ index-BV7QMjKY.js:38
+Qa @ index-BV7QMjKY.js:40
+ao @ index-BV7QMjKY.js:40
+gp @ index-BV7QMjKY.js:40
+nr @ index-BV7QMjKY.js:38
+Db @ index-BV7QMjKY.js:40
+ar @ index-BV7QMjKY.js:40
+Mg @ index-BV7QMjKY.js:40
+C @ index-BV7QMjKY.js:25
+L @ index-BV7QMjKY.js:25
+index-BV7QMjKY.js:48 Fetch finished loading: GET "https://agricogassist.com/api/farm/fields".
+(anonymous) @ index-BV7QMjKY.js:48
+s @ index-BV7QMjKY.js:48
+b @ index-BV7QMjKY.js:48
+start @ index-BV7QMjKY.js:48
+fetch @ index-BV7QMjKY.js:48
+hs @ index-BV7QMjKY.js:48
+setOptions @ index-BV7QMjKY.js:48
+(anonymous) @ index-BV7QMjKY.js:48
+Qa @ index-BV7QMjKY.js:40
+ao @ index-BV7QMjKY.js:40
+Db @ index-BV7QMjKY.js:40
+ar @ index-BV7QMjKY.js:40
+gp @ index-BV7QMjKY.js:40
+nr @ index-BV7QMjKY.js:38
+(anonymous) @ index-BV7QMjKY.js:40
+setTimeout
+O1 @ index-BV7QMjKY.js:48
+a @ index-BV7QMjKY.js:48
+batch @ index-BV7QMjKY.js:48
+en @ index-BV7QMjKY.js:48
+setData @ index-BV7QMjKY.js:48
+fetch @ index-BV7QMjKY.js:48
+await in fetch
+hs @ index-BV7QMjKY.js:48
+onSubscribe @ index-BV7QMjKY.js:48
+subscribe @ index-BV7QMjKY.js:48
+(anonymous) @ index-BV7QMjKY.js:48
+og @ index-BV7QMjKY.js:38
+Qa @ index-BV7QMjKY.js:40
+ao @ index-BV7QMjKY.js:40
+gp @ index-BV7QMjKY.js:40
+nr @ index-BV7QMjKY.js:38
+Db @ index-BV7QMjKY.js:40
+ar @ index-BV7QMjKY.js:40
+Mg @ index-BV7QMjKY.js:40
+C @ index-BV7QMjKY.js:25
+L @ index-BV7QMjKY.js:25
+index-BV7QMjKY.js:148 🔍 useAuth Debug: {user: 'simon1 (traditional)', isLoading: false, error: 'none', isAuthenticated: true}
+Toaster.svelte_svelte_type_style_lang.CTR6EwSl.js:1 {environment: 'production'}
+vcd15cbe7772f49c399c6a5babf22c1241717689176015:1 XHR finished loading: POST "https://app.fastbots.ai/cdn-cgi/rum?".
+t.sendObjectBeacon @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+P @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+Promise.then
+R @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+setTimeout
+(anonymous) @ vcd15cbe7772f49c399c6a5babf22c1241717689176015:1
+c @ rocket-loader.min.js:1
+l @ rocket-loader.min.js:1
+t.simulateStateAfterDeferScriptsActivation @ rocket-loader.min.js:1
+callback @ rocket-loader.min.js:1
+t.run @ rocket-loader.min.js:1
+P @ rocket-loader.min.js:1
+callback @ rocket-loader.min.js:1
+t.run @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+(anonymous) @ rocket-loader.min.js:1
+6XHR finished loading: POST "<URL>".
+2shared-df53ec9db9d9d627e90923f13bf42ff7.js:1 Fetch finished loading: POST "https://r.stripe.com/b".
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+e @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+c @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+Chatbox.BUCREuEn.js:4 Socket is not available, skipping subscription to unauth user channel
+shared-df53ec9db9d9d627e90923f13bf42ff7.js:1 Fetch finished loading: POST "https://r.stripe.com/b".
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+e @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+c @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+setTimeout
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+(anonymous) @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+value @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+log @ shared-df53ec9db9d9d627e90923f13bf42ff7.js:1
+log @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+value @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+value @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+(anonymous) @ controller-with-preconnect-e60adb867e9bee9ff089bec27aa3aced.js:1
+logHelper.js:4580 XHR finished loading: POST "https://browser.pipe.aria.microsoft.com/Collector/3.0/?qsp=true&content-type=application%2Fbond-compact-binary&client-id=NO_AUTH&sdk-version=AWT-Web-JS-1.8.4&x-apikey=9cf7b68164b34e7e995562121503c72a-72856c17-5747-49e6-bd96-fde5bb08a4f4-7006&client-time-epoch-millis=1757525822543&time-delta-to-apply-millis=use-collector-delta".
