@@ -79,6 +79,22 @@ const universalAuth = (req: any, res: any, next: any) => {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication and sessions FIRST (before any routes that need sessions)
   await setupAuth(app);
+  
+  // Instance debugging endpoint
+  const INSTANCE_ID = `dev-${Date.now()}`;
+  app.get('/api/debug', async (req, res) => {
+    const userCount = await storage.getUsersCount?.() || 'unknown';
+    res.setHeader('X-Instance-Id', INSTANCE_ID);
+    res.json({
+      instanceId: INSTANCE_ID,
+      buildId: 'development',
+      storageType: 'postgresql',
+      authModes: ['traditional-only'],
+      userCount,
+      serverTime: new Date().toISOString(),
+      environment: 'development'
+    });
+  });
 
   // Stripe integration - will be enabled when keys are provided
   let stripe: Stripe | null = null;
@@ -100,14 +116,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.sendFile('test-signup.html', { root: 'client/public' });
   });
 
-  // Admin API to view user signups
+  // Admin API to view user signups (with debug info for server instance identification)
   app.get('/api/admin/users', async (req, res) => {
     try {
       const users = await storage.getAllUsers();
-      res.json(users);
+      const userCount = await storage.getUsersCount();
+      
+      // Include debug information to help identify server instance
+      res.setHeader('X-Instance-Id', INSTANCE_ID);
+      res.json({
+        debug: {
+          instanceId: INSTANCE_ID,
+          buildId: 'development',
+          serverTime: new Date().toISOString(),
+          environment: 'development',
+          userCount,
+          authModes: ['traditional-only'],
+          note: 'This debug info helps identify which server instance users are hitting'
+        },
+        users
+      });
     } catch (error) {
       console.error('Error fetching users:', error);
       res.status(500).send('Failed to fetch users');
+    }
+  });
+
+  // Working debug endpoint (using admin path pattern that works)
+  app.get('/api/admin/instance', async (req, res) => {
+    try {
+      const userCount = await storage.getUsersCount();
+      res.setHeader('X-Instance-Id', INSTANCE_ID);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        instanceId: INSTANCE_ID,
+        buildId: 'development',
+        storageType: 'postgresql',
+        authModes: ['traditional-only'],
+        userCount,
+        serverTime: new Date().toISOString(),
+        environment: 'development',
+        requestHeaders: {
+          host: req.get('host'),
+          userAgent: req.get('user-agent'),
+          origin: req.get('origin'),
+          referer: req.get('referer')
+        },
+        debugPath: '/api/admin/instance',
+        notes: 'This endpoint helps identify which server instance users are hitting when reporting auth issues'
+      });
+    } catch (error) {
+      console.error('Admin instance debug error:', error);
+      res.status(500).json({ error: 'Admin instance debug failed', message: (error as any).message || 'Unknown error' });
+    }
+  });
+
+  // Alternative debug endpoint at different path
+  app.get('/api/server/debug', async (req, res) => {
+    try {
+      const userCount = await storage.getUsersCount();
+      res.setHeader('X-Instance-Id', INSTANCE_ID);
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        instanceId: INSTANCE_ID,
+        buildId: 'development',
+        storageType: 'postgresql',
+        authModes: ['traditional-only'],
+        userCount,
+        serverTime: new Date().toISOString(),
+        environment: 'development',
+        requestHeaders: {
+          host: req.get('host'),
+          userAgent: req.get('user-agent'),
+          origin: req.get('origin')
+        },
+        debugPath: '/api/server/debug'
+      });
+    } catch (error) {
+      console.error('Debug endpoint error:', error);
+      res.status(500).json({ error: 'Debug endpoint failed', message: (error as any).message || 'Unknown error' });
+    }
+  });
+
+  // Enhanced admin endpoint with debug info
+  app.get('/api/admin/debug', async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      const userCount = await storage.getUsersCount();
+      res.setHeader('X-Instance-Id', INSTANCE_ID);
+      res.json({
+        debug: {
+          instanceId: INSTANCE_ID,
+          buildId: 'development',
+          serverTime: new Date().toISOString(),
+          environment: 'development',
+          userCount
+        },
+        users
+      });
+    } catch (error) {
+      console.error('Error fetching admin debug info:', error);
+      res.status(500).send('Failed to fetch admin debug info');
     }
   });
 

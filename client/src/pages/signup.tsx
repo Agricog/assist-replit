@@ -15,7 +15,8 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Signup form submitted');
+    const timestamp = new Date().toISOString();
+    console.log(`🚀 [${timestamp}] Signup form submitted - START`);
     
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
@@ -26,12 +27,18 @@ export default function SignupPage() {
       return;
     }
     
-    console.log('✅ Form validation passed, making API call...');
+    console.log(`🚀 [${timestamp}] ✅ Form validation passed, making API call to /api/register...`);
     setLoading(true);
     setError('');
     
     try {
-      console.log('🌐 Making API call to /api/register...');
+      console.log(`🚀 [${timestamp}] 🌐 Making API call to /api/register with data:`, {
+        firstName: data.firstName,
+        lastName: data.lastName, 
+        email: data.email,
+        username: data.username,
+        passwordLength: String(data.password || '').length
+      });
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -45,9 +52,10 @@ export default function SignupPage() {
         })
       });
       
+      console.log(`🚀 [${timestamp}] API response status:`, response.status);
       if (response.ok) {
         const userData = await response.json();
-        console.log('Registration successful for user:', userData.username);
+        console.log(`🚀 [${timestamp}] ✅ Registration successful for user:`, userData.username);
         
         // Send Slack notification about new signup
         try {
@@ -115,9 +123,9 @@ export default function SignupPage() {
           }
         }, 1000);
       } else {
-        console.log('❌ Registration failed:', response.status);
+        console.log(`🚀 [${timestamp}] ❌ Registration failed with status:`, response.status);
         const errorText = await response.text();
-        console.log('Error response:', errorText);
+        console.log(`🚀 [${timestamp}] Error response:`, errorText);
         setError(errorText || 'Account creation failed');
       }
     } catch (error) {

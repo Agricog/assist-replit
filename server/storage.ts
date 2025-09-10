@@ -15,7 +15,7 @@ import {
   type Machinery,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -27,6 +27,7 @@ export interface IStorage {
   
   // Admin operations
   getAllUsers(): Promise<User[]>;
+  getUsersCount(): Promise<number>;
   
   // Password reset operations
   updateUserPassword(id: string, hashedPassword: string): Promise<User>;
@@ -217,6 +218,13 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .orderBy(desc(users.createdAt));
+  }
+
+  async getUsersCount(): Promise<number> {
+    const result = await db
+      .select({ count: count() })
+      .from(users);
+    return result[0]?.count || 0;
   }
 
   async updateUserPassword(id: string, hashedPassword: string): Promise<User> {
