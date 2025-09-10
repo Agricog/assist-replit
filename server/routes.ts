@@ -24,12 +24,12 @@ async function comparePasswords(supplied: string, stored: string) {
   return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
-// Universal authentication middleware that works with both traditional and Replit auth
+// Universal authentication middleware - TEMPORARILY TRADITIONAL ONLY (for debugging)
 const universalAuth = (req: any, res: any, next: any) => {
   let user = null;
   let userId = null;
   
-  console.log('🔐 universalAuth Debug:', {
+  console.log('🔐 universalAuth Debug (TRADITIONAL ONLY):', {
     hasSession: !!req.session,
     hasUser: !!(req.session as any)?.user,
     hasPassport: !!(req.session as any)?.passport,
@@ -37,7 +37,7 @@ const universalAuth = (req: any, res: any, next: any) => {
     hasReqUser: !!req.user
   });
   
-  // Check traditional auth session first
+  // TEMPORARILY ONLY ALLOW TRADITIONAL AUTH - NO FALLBACKS
   if ((req.session as any).user) {
     const sessionUser = (req.session as any).user;
     console.log('📝 Traditional auth found:', { id: sessionUser.id, expires_at: sessionUser.expires_at });
@@ -47,6 +47,8 @@ const universalAuth = (req: any, res: any, next: any) => {
       userId = sessionUser.id;
     }
   }
+  // DISABLED: Passport and Replit auth fallbacks temporarily for debugging
+  /*
   // Check for Passport session (could be Replit or traditional via passport)
   else if ((req.session as any)?.passport?.user) {
     const passportUser = (req.session as any).passport.user;
@@ -60,13 +62,14 @@ const universalAuth = (req: any, res: any, next: any) => {
     user = req.user;
     userId = req.user.claims?.sub;
   }
+  */
   
   if (!user || !userId) {
-    console.log('❌ universalAuth: No valid authentication found');
-    return res.status(401).json({ message: 'Unauthorized' });
+    console.log('❌ universalAuth: No valid TRADITIONAL authentication found');
+    return res.status(401).json({ message: 'Unauthorized - traditional auth required' });
   }
   
-  console.log('✅ universalAuth: Success for userId:', userId);
+  console.log('✅ universalAuth: TRADITIONAL auth success for userId:', userId);
   // Attach user info to request for easier access
   req.authUser = user;
   req.authUserId = userId;
@@ -250,6 +253,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Traditional user registration API
   app.post('/api/register', async (req, res) => {
+    const requestId = Date.now().toString();
+    console.log(`🔍 [${requestId}] POST /api/register START:`, {
+      body: req.body ? Object.keys(req.body) : 'no body',
+      hasSession: !!req.session,
+      cookies: Object.keys(req.cookies || {})
+    });
     try {
       const validatedData = insertUserSchema.parse(req.body);
       
@@ -273,7 +282,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         onboardingCompleted: true,
       });
       
-      console.log('User created successfully:', user.username);
+      console.log(`🔍 [${requestId}] User created successfully:`, user.username);
       
       // Create traditional auth session (NOT Passport login)
       const sessionUser = {
@@ -289,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store user in session for traditional auth
       (req.session as any).user = sessionUser;
       
-      console.log('✅ Traditional auth session created for:', user.username);
+      console.log(`🔍 [${requestId}] ✅ Traditional auth session created for:`, user.username);
       console.log('📝 Session data stored:', { 
         userId: sessionUser.id, 
         authType: sessionUser.authType,
@@ -299,10 +308,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Remove password from response
       const { password, ...userResponse } = user;
       
+      console.log(`🔍 [${requestId}] POST /api/register SUCCESS - responding with user data`);
       res.status(201).json(userResponse);
       
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error(`🔍 [${requestId}] Registration error:`, error);
       if (error instanceof z.ZodError) {
         return res.status(400).send('Invalid input data');
       }
@@ -383,14 +393,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Auth middleware already set up above
 
-  // Universal auth user endpoint (handles both traditional and Replit auth)  
+  // TRADITIONAL AUTH ONLY user endpoint (temporary for debugging)
   app.get('/api/user', async (req, res) => {
-    console.log('🚨 /api/user endpoint HIT - Start processing');
+    const requestId = Date.now().toString();
+    console.log(`🔍 [${requestId}] GET /api/user START - TRADITIONAL ONLY`);
     try {
       let user = null;
       
       // Debug session data
-      console.log('🔍 Session Debug:', {
+      console.log(`🔍 [${requestId}] Session Debug:`, {
         hasSession: !!req.session,
         sessionData: req.session ? Object.keys(req.session) : 'none',
         hasUser: !!(req.session as any)?.user,
@@ -399,45 +410,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         hasReqUser: !!req.user
       });
       
-      // Check for traditional auth session first
+      // ONLY CHECK traditional auth session - NO FALLBACKS
       if ((req.session as any).user) {
         const sessionUser = (req.session as any).user;
-        console.log('📝 Traditional session user found:', { id: sessionUser.id, expires_at: sessionUser.expires_at });
+        console.log(`🔍 [${requestId}] Traditional session user found:`, { id: sessionUser.id, expires_at: sessionUser.expires_at });
         // Verify session hasn't expired
         if (sessionUser.expires_at && sessionUser.expires_at > Math.floor(Date.now() / 1000)) {
-          // Get full user data from database (exclude password)
+          // Get full user data from database (exclude password) - MUST EXIST IN DB
           user = await storage.getUser(sessionUser.id);
           if (user) {
             const { password, ...userWithoutPassword } = user;
             user = userWithoutPassword;
+            console.log(`🔍 [${requestId}] Database user found:`, user.username);
+          } else {
+            console.log(`🔍 [${requestId}] ❌ Traditional session user NOT FOUND in database:`, sessionUser.id);
           }
+        } else {
+          console.log(`🔍 [${requestId}] ❌ Traditional session EXPIRED`);
         }
-      }
-      // Check for Passport session (could be Replit or traditional via passport)
-      else if ((req.session as any)?.passport?.user) {
-        const passportUser = (req.session as any).passport.user;
-        console.log('🎫 Passport session user found:', { id: passportUser.id, authType: passportUser.authType });
-        user = await storage.getUser(passportUser.id);
-        if (user) {
-          const { password, ...userWithoutPassword } = user;
-          user = userWithoutPassword;
-        }
-      }
-      // Check for Replit auth (Passport authenticated)
-      else if (req.isAuthenticated && req.isAuthenticated() && req.user) {
-        console.log('🔐 Replit auth user found via req.user');
-        user = req.user;
+      } else {
+        console.log(`🔍 [${requestId}] ❌ No traditional auth session found`);
       }
       
+      // DISABLED: All other auth types
       if (!user) {
-        console.log('❌ No authenticated user found');
-        return res.status(401).json({ message: 'Unauthorized' });
+        console.log(`🔍 [${requestId}] ❌ No valid TRADITIONAL authentication found`);
+        return res.status(401).json({ message: 'Unauthorized - traditional auth required' });
       }
       
-      console.log('✅ User authenticated:', { id: (user as any).id, username: (user as any).username || (user as any).email });
+      console.log(`🔍 [${requestId}] ✅ User authenticated (traditional):`, { id: (user as any).id, username: (user as any).username });
       res.json(user);
     } catch (error) {
-      console.error('Error fetching user:', error);
+      console.error(`🔍 [${requestId}] Error fetching user:`, error);
       res.status(500).json({ message: 'Failed to fetch user' });
     }
   });
