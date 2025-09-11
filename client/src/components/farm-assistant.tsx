@@ -1,4 +1,8 @@
+import { useAuth } from "@/hooks/useAuth";
+import type { User } from "@shared/schema";
+
 export default function FarmAssistant() {
+  const { user } = useAuth() as { user: User | undefined };
   return (
     <div className="flex-1 bg-card rounded-lg border border-border overflow-hidden flex flex-col">
       <div className="bg-primary/10 border-b border-border p-4">
@@ -9,7 +13,7 @@ export default function FarmAssistant() {
             </svg>
           </div>
           <div>
-            <h3 className="font-semibold text-foreground">Agricog Farm Assistant</h3>
+            <h3 className="font-semibold text-foreground">{user?.farmName || 'Agricog'} Farm Assistant</h3>
             <p className="text-sm text-muted-foreground">Your personalized agricultural guidance</p>
           </div>
         </div>
