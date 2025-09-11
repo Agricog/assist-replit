@@ -37,6 +37,7 @@ export default function SignupPage() {
         lastName: data.lastName, 
         email: data.email,
         username: data.username,
+        location: data.location,
         passwordLength: String(data.password || '').length
       });
       const response = await fetch('/api/register', {
@@ -48,6 +49,7 @@ export default function SignupPage() {
           lastName: data.lastName,
           email: data.email,
           username: data.username,
+          location: data.location,
           password: data.password
         })
       });
@@ -66,7 +68,8 @@ export default function SignupPage() {
               firstName: data.firstName,
               lastName: data.lastName,
               email: data.email,
-              username: data.username
+              username: data.username,
+              location: data.location
             })
           });
         } catch (notifyError) {
@@ -219,6 +222,11 @@ export default function SignupPage() {
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Username</label>
               <input type="text" name="username" required style={{ width: '100%', padding: '12px 16px', border: '2px solid #e5e7eb', borderRadius: '8px', fontSize: '16px' }} />
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Farm Location</label>
+              <input type="text" name="location" required placeholder="e.g., London, Manchester, Birmingham" style={{ width: '100%', padding: '12px 16px', border: '2px solid #e5e7eb', borderRadius: '8px', fontSize: '16px' }} />
+              <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>Enter your city or farm location for accurate weather forecasts</p>
             </div>
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Password</label>

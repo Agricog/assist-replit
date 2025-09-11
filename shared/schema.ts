@@ -95,8 +95,9 @@ export const insertUserSchema = createInsertSchema(users).omit({
   authType: true,
   profileImageUrl: true,
   farmName: true,
-  location: true,
   onboardingCompleted: true,
+}).extend({
+  location: z.string().min(1, "Location is required"),
 });
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({

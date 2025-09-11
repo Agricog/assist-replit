@@ -400,6 +400,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
+        location: user.location,
         authType: user.authType,
         expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 1 week
       };
@@ -483,6 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
+        location: user.location,
         authType: user.authType,
         expires_at: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60), // 1 week
       };
