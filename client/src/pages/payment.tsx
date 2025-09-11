@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
-if (!import.meta.env.VITE_STRIPE_PUBLIC_KEY) {
-  throw new Error('Missing required Stripe key: VITE_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Only load Stripe if key is available
+const hasStripeKey = !!import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const stripePromise = hasStripeKey ? loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY) : null;
 
 const PaymentForm = ({ clientSecret, amount }: { clientSecret: string; amount: number }) => {
   const stripe = useStripe();
@@ -78,6 +77,26 @@ export default function PaymentPage() {
   const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Show message if Stripe is not configured
+  if (!hasStripeKey) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', padding: '48px 16px' }}>
+        <div style={{ maxWidth: '28rem', margin: '0 auto', background: 'white', borderRadius: '8px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', padding: '32px', textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px', color: '#6b7280' }}>💳</div>
+          <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#6b7280', marginBottom: '8px' }}>Payments Disabled</h2>
+          <p style={{ color: '#6b7280', marginBottom: '24px' }}>Payment processing is currently not available.</p>
+          <button 
+            onClick={() => window.location.href = '/'}
+            style={{ backgroundColor: '#10b981', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}
+            data-testid="button-home"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   useEffect(() => {
     // Create PaymentIntent when page loads
@@ -181,9 +200,15 @@ export default function PaymentPage() {
           </ul>
         </div>
 
-        <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
-          <PaymentForm clientSecret={clientSecret} amount={amount} />
-        </Elements>
+        {stripePromise ? (
+          <Elements stripe={stripePromise} options={{ clientSecret, appearance: { theme: 'stripe' } }}>
+            <PaymentForm clientSecret={clientSecret} amount={amount} />
+          </Elements>
+        ) : (
+          <div style={{ textAlign: 'center', color: '#dc2626', padding: '20px' }}>
+            Payment processing unavailable
+          </div>
+        )}
 
         <div style={{ textAlign: 'center', marginTop: '24px', fontSize: '12px', color: '#9ca3af' }}>
           <p>🔒 Secure payment powered by Stripe</p>

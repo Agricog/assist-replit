@@ -27,12 +27,21 @@ export default function LocationModal({ isOpen, onClose, currentLocation }: Loca
       });
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser, newLocation) => {
       toast({
         title: "Success",
         description: "Location updated successfully",
       });
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      
+      // Immediately update the cache with the new location
+      queryClient.setQueryData(["/api/user"], (oldData: any) => 
+        oldData ? { ...oldData, location: newLocation.trim() } : oldData
+      );
+      
+      // Also invalidate to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      // Force weather widget to refresh with new location
+      queryClient.invalidateQueries({ queryKey: ["/api/weather"] });
       onClose();
     },
     onError: (error) => {
