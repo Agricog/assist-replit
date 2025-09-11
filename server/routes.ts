@@ -595,15 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Location is required" });
       }
 
-      const user = await storage.upsertUser({
-        id: userId,
-        email: req.user.claims.email,
-        firstName: req.user.claims.first_name,
-        lastName: req.user.claims.last_name,
-        profileImageUrl: req.user.claims.profile_image_url,
-        location: location.trim(),
-      });
-
+      const user = await storage.updateUserLocation(userId, location.trim());
       res.json(user);
     } catch (error) {
       console.error("Update profile error:", error);

@@ -32,6 +32,9 @@ export interface IStorage {
   // Password reset operations
   updateUserPassword(id: string, hashedPassword: string): Promise<User>;
   
+  // Location update operations
+  updateUserLocation(id: string, location: string): Promise<User>;
+  
   // Chat operations
   getChatHistory(userId: string, chatType: string): Promise<ChatMessage[]>;
   saveChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
@@ -231,6 +234,15 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .update(users)
       .set({ password: hashedPassword, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async updateUserLocation(id: string, location: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ location: location.trim(), updatedAt: new Date() })
       .where(eq(users.id, id))
       .returning();
     return user;

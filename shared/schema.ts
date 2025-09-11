@@ -132,3 +132,9 @@ export const insertMachinerySchema = createInsertSchema(machinery).omit({
 });
 export type InsertMachinery = z.infer<typeof insertMachinerySchema>;
 export type Machinery = typeof machinery.$inferSelect;
+
+// Location update schema for farmers switching between different farm locations
+export const updateLocationSchema = z.object({
+  location: z.string().min(2, "Location must be at least 2 characters").max(100, "Location must be less than 100 characters")
+});
+export type UpdateLocationInput = z.infer<typeof updateLocationSchema>;
