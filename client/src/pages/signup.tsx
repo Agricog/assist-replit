@@ -34,7 +34,8 @@ export default function SignupPage() {
     try {
       console.log(`🚀 [${timestamp}] 🌐 Making API call to /api/register with data:`, {
         firstName: data.firstName,
-        lastName: data.lastName, 
+        lastName: data.lastName,
+        farmName: data.farmName,
         email: data.email,
         username: data.username,
         location: data.location,
@@ -47,6 +48,7 @@ export default function SignupPage() {
         body: JSON.stringify({
           firstName: data.firstName,
           lastName: data.lastName,
+          farmName: data.farmName,
           email: data.email,
           username: data.username,
           location: data.location,
@@ -67,6 +69,7 @@ export default function SignupPage() {
             body: JSON.stringify({
               firstName: data.firstName,
               lastName: data.lastName,
+              farmName: data.farmName,
               email: data.email,
               username: data.username,
               location: data.location
@@ -214,6 +217,11 @@ export default function SignupPage() {
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Last Name</label>
               <input type="text" name="lastName" required style={{ width: '100%', padding: '12px 16px', border: '2px solid #e5e7eb', borderRadius: '8px', fontSize: '16px' }} />
+            </div>
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Farm Name</label>
+              <input type="text" name="farmName" required placeholder="e.g., Green Valley Farm, Oak Ridge Farm" style={{ width: '100%', padding: '12px 16px', border: '2px solid #e5e7eb', borderRadius: '8px', fontSize: '16px' }} />
+              <p style={{ fontSize: '14px', color: '#6b7280', marginTop: '4px' }}>Enter your farm name for personalized dashboard experience</p>
             </div>
             <div style={{ marginBottom: '24px' }}>
               <label style={{ display: 'block', fontWeight: '600', color: '#374151', marginBottom: '8px' }}>Email Address</label>
