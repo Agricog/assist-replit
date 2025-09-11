@@ -65,8 +65,8 @@ export default function FarmDataModal({ isOpen, onClose, onSave, editingField }:
         size: data.size, // Send as string - schema will validate and convert
         cropType: data.cropType,
         soilType: data.soilType,
-        expectedYield: data.expectedYield || null, // Send as string or null
-        notes: data.notes || null,
+        ...(data.expectedYield?.trim() ? { expectedYield: data.expectedYield } : {}),
+        ...(data.notes?.trim() ? { notes: data.notes } : {}),
       };
       
       if (editingField) {
