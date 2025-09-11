@@ -208,7 +208,7 @@ export default function Dashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground">
-                Welcome {user?.firstName} to your {user?.farmName} Dashboard
+                Welcome {user?.firstName} to your {user?.farmName || 'Farm'} Dashboard
               </h1>
               <p className="text-muted-foreground">
                 Here's your agricultural overview for today.
