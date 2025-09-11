@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import WeatherWidget from "@/components/weather-widget";
-import MarketChatDisabled from "@/components/market-chat-disabled";
+import MarketChat from "@/components/market-chat";
 import FarmAssistant from "@/components/farm-assistant";
 import FarmDataModal from "@/components/farm-data-modal";
 import FarmDataViewModal from "@/components/farm-data-view-modal";
@@ -242,7 +242,7 @@ export default function Dashboard() {
           {/* Left Column: Dual Chat Interface */}
           <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
             {/* Market Intelligence Chat */}
-            <MarketChatDisabled />
+            <MarketChat />
 
             {/* Farm Assistant Chat */}
             <FarmAssistant />
