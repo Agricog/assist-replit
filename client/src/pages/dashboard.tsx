@@ -105,17 +105,10 @@ export default function Dashboard() {
 
   return (
     <div className="h-full flex overflow-hidden">
-      {/* Mobile Overlay */}
-      {isMobile && showMobileSidebar && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={() => setShowMobileSidebar(false)}
-        />
-      )}
-      
-      {/* Sidebar */}
-      <aside className={`${isMobile ? 'fixed left-0 top-0 h-full z-50 transform transition-transform' : 'w-64'} ${isMobile && !showMobileSidebar ? '-translate-x-full' : ''} ${isMobile ? 'w-80' : ''} bg-card border-r border-border sidebar-shadow flex-shrink-0`}>
-        <div className="h-full flex flex-col">
+      {/* Sidebar - Desktop only */}
+      {!isMobile && (
+        <aside className="w-64 bg-card border-r border-border sidebar-shadow flex-shrink-0">
+          <div className="h-full flex flex-col">
           {/* Logo */}
           <div className="p-6 border-b border-border">
             <div className="flex items-center space-x-3">
@@ -211,7 +204,8 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </aside>
+        </aside>
+      )}
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -221,18 +215,19 @@ export default function Dashboard() {
             <div className={`${isMobile ? 'w-full' : ''}`}>
               {isMobile && (
                 <div className="flex items-center justify-between mb-2">
-                  <button 
-                    onClick={() => setShowMobileSidebar(true)}
-                    className="p-2 hover:bg-muted rounded-md"
-                    data-testid="button-mobile-menu"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                  </button>
                   <h1 className="text-lg font-bold text-foreground">
                     {user?.farmName || 'Farm'} Dashboard
                   </h1>
+                  <button 
+                    onClick={handleLogout}
+                    className="p-2 hover:bg-muted rounded-md text-muted-foreground hover:text-foreground"
+                    data-testid="button-mobile-logout"
+                    title="Logout"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                  </button>
                 </div>
               )}
               {!isMobile && (
