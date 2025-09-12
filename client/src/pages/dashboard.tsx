@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import WeatherWidget from "@/components/weather-widget";
@@ -21,6 +22,9 @@ export default function Dashboard() {
   const [editingField, setEditingField] = useState<FarmField | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [activeTab, setActiveTab] = useState<'chat' | 'data'>('chat');
+  const isMobile = useIsMobile();
 
   // Redirect to home if not authenticated  
   useEffect(() => {
@@ -101,8 +105,16 @@ export default function Dashboard() {
 
   return (
     <div className="h-full flex overflow-hidden">
+      {/* Mobile Overlay */}
+      {isMobile && showMobileSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+      
       {/* Sidebar */}
-      <aside className="w-64 bg-card border-r border-border sidebar-shadow flex-shrink-0">
+      <aside className={`${isMobile ? 'fixed left-0 top-0 h-full z-50 transform transition-transform' : 'w-64'} ${isMobile && !showMobileSidebar ? '-translate-x-full' : ''} ${isMobile ? 'w-80' : ''} bg-card border-r border-border sidebar-shadow flex-shrink-0`}>
         <div className="h-full flex flex-col">
           {/* Logo */}
           <div className="p-6 border-b border-border">
@@ -205,51 +217,223 @@ export default function Dashboard() {
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
         <header className="bg-card border-b border-border p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Welcome {user?.firstName} to your {user?.farmName || 'Farm'} Dashboard
-              </h1>
-              <p className="text-muted-foreground">
-                Here's your agricultural overview for today.
-              </p>
+          <div className={`flex items-center justify-between ${isMobile ? 'flex-col space-y-3' : ''}`}>
+            <div className={`${isMobile ? 'w-full' : ''}`}>
+              {isMobile && (
+                <div className="flex items-center justify-between mb-2">
+                  <button 
+                    onClick={() => setShowMobileSidebar(true)}
+                    className="p-2 hover:bg-muted rounded-md"
+                    data-testid="button-mobile-menu"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </button>
+                  <h1 className="text-lg font-bold text-foreground">
+                    {user?.farmName || 'Farm'} Dashboard
+                  </h1>
+                </div>
+              )}
+              {!isMobile && (
+                <>
+                  <h1 className="text-2xl font-bold text-foreground">
+                    Welcome {user?.firstName} to your {user?.farmName || 'Farm'} Dashboard
+                  </h1>
+                  <p className="text-muted-foreground">
+                    Here's your agricultural overview for today.
+                  </p>
+                </>
+              )}
             </div>
             
-            {/* Quick Weather Summary */}
-            <button 
-              onClick={() => setShowLocationModal(true)}
-              className="flex items-center space-x-4 bg-muted/30 px-4 py-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
-              title="Click to change weather location"
-              data-testid="button-edit-weather-location"
-            >
-              <div className="flex items-center space-x-2">
-                <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <span className="text-foreground font-medium" data-testid="text-current-weather">
-                  {user?.location ? user.location : "Add location"}
-                </span>
-                <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
+            {/* Mobile Tab Navigation */}
+            {isMobile && (
+              <div className="flex bg-muted rounded-lg p-1 w-full">
+                <button
+                  onClick={() => setActiveTab('chat')}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'chat' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  data-testid="button-mobile-chat-tab"
+                >
+                  AI Assistants
+                </button>
+                <button
+                  onClick={() => setActiveTab('data')}
+                  className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                    activeTab === 'data' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                  data-testid="button-mobile-data-tab"
+                >
+                  Farm Data
+                </button>
               </div>
-            </button>
+            )}
+            
+            {/* Quick Weather Summary - Desktop only */}
+            {!isMobile && (
+              <button 
+                onClick={() => setShowLocationModal(true)}
+                className="flex items-center space-x-4 bg-muted/30 px-4 py-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
+                title="Click to change weather location"
+                data-testid="button-edit-weather-location"
+              >
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  <span className="text-foreground font-medium" data-testid="text-current-weather">
+                    {user?.location ? user.location : "Add location"}
+                  </span>
+                  <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </div>
+              </button>
+            )}
           </div>
         </header>
 
         {/* Content Area */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Column: Dual Chat Interface */}
-          <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-            {/* Market Intelligence Chat */}
-            <MarketChat />
+          {/* Mobile: Tab-based content */}
+          {isMobile ? (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {activeTab === 'chat' ? (
+                <div className="flex-1 flex flex-col gap-4 p-4 overflow-hidden">
+                  {/* Market Intelligence Chat */}
+                  <div className="flex-1 min-h-0">
+                    <MarketChat />
+                  </div>
+                  
+                  {/* Farm Assistant Chat */}
+                  <div className="flex-1 min-h-0">
+                    <FarmAssistant />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto p-4">
+                  {/* Weather Widget for Mobile */}
+                  {user?.location && (
+                    <div className="mb-4">
+                      <WeatherWidget location={user.location} />
+                    </div>
+                  )}
+                  
+                  {/* Farm Data Summary for Mobile */}
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <div className="p-4 border-b border-border">
+                      <h3 className="font-semibold text-foreground flex items-center space-x-2">
+                        <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        <span>Farm Overview</span>
+                      </h3>
+                    </div>
 
-            {/* Farm Assistant Chat */}
-            <FarmAssistant />
-          </div>
+                    <div className="p-4 space-y-4">
+                      {/* Farm Stats */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-primary/10 rounded-lg p-3 text-center">
+                          <p className="text-2xl font-bold text-primary" data-testid="text-total-acres">
+                            {totalAcres.toFixed(1)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Total Acres</p>
+                        </div>
+                        <div className="bg-accent/10 rounded-lg p-3 text-center">
+                          <p className="text-2xl font-bold text-accent" data-testid="text-crop-types">
+                            {cropTypes}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Crop Types</p>
+                        </div>
+                      </div>
 
-          {/* Right Column: Weather & Farm Data */}
-          <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
+                      {/* Current Crops */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="text-sm font-medium text-foreground">Current Fields</h4>
+                          {farmFields.length > 3 && (
+                            <button
+                              onClick={() => setShowAllFields(!showAllFields)}
+                              className="text-xs text-primary hover:text-primary/80 underline"
+                              data-testid="button-toggle-all-fields"
+                            >
+                              {showAllFields ? 'Show Less' : `View All (${farmFields.length})`}
+                            </button>
+                          )}
+                        </div>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {farmFields.length === 0 ? (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              No fields added yet. Click "Add Field Data" to add your first field.
+                            </p>
+                          ) : (
+                            (showAllFields ? farmFields : farmFields.slice(0, 3)).map((field: FarmField) => (
+                              <div key={field.id} className="flex items-center justify-between py-2 border-b border-border last:border-b-0">
+                                <div className="flex items-center space-x-2">
+                                  <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                  <button
+                                    onClick={() => {
+                                      setSelectedField(field);
+                                      setShowFarmDataViewModal(true);
+                                    }}
+                                    className="text-sm text-foreground hover:text-primary underline cursor-pointer"
+                                    data-testid={`button-view-field-${field.id}`}
+                                  >
+                                    {field.fieldName}
+                                  </button>
+                                </div>
+                                <span className="text-sm text-muted-foreground">{field.size} acres</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => setShowFarmDataModal(true)}
+                          data-testid="button-add-field-data"
+                          className="w-full bg-primary text-primary-foreground py-2 px-3 rounded-md text-sm hover:bg-primary/90 transition-colors"
+                        >
+                          Add Field Data
+                        </button>
+                        <button 
+                          onClick={() => refetchFields()}
+                          data-testid="button-refresh-data"
+                          className="w-full bg-muted text-muted-foreground py-2 px-3 rounded-md text-sm hover:bg-muted/80 transition-colors"
+                        >
+                          Refresh Data
+                        </button>
+                        <button 
+                          onClick={() => setShowLocationModal(true)}
+                          data-testid="button-mobile-update-location"
+                          className="w-full bg-accent/10 text-accent py-2 px-3 rounded-md text-sm hover:bg-accent/20 transition-colors"
+                        >
+                          Update Location: {user?.location || 'Add location'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Desktop: Side-by-side layout */
+            <>
+              {/* Left Column: Dual Chat Interface */}
+              <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+                {/* Market Intelligence Chat */}
+                <MarketChat />
+
+                {/* Farm Assistant Chat */}
+                <FarmAssistant />
+              </div>
+
+              {/* Right Column: Weather & Farm Data */}
+              <aside className="w-80 bg-muted/20 border-l border-border overflow-y-auto">
             {/* Weather Widget */}
             {user?.location && <WeatherWidget location={user.location} />}
             
@@ -346,6 +530,8 @@ export default function Dashboard() {
               </div>
             </div>
           </aside>
+            </>
+          )}
         </div>
       </main>
 
