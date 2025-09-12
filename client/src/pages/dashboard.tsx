@@ -22,7 +22,6 @@ export default function Dashboard() {
   const [editingField, setEditingField] = useState<FarmField | null>(null);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [showAllFields, setShowAllFields] = useState(false);
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [activeTab, setActiveTab] = useState<'chat' | 'data'>('chat');
   const isMobile = useIsMobile();
 
