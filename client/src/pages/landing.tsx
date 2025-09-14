@@ -1,411 +1,171 @@
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100">
-      <div className="container mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-green-800 mb-6">
-            Agricog Assist
+    <div className="min-h-screen bg-white">
+      {/* Navigation */}
+      <nav className="bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+                <span className="text-white font-bold text-sm">AG</span>
+              </div>
+              <span className="text-xl font-semibold text-gray-900">Agricog Assist</span>
+            </div>
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#" className="text-gray-600 hover:text-green-600 font-medium">Home</a>
+              <a href="#features" className="text-gray-600 hover:text-green-600 font-medium">Features</a>
+              <a href="#pricing" className="text-gray-600 hover:text-green-600 font-medium">Pricing</a>
+              <a href="#contact" className="text-gray-600 hover:text-green-600 font-medium">Contact</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
+            Smart Farm Management<br />Made Simple
           </h1>
-          <p className="text-xl text-green-700 mb-8 max-w-3xl mx-auto">
-            Your agricultural data companion. Get farm guidance through AI chat assistance, 
-            market data, and weather insights to optimize your farming success.
+          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+            Weather forecasts, AI assistance, and field management in one easy-to-use platform
           </p>
+          <a 
+            href="#form" 
+            className="inline-block bg-green-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors"
+            data-testid="button-start-trial"
+          >
+            Start 30-Day Free Trial
+          </a>
         </div>
+      </section>
 
-        {/* Technology Transparency Statement */}
-        <div className="mb-12 bg-white rounded-lg p-6 border-l-4 border-green-500 shadow-md">
-          <div className="flex items-start space-x-3">
-            <div className="text-2xl">💡</div>
-            <div>
-              <h3 className="font-semibold text-green-800 mb-2">About Our Technology</h3>
-              <p className="text-green-600 text-sm">
-                At present, our AI capabilities are delivered exclusively through our advanced chatbot advisors, powered by the Perplexity API. 
-                All data dashboards, weather information, market tracking, and farm management tools are driven by best-in-class APIs and smart automation—not by autonomous machine learning.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Key Value Propositions */}
-        <div className="mb-16 grid md:grid-cols-4 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="text-2xl mb-3">⚡</div>
-            <h3 className="font-semibold text-green-800 mb-2">Instant Insights</h3>
-            <p className="text-sm text-green-600">Intelligent data analysis with AI chat support</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="text-2xl mb-3">🎯</div>
-            <h3 className="font-semibold text-green-800 mb-2">Precision Agriculture</h3>
-            <p className="text-sm text-green-600">Data-driven farming decisions</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="text-2xl mb-3">💰</div>
-            <h3 className="font-semibold text-green-800 mb-2">Maximize Profits</h3>
-            <p className="text-sm text-green-600">Optimize costs and yields</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow-md text-center">
-            <div className="text-2xl mb-3">🌍</div>
-            <h3 className="font-semibold text-green-800 mb-2">Sustainable Farming</h3>
-            <p className="text-sm text-green-600">Eco-friendly practices</p>
-          </div>
-        </div>
-
-        {/* Statistics Section */}
-        <div className="mb-16 bg-green-800 rounded-xl p-8 text-white">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold mb-4">Trusted by Modern Farmers</h2>
-            <p className="text-green-100 max-w-2xl mx-auto">
-              Join thousands of farmers who have already transformed their operations with Agricog Assist
-            </p>
-          </div>
-          <div className="grid md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-3xl font-bold mb-2">15,000+</div>
-              <p className="text-green-100">Active Farmers</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-2">2.5M+</div>
-              <p className="text-green-100">Acres Managed</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-2">35%</div>
-              <p className="text-green-100">Average Yield Increase</p>
-            </div>
-            <div>
-              <div className="text-3xl font-bold mb-2">$2,400</div>
-              <p className="text-green-100">Avg. Annual Savings</p>
-            </div>
-          </div>
-        </div>
-
-        {/* SmartSuite Embedded Form */}
-        <div id="form" className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden mb-16" data-testid="section-form">
-          <div className="p-8">
-            <h2 className="text-2xl font-semibold text-green-800 text-center mb-6">
-              Get Started with Your Agricultural Data Platform
-            </h2>
-            
-            {/* SmartSuite Form Embed */}
-            <div className="w-full" style={{ minHeight: '600px' }}>
-              <iframe 
-                src="https://app.smartsuite.com/form/sba974gi/HRmqVuQoG6?header=false"
-                width="100%"
-                height="700"
-                frameBorder="0"
-                className="rounded-lg"
-                title="Agricog Assist Registration Form"
-              />
-            </div>
-            
-            {/* Login link for existing users */}
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600 mb-2">Already have an account?</p>
-              <a href="/login" className="text-green-600 hover:text-green-700 font-semibold" data-testid="link-login">
-                Sign in to your dashboard →
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Comprehensive Features Section */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Complete Agricultural Data Suite</h2>
-            <p className="text-lg text-green-700 max-w-3xl mx-auto">
-              Everything you need to manage your farm efficiently, from crop planning to market analysis - powered by smart data integration and AI chat assistance
-            </p>
+      {/* Features Section */}
+      <section id="features" className="py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-light text-gray-900 mb-4">Everything You Need</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="text-4xl mb-6 text-center">🌾</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Farm Data Management</h3>
-              <p className="text-green-600 mb-4">Comprehensive data tracking and AI chat guidance for your farm operations</p>
-              <ul className="space-y-2 text-sm text-green-600">
-                <li>• Farm data recording and tracking</li>
-                <li>• Field mapping and crop management</li>
-                <li>• Task scheduling and reminders</li>
-                <li>• Equipment maintenance logs</li>
-                <li>• AI chat guidance for farming decisions</li>
-              </ul>
+          <div className="grid md:grid-cols-3 gap-12">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">🌤️</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">5-Day Weather Forecasts</h3>
+              <p className="text-gray-600">Detailed hourly breakdowns for better planning</p>
             </div>
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="text-4xl mb-6 text-center">📊</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Market Analysis</h3>
-              <p className="text-green-600 mb-4">Real-time commodity prices and market trend analysis</p>
-              <ul className="space-y-2 text-sm text-green-600">
-                <li>• Live commodity price tracking</li>
-                <li>• Market data analysis</li>
-                <li>• Supply chain optimization</li>
-                <li>• Contract and futures analysis</li>
-                <li>• Buyer-seller marketplace access</li>
-              </ul>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">🤖</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Dual AI Assistance</h3>
+              <p className="text-gray-600">General farm questions plus your farm's specific knowledge base</p>
             </div>
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="text-4xl mb-6 text-center">🌤️</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Weather Insights</h3>
-              <p className="text-green-600 mb-4">Detailed forecasts and alerts for optimal farming decisions</p>
-              <ul className="space-y-2 text-sm text-green-600">
-                <li>• Hyperlocal weather forecasting</li>
-                <li>• Severe weather alerts and warnings</li>
-                <li>• Planting and harvesting recommendations</li>
-                <li>• Irrigation scheduling optimization</li>
-                <li>• Climate trend analysis</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Additional Feature Categories */}
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="text-4xl mb-6 text-center">📱</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Digital Farm Management</h3>
-              <p className="text-green-600 mb-4">Comprehensive tools to digitize and streamline your operations</p>
-              <ul className="space-y-2 text-sm text-green-600">
-                <li>• Field mapping and GPS integration</li>
-                <li>• Task scheduling and workforce management</li>
-                <li>• Inventory and supply tracking</li>
-                <li>• Financial planning and budgeting</li>
-                <li>• Compliance and record keeping</li>
-              </ul>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              <div className="text-4xl mb-6 text-center">🤝</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Expert Network</h3>
-              <p className="text-green-600 mb-4">Connect with agricultural experts and fellow farmers</p>
-              <ul className="space-y-2 text-sm text-green-600">
-                <li>• 24/7 AI chat guidance and consultation</li>
-                <li>• Peer farmer community forums</li>
-                <li>• Local extension service integration</li>
-                <li>• Best practices knowledge base</li>
-                <li>• Video tutorials and training</li>
-              </ul>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">🌾</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Field Management</h3>
+              <p className="text-gray-600">Track what's planted where, yields, and notes</p>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Why Choose Agricog Assist */}
-        <div className="mb-16 bg-white rounded-xl p-8">
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Why Choose Agricog Assist?</h2>
-            <p className="text-lg text-green-700 max-w-2xl mx-auto">
-              We combine cutting-edge technology with deep agricultural expertise
-            </p>
-          </div>
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-light text-gray-900 mb-4">Simple Pricing</h2>
+          <p className="text-xl text-gray-600 mb-12">One plan. All features included.</p>
           
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">🚀</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Smart Technology Integration</h3>
-                  <p className="text-green-600">Advanced data integration with AI-powered chat assistance using the latest agricultural knowledge</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">🎓</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Agricultural Expertise</h3>
-                  <p className="text-green-600">Built by agronomists, farmers, and agricultural engineers with decades of field experience</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">🔒</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Secure & Private</h3>
-                  <p className="text-green-600">Enterprise-grade security with full data ownership and privacy protection</p>
-                </div>
-              </div>
+          <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-sm mx-auto">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">Complete Package</h3>
+            <div className="mb-6">
+              <span className="text-4xl font-light text-gray-900">$129</span>
+              <span className="text-gray-600">/month</span>
             </div>
-            <div className="space-y-6">
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">📞</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">24/7 Support</h3>
-                  <p className="text-green-600">Round-the-clock technical support and agricultural consultation services</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">💡</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Continuous Innovation</h3>
-                  <p className="text-green-600">Regular updates with new features based on user feedback and industry trends</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-4">
-                <div className="text-2xl">🌱</div>
-                <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Sustainability Focus</h3>
-                  <p className="text-green-600">Promote environmentally responsible farming practices and carbon footprint reduction</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Customer Testimonials */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">What Our Farmers Say</h2>
-            <p className="text-lg text-green-700 max-w-2xl mx-auto">
-              Real stories from farmers who have transformed their operations with Agricog Assist
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "Agricog Assist helped me track my farm data and get expert guidance through the AI chat. The weather data and market information were incredibly helpful for my decisions."
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">Sarah Johnson</div>
-                <div className="text-sm text-green-600">Corn & Soybean Farmer, Iowa</div>
-                <div className="text-sm text-green-600">1,200 acres</div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "The market data tracking and AI chat guidance helped me make better selling decisions. Having all the information in one place was incredibly valuable."
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">Mike Rodriguez</div>
-                <div className="text-sm text-green-600">Wheat & Cattle Rancher, Kansas</div>
-                <div className="text-sm text-green-600">3,500 acres</div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "As a young farmer, Agricog Assist gave me the confidence to make data-driven decisions. The expert chat feature is like having a mentor available 24/7."
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">David Chen</div>
-                <div className="text-sm text-green-600">Organic Vegetable Farm, California</div>
-                <div className="text-sm text-green-600">150 acres</div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "Having all my farm records organized in one place and being able to get AI chat guidance whenever I need it has been incredibly valuable. The platform pays for itself many times over."
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">Amanda Thompson</div>
-                <div className="text-sm text-green-600">Dairy Farm, Wisconsin</div>
-                <div className="text-sm text-green-600">500 head</div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "Finally, a platform that understands agriculture. The interface is intuitive, and the insights are practical and actionable. Highly recommended!"
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">Robert Wilson</div>
-                <div className="text-sm text-green-600">Mixed Crop Farm, Nebraska</div>
-                <div className="text-sm text-green-600">2,800 acres</div>
-              </div>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
-              <p className="text-green-600 mb-4 italic">
-                "The sustainability recommendations helped me reduce input costs by 25% while maintaining yields. Great for both profit and the planet."
-              </p>
-              <div className="border-t pt-4">
-                <div className="font-semibold text-green-800">Lisa Martinez</div>
-                <div className="text-sm text-green-600">Sustainable Farm, Oregon</div>
-                <div className="text-sm text-green-600">800 acres</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Service Plans */}
-        <div className="mb-16">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Choose Your Plan</h2>
-            <p className="text-lg text-green-700 max-w-2xl mx-auto">
-              Flexible pricing designed to grow with your farming operation
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-lg shadow-md border-2 border-transparent">
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Starter</h3>
-              <div className="text-3xl font-bold text-green-800 mb-4">$49<span className="text-lg font-normal">/month</span></div>
-              <p className="text-green-600 mb-6">Perfect for small farms up to 500 acres</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Basic weather forecasting</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Market price alerts</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Crop planning tools</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Email support</li>
-              </ul>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold" data-testid="button-starter-plan">
-                Start Free Trial
-              </button>
-            </div>
-            
-            <div className="bg-white p-8 rounded-lg shadow-md border-2 border-green-500 relative">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                Most Popular
-              </div>
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Professional</h3>
-              <div className="text-3xl font-bold text-green-800 mb-4">$149<span className="text-lg font-normal">/month</span></div>
-              <p className="text-green-600 mb-6">Ideal for medium to large farms up to 5,000 acres</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> All Starter features</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Advanced data analytics</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Expert chat support</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Livestock record tracking</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Equipment integration</li>
-              </ul>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold" data-testid="button-professional-plan">
-                Start Free Trial
-              </button>
-            </div>
-            
-            <div className="bg-white p-8 rounded-lg shadow-md border-2 border-transparent">
-              <h3 className="text-xl font-semibold text-green-800 mb-2">Enterprise</h3>
-              <div className="text-3xl font-bold text-green-800 mb-4">Custom</div>
-              <p className="text-green-600 mb-6">For large operations and agribusiness</p>
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> All Professional features</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Custom integrations</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Dedicated support team</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Multi-farm management</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> API access</li>
-              </ul>
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold" data-testid="button-enterprise-plan">
-                Contact Sales
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="bg-green-800 rounded-xl p-8 text-center text-white">
-          <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Farm?</h2>
-          <p className="text-xl text-green-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful farmers using Agricog Assist to maximize their yields, reduce costs, and make smarter farming decisions.
-          </p>
-          <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-            <a href="#form" className="inline-block bg-white text-green-800 px-8 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors" data-testid="button-get-started">
-              Get Started Today
-            </a>
-            <a href="/login" className="inline-block border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-green-800 transition-colors" data-testid="button-sign-in">
-              Sign In
+            <ul className="text-left text-gray-600 mb-8 space-y-2">
+              <li className="flex items-center">
+                <span className="text-green-600 mr-2">✓</span>
+                5-day weather forecasts
+              </li>
+              <li className="flex items-center">
+                <span className="text-green-600 mr-2">✓</span>
+                Dual AI assistance
+              </li>
+              <li className="flex items-center">
+                <span className="text-green-600 mr-2">✓</span>
+                Field management tools
+              </li>
+              <li className="flex items-center">
+                <span className="text-green-600 mr-2">✓</span>
+                No setup fees
+              </li>
+            </ul>
+            <p className="text-sm text-gray-500 mb-6">30-day free trial, no credit card required</p>
+            <a 
+              href="#form" 
+              className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors inline-block"
+              data-testid="button-pricing-cta"
+            >
+              Start Free Trial
             </a>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* SmartSuite Form */}
+      <section id="form" className="py-20 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4" data-testid="section-form">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="p-8">
+              <h2 className="text-2xl font-semibold text-gray-900 text-center mb-6">
+                Get Started Today
+              </h2>
+              
+              <div className="w-full" style={{ minHeight: '600px' }}>
+                <iframe 
+                  src="https://app.smartsuite.com/form/sba974gi/HRmqVuQoG6?header=false"
+                  width="100%"
+                  height="700"
+                  frameBorder="0"
+                  className="rounded-lg"
+                  title="Agricog Assist Registration Form"
+                />
+              </div>
+              
+              <div className="mt-6 text-center">
+                <p className="text-sm text-gray-500 mb-2">Already have an account?</p>
+                <a href="/login" className="text-green-600 hover:text-green-700 font-semibold" data-testid="link-login">
+                  Sign in to your dashboard →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer id="contact" className="bg-white border-t border-gray-100 py-12">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
+              <span className="text-white font-bold text-xs">AG</span>
+            </div>
+            <span className="text-lg font-semibold text-gray-900">Agricog Assist</span>
+          </div>
+          <p className="text-gray-600 mb-4">Smart farm management made simple</p>
+          <p className="text-sm text-gray-500">
+            Questions? Email us at{' '}
+            <a href="mailto:hello@agricogassist.com" className="text-green-600 hover:text-green-700">
+              hello@agricogassist.com
+            </a>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
