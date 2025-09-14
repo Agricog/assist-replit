@@ -1,3 +1,5 @@
+import agricogLogo from "@assets/Agricog_1757875972471.png";
+
 export default function Landing() {
   return (
     <div className="min-h-screen bg-white">
@@ -6,10 +8,8 @@ export default function Landing() {
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AG</span>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">Agricog Assist</span>
+              <img src={agricogLogo} alt="Agricog" className="h-8" />
+              <span className="text-xl font-semibold text-gray-900">Assist</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#" className="text-gray-600 hover:text-green-600 font-medium">Home</a>
@@ -152,10 +152,8 @@ export default function Landing() {
       <footer id="contact" className="bg-white border-t border-gray-100 py-12">
         <div className="max-w-6xl mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-6 h-6 bg-green-600 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xs">AG</span>
-            </div>
-            <span className="text-lg font-semibold text-gray-900">Agricog Assist</span>
+            <img src={agricogLogo} alt="Agricog" className="h-6" />
+            <span className="text-lg font-semibold text-gray-900">Assist</span>
           </div>
           <p className="text-gray-600 mb-4">Smart farm management made simple</p>
           <p className="text-sm text-gray-500">
