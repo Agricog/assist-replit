@@ -47,7 +47,7 @@ export default function Landing() {
             <h2 className="text-3xl font-light text-gray-900 mb-4">Everything You Need</h2>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-12">
+          <div className="grid md:grid-cols-4 gap-12">
             <div className="text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">🌤️</span>
@@ -70,6 +70,14 @@ export default function Landing() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Field Management</h3>
               <p className="text-gray-600">Track what's planted where, yields, and notes</p>
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl">📋</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Bespoke CRM System</h3>
+              <p className="text-gray-600">Custom farm management solution built specifically for your operation</p>
             </div>
           </div>
         </div>
