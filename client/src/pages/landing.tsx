@@ -8,9 +8,23 @@ export default function Landing() {
             Agricog Assist
           </h1>
           <p className="text-xl text-green-700 mb-8 max-w-3xl mx-auto">
-            Your intelligent agricultural companion. Get personalized farm guidance, 
-            market intelligence, and weather insights to optimize your farming success.
+            Your agricultural data companion. Get farm guidance through AI chat assistance, 
+            market data, and weather insights to optimize your farming success.
           </p>
+        </div>
+
+        {/* Technology Transparency Statement */}
+        <div className="mb-12 bg-white rounded-lg p-6 border-l-4 border-green-500 shadow-md">
+          <div className="flex items-start space-x-3">
+            <div className="text-2xl">💡</div>
+            <div>
+              <h3 className="font-semibold text-green-800 mb-2">About Our Technology</h3>
+              <p className="text-green-600 text-sm">
+                At present, our AI capabilities are delivered exclusively through our advanced chatbot advisors, powered by the Perplexity API. 
+                All data dashboards, weather information, market tracking, and farm management tools are driven by best-in-class APIs and smart automation—not by autonomous machine learning.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Key Value Propositions */}
@@ -18,7 +32,7 @@ export default function Landing() {
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <div className="text-2xl mb-3">⚡</div>
             <h3 className="font-semibold text-green-800 mb-2">Instant Insights</h3>
-            <p className="text-sm text-green-600">AI-powered analysis in real-time</p>
+            <p className="text-sm text-green-600">Intelligent data analysis with AI chat support</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md text-center">
             <div className="text-2xl mb-3">🎯</div>
@@ -69,7 +83,7 @@ export default function Landing() {
         <div id="form" className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl overflow-hidden mb-16" data-testid="section-form">
           <div className="p-8">
             <h2 className="text-2xl font-semibold text-green-800 text-center mb-6">
-              Get Started with Your Agricultural Intelligence Platform
+              Get Started with Your Agricultural Data Platform
             </h2>
             
             {/* SmartSuite Form Embed */}
@@ -97,23 +111,23 @@ export default function Landing() {
         {/* Comprehensive Features Section */}
         <div className="mb-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-green-800 mb-4">Complete Agricultural Intelligence Suite</h2>
+            <h2 className="text-3xl font-bold text-green-800 mb-4">Complete Agricultural Data Suite</h2>
             <p className="text-lg text-green-700 max-w-3xl mx-auto">
-              Everything you need to manage your farm efficiently, from crop planning to market analysis
+              Everything you need to manage your farm efficiently, from crop planning to market analysis - powered by smart data integration and AI chat assistance
             </p>
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="bg-white p-8 rounded-lg shadow-md">
               <div className="text-4xl mb-6 text-center">🌾</div>
-              <h3 className="text-xl font-semibold text-green-800 mb-4">Farm Intelligence</h3>
-              <p className="text-green-600 mb-4">AI-powered insights for your crops, livestock, and farm operations</p>
+              <h3 className="text-xl font-semibold text-green-800 mb-4">Farm Data Management</h3>
+              <p className="text-green-600 mb-4">Comprehensive data tracking and AI chat guidance for your farm operations</p>
               <ul className="space-y-2 text-sm text-green-600">
-                <li>• Crop health monitoring and disease detection</li>
-                <li>• Soil analysis and nutrient recommendations</li>
-                <li>• Livestock tracking and health alerts</li>
-                <li>• Equipment maintenance scheduling</li>
-                <li>• Yield prediction and optimization</li>
+                <li>• Farm data recording and tracking</li>
+                <li>• Field mapping and crop management</li>
+                <li>• Task scheduling and reminders</li>
+                <li>• Equipment maintenance logs</li>
+                <li>• AI chat guidance for farming decisions</li>
               </ul>
             </div>
             <div className="bg-white p-8 rounded-lg shadow-md">
@@ -122,7 +136,7 @@ export default function Landing() {
               <p className="text-green-600 mb-4">Real-time commodity prices and market trend analysis</p>
               <ul className="space-y-2 text-sm text-green-600">
                 <li>• Live commodity price tracking</li>
-                <li>• Market trend forecasting</li>
+                <li>• Market data analysis</li>
                 <li>• Supply chain optimization</li>
                 <li>• Contract and futures analysis</li>
                 <li>• Buyer-seller marketplace access</li>
@@ -161,7 +175,7 @@ export default function Landing() {
               <h3 className="text-xl font-semibold text-green-800 mb-4">Expert Network</h3>
               <p className="text-green-600 mb-4">Connect with agricultural experts and fellow farmers</p>
               <ul className="space-y-2 text-sm text-green-600">
-                <li>• 24/7 expert consultation chat</li>
+                <li>• 24/7 AI chat guidance and consultation</li>
                 <li>• Peer farmer community forums</li>
                 <li>• Local extension service integration</li>
                 <li>• Best practices knowledge base</li>
@@ -185,8 +199,8 @@ export default function Landing() {
               <div className="flex items-start space-x-4">
                 <div className="text-2xl">🚀</div>
                 <div>
-                  <h3 className="font-semibold text-green-800 mb-2">Advanced AI Technology</h3>
-                  <p className="text-green-600">Machine learning algorithms trained on millions of data points from successful farms worldwide</p>
+                  <h3 className="font-semibold text-green-800 mb-2">Smart Technology Integration</h3>
+                  <p className="text-green-600">Advanced data integration with AI-powered chat assistance using the latest agricultural knowledge</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4">
@@ -243,7 +257,7 @@ export default function Landing() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
               <p className="text-green-600 mb-4 italic">
-                "Agricog Assist helped me increase my corn yield by 40% last season. The soil analysis and weather predictions were spot-on. I can't imagine farming without it now."
+                "Agricog Assist helped me track my farm data and get expert guidance through the AI chat. The weather data and market information were incredibly helpful for my decisions."
               </p>
               <div className="border-t pt-4">
                 <div className="font-semibold text-green-800">Sarah Johnson</div>
@@ -255,7 +269,7 @@ export default function Landing() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
               <p className="text-green-600 mb-4 italic">
-                "The market analysis feature saved me thousands. I sold my wheat at the perfect time based on their price predictions. ROI was immediate."
+                "The market data tracking and AI chat guidance helped me make better selling decisions. Having all the information in one place was incredibly valuable."
               </p>
               <div className="border-t pt-4">
                 <div className="font-semibold text-green-800">Mike Rodriguez</div>
@@ -279,7 +293,7 @@ export default function Landing() {
             <div className="bg-white p-6 rounded-lg shadow-md">
               <div className="text-yellow-500 text-xl mb-4">⭐⭐⭐⭐⭐</div>
               <p className="text-green-600 mb-4 italic">
-                "The livestock monitoring alerts caught a disease outbreak early, saving me from massive losses. The platform pays for itself many times over."
+                "Having all my farm records organized in one place and being able to get AI chat guidance whenever I need it has been incredibly valuable. The platform pays for itself many times over."
               </p>
               <div className="border-t pt-4">
                 <div className="font-semibold text-green-800">Amanda Thompson</div>
@@ -348,9 +362,9 @@ export default function Landing() {
               <p className="text-green-600 mb-6">Ideal for medium to large farms up to 5,000 acres</p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> All Starter features</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Advanced AI analytics</li>
+                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Advanced data analytics</li>
                 <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Expert chat support</li>
-                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Livestock monitoring</li>
+                <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Livestock record tracking</li>
                 <li className="flex items-center text-green-600"><span className="text-green-500 mr-2">✓</span> Equipment integration</li>
               </ul>
               <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold" data-testid="button-professional-plan">
