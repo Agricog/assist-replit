@@ -70,6 +70,20 @@ export default function Landing() {
             </p>
           </div>
         </div>
+
+        {/* Contact Form */}
+        <div className="mt-20 max-w-4xl mx-auto">
+          <h3 className="text-3xl font-bold text-green-900 mb-6">Get in Touch</h3>
+          <div className="bg-white rounded-xl shadow-lg p-8">
+            <iframe
+              src="https://app.smartsuite.com/form/sba974gi/HRmqVuQoG6?header=false"
+              width="100%"
+              height="600px"
+              style={{ border: 'none' }}
+              title="Contact Form"
+            />
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
