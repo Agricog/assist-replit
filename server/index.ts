@@ -30,7 +30,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Set to false for Railway compatibility
+      sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   })
@@ -200,21 +201,22 @@ app.post('/api/chat/market', requireAuth, async (req, res) => {
   }
 });
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  const path = await import('path');
-  const { fileURLToPath } = await import('url');
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-  app.use(express.static(path.join(__dirname, '../dist')));
-  app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
-  });
-}
-
 // Start server
 async function start() {
   await initDatabase();
+
+  // Serve static files in production
+  if (process.env.NODE_ENV === 'production') {
+    const path = await import('path');
+    const { fileURLToPath } = await import('url');
+    const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+    app.use(express.static(path.join(__dirname, '../dist')));
+    app.get('/*', (req, res) => {
+      res.sendFile(path.join(__dirname, '../dist/index.html'));
+    });
+  }
+
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });
