@@ -39,11 +39,50 @@ export default function Dashboard() {
         if (!res.ok) throw new Error('Not authenticated');
         return res.json();
       })
-      .then(data => setUser(data))
+      .then(data => {
+        setUser(data);
+        // If user has a location from signup, use it for weather
+        if (data.location) {
+          searchLocationForWeather(data.location);
+        } else {
+          fetchWeatherData(savedLocation.lat, savedLocation.lon);
+        }
+      })
       .catch(() => setLocation('/login'));
-
-    fetchWeatherData(savedLocation.lat, savedLocation.lon);
   }, [setLocation]);
+
+  // Search and set weather location based on user's signup location
+  const searchLocationForWeather = async (locationName: string) => {
+    // Check if we already have this location saved
+    if (savedLocation.name === locationName) {
+      fetchWeatherData(savedLocation.lat, savedLocation.lon);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/weather/search?q=${encodeURIComponent(locationName)}`, {
+        credentials: 'include',
+      });
+      const data = await response.json();
+      if (data.length > 0) {
+        const location = data[0];
+        const newLocation = {
+          lat: location.lat,
+          lon: location.lon,
+          name: location.name + (location.state ? `, ${location.state}` : '') + `, ${location.country}`,
+        };
+        setSavedLocation(newLocation);
+        localStorage.setItem('farmLocation', JSON.stringify(newLocation));
+        fetchWeatherData(newLocation.lat, newLocation.lon);
+      } else {
+        // Fallback to default if location not found
+        fetchWeatherData(savedLocation.lat, savedLocation.lon);
+      }
+    } catch (error) {
+      console.error('Error searching location:', error);
+      fetchWeatherData(savedLocation.lat, savedLocation.lon);
+    }
+  };
 
   const handleLogout = async () => {
     await fetch('/api/logout', { method: 'POST', credentials: 'include' });
@@ -141,7 +180,14 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🌾</span>
-            <h1 className="text-2xl font-bold text-green-800">Agricog Assist</h1>
+            <div>
+              <h1 className="text-2xl font-bold text-green-800">
+                {user.farm_name ? `${user.farm_name} Dashboard` : 'Agricog Assist'}
+              </h1>
+              {user.location && (
+                <p className="text-sm text-gray-600">📍 {user.location}</p>
+              )}
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-700">Welcome, {user.username}!</span>
