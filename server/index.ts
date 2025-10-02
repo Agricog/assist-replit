@@ -1,5 +1,6 @@
 import express from 'express';
 import session from 'express-session';
+import connectPg from 'connect-pg-simple';
 import cors from 'cors';
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
@@ -12,11 +13,18 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+// Session store
+const pgStore = connectPg(session);
+
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(
   session({
+    store: new pgStore({
+      pool,
+      createTableIfMissing: true,
+    }),
     secret: process.env.SESSION_SECRET || 'change-this-secret',
     resave: false,
     saveUninitialized: false,
@@ -38,18 +46,6 @@ async function initDatabase() {
       password VARCHAR(255) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-  `);
-
-  await pool.query(`
-    CREATE TABLE IF NOT EXISTS sessions (
-      sid VARCHAR PRIMARY KEY,
-      sess JSON NOT NULL,
-      expire TIMESTAMP(6) NOT NULL
-    );
-  `);
-
-  await pool.query(`
-    CREATE INDEX IF NOT EXISTS IDX_session_expire ON sessions (expire);
   `);
 
   console.log('✅ Database tables initialized');
@@ -206,9 +202,13 @@ app.post('/api/chat/market', requireAuth, async (req, res) => {
 
 // Serve static files in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('dist'));
-  app.get('*', (req, res) => {
-    res.sendFile('dist/index.html', { root: '.' });
+  const path = await import('path');
+  const { fileURLToPath } = await import('url');
+  const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+  app.use(express.static(path.join(__dirname, '../dist')));
+  app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
   });
 }
 
