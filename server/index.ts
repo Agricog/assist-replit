@@ -142,7 +142,7 @@ app.post('/api/logout', (req, res) => {
   });
 });
 
-// Weather API
+// Weather API - Current weather
 app.get('/api/weather', requireAuth, async (req, res) => {
   try {
     const { lat, lon } = req.query;
@@ -160,6 +160,27 @@ app.get('/api/weather', requireAuth, async (req, res) => {
     res.json(data);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch weather' });
+  }
+});
+
+// Weather API - 5-day forecast with 3-hour intervals
+app.get('/api/weather/forecast', requireAuth, async (req, res) => {
+  try {
+    const { lat, lon } = req.query;
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'Weather API key not configured' });
+    }
+
+    const response = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
+    );
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch forecast' });
   }
 });
 

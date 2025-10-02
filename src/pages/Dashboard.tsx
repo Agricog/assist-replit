@@ -5,6 +5,8 @@ export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [weather, setWeather] = useState<any>(null);
+  const [forecast, setForecast] = useState<any>(null);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,10 +21,16 @@ export default function Dashboard() {
       .then(data => setUser(data))
       .catch(() => setLocation('/login'));
 
-    // Get weather (using London coordinates as default)
+    // Get current weather (using London coordinates as default)
     fetch('/api/weather?lat=51.5074&lon=-0.1278', { credentials: 'include' })
       .then(res => res.json())
       .then(data => setWeather(data))
+      .catch(console.error);
+
+    // Get 5-day forecast
+    fetch('/api/weather/forecast?lat=51.5074&lon=-0.1278', { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setForecast(data))
       .catch(console.error);
   }, [setLocation]);
 
@@ -57,6 +65,28 @@ export default function Dashboard() {
     }
   };
 
+  // Group forecast by day
+  const getDailyForecasts = () => {
+    if (!forecast?.list) return [];
+
+    const days: any = {};
+    forecast.list.forEach((item: any) => {
+      const date = new Date(item.dt * 1000).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      if (!days[date]) {
+        days[date] = [];
+      }
+      days[date].push(item);
+    });
+
+    return Object.entries(days).slice(0, 5).map(([date, items]: [string, any]) => ({
+      date,
+      items,
+      avgTemp: Math.round(items.reduce((sum: number, i: any) => sum + i.main.temp, 0) / items.length),
+      icon: items[Math.floor(items.length / 2)].weather[0].icon,
+      description: items[Math.floor(items.length / 2)].weather[0].description,
+    }));
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -87,25 +117,72 @@ export default function Dashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Weather Widget */}
+        {/* Weather Forecast */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
             <span className="mr-2">🌤️</span>
-            Weather
+            5-Day Weather Forecast
+            {weather && <span className="text-sm font-normal text-gray-600 ml-4">{weather.name}</span>}
           </h2>
-          {weather ? (
-            <div className="flex items-center space-x-6">
-              <div className="text-5xl">{Math.round(weather.main?.temp)}°C</div>
-              <div>
-                <div className="text-xl font-semibold text-gray-700">{weather.name}</div>
-                <div className="text-gray-600 capitalize">{weather.weather?.[0]?.description}</div>
-                <div className="text-sm text-gray-500">
-                  Humidity: {weather.main?.humidity}% | Wind: {weather.wind?.speed} m/s
-                </div>
+
+          {forecast ? (
+            <div>
+              {/* 5-Day Cards */}
+              <div className="grid grid-cols-5 gap-4 mb-6">
+                {getDailyForecasts().map((day, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setSelectedDay(selectedDay === index ? null : index)}
+                    className={`cursor-pointer p-4 rounded-lg border-2 transition ${
+                      selectedDay === index
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    <div className="text-center">
+                      <div className="text-sm font-semibold text-gray-700 mb-2">{day.date}</div>
+                      <img
+                        src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+                        alt={day.description}
+                        className="w-16 h-16 mx-auto"
+                      />
+                      <div className="text-2xl font-bold text-gray-800">{day.avgTemp}°C</div>
+                      <div className="text-xs text-gray-600 capitalize">{day.description}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
+
+              {/* 3-Hourly Details */}
+              {selectedDay !== null && (
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    3-Hourly Forecast for {getDailyForecasts()[selectedDay].date}
+                  </h3>
+                  <div className="grid grid-cols-4 gap-3">
+                    {getDailyForecasts()[selectedDay].items.map((item: any, idx: number) => (
+                      <div key={idx} className="bg-white p-3 rounded-lg shadow-sm">
+                        <div className="text-sm font-semibold text-gray-700 mb-1">
+                          {new Date(item.dt * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <img
+                          src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
+                          alt={item.weather[0].description}
+                          className="w-12 h-12 mx-auto"
+                        />
+                        <div className="text-xl font-bold text-gray-800 text-center">{Math.round(item.main.temp)}°C</div>
+                        <div className="text-xs text-gray-600 text-center capitalize">{item.weather[0].description}</div>
+                        <div className="text-xs text-gray-500 text-center mt-1">
+                          💧 {item.main.humidity}% | 💨 {Math.round(item.wind.speed)} m/s
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
-            <div className="text-gray-500">Loading weather...</div>
+            <div className="text-gray-500">Loading weather forecast...</div>
           )}
         </div>
 
