@@ -180,14 +180,9 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <span className="text-3xl">🌾</span>
-            <div>
-              <h1 className="text-2xl font-bold text-green-800">
-                {user.farm_name ? `${user.farm_name} Dashboard` : 'Agricog Assist'}
-              </h1>
-              {user.location && (
-                <p className="text-sm text-gray-600">📍 {user.location}</p>
-              )}
-            </div>
+            <h1 className="text-2xl font-bold text-green-800">
+              {user.farm_name ? `${user.farm_name} Farm Dashboard` : 'Agricog Assist'}
+            </h1>
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-gray-700">Welcome, {user.username}!</span>
