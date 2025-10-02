@@ -354,7 +354,7 @@ export default function Dashboard() {
           {/* Farm Assistant (Fastbots) */}
           <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
             <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-              <span className="mr-2">🤖</span>
+              <span className="mr-2">🚜</span>
               Farm Assistant
             </h2>
 
