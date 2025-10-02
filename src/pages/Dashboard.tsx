@@ -10,6 +10,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'market' | 'assistant'>('market');
 
   // Location state
   const [locationSearch, setLocationSearch] = useState('');
@@ -154,13 +155,39 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Main Layout: Content Left, Weather Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left: Market Intelligence and Farm Assistant */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Market Intelligence Chat */}
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
+      <div className="flex h-[calc(100vh-88px)]">
+        {/* Left Sidebar Navigation */}
+        <div className="w-64 bg-white border-r border-gray-200 p-4">
+          <nav className="space-y-2">
+            <button
+              onClick={() => setActiveTab('market')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'market'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">📊</span>
+              <span className="font-semibold">Market Intelligence</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('assistant')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'assistant'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">🚜</span>
+              <span className="font-semibold">Farm Assistant</span>
+            </button>
+          </nav>
+        </div>
+
+        {/* Center Content Area */}
+        <div className="flex-1 p-6 overflow-y-auto">
+          {activeTab === 'market' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold text-gray-800 flex items-center">
                   <span className="mr-2">📊</span>
@@ -225,9 +252,10 @@ export default function Dashboard() {
                 </button>
               </div>
             </div>
+          )}
 
-            {/* Farm Assistant (Fastbots) */}
-            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
+          {activeTab === 'assistant' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-full">
               <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
                 <span className="mr-2">🚜</span>
                 Farm Assistant
@@ -241,24 +269,24 @@ export default function Dashboard() {
                 />
               </div>
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Right: Weather Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
+        {/* Right: Weather Sidebar */}
+        <div className="w-96 bg-white border-l border-gray-200 overflow-y-auto p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center">
               <span className="mr-2">🌤️</span>
-              5-Day Weather Forecast
-              <span className="text-sm font-normal text-gray-600 ml-4">{savedLocation.name}</span>
+              Weather
             </h2>
-            <button
-              onClick={() => setShowLocationSearch(!showLocationSearch)}
-              className="text-sm text-green-600 hover:text-green-700 px-3 py-1 rounded hover:bg-green-50 transition"
-            >
-              📍 Change Location
-            </button>
+            <div className="text-xs text-gray-600">{savedLocation.name}</div>
           </div>
+          <button
+            onClick={() => setShowLocationSearch(!showLocationSearch)}
+            className="w-full mb-4 text-sm text-green-600 hover:text-green-700 px-3 py-2 rounded bg-green-50 hover:bg-green-100 transition"
+          >
+            📍 Change Location
+          </button>
 
           {/* Location Search Modal */}
           {showLocationSearch && (
@@ -373,8 +401,6 @@ export default function Dashboard() {
           ) : (
             <div className="text-gray-500">Loading weather forecast...</div>
           )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
