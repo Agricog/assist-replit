@@ -113,10 +113,21 @@ export default function Dashboard() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Market Intelligence Chat */}
           <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-              <span className="mr-2">📊</span>
-              Market Intelligence
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                <span className="mr-2">📊</span>
+                Market Intelligence
+              </h2>
+              {messages.length > 0 && (
+                <button
+                  onClick={() => setMessages([])}
+                  className="text-sm text-gray-500 hover:text-red-600 transition px-3 py-1 rounded hover:bg-red-50"
+                  title="Clear chat"
+                >
+                  🗑️ Clear
+                </button>
+              )}
+            </div>
 
             <div className="flex-1 overflow-y-auto mb-4 space-y-4">
               {messages.length === 0 ? (
