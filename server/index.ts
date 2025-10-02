@@ -50,6 +50,19 @@ async function initDatabase() {
     );
   `);
 
+  // Migrate existing table: drop email column if exists, add new columns if missing
+  try {
+    await pool.query(`
+      ALTER TABLE users
+      DROP COLUMN IF EXISTS email,
+      ADD COLUMN IF NOT EXISTS farm_name VARCHAR(255),
+      ADD COLUMN IF NOT EXISTS location VARCHAR(255);
+    `);
+    console.log('✅ Database migration completed');
+  } catch (error) {
+    console.log('⚠️ Database migration skipped (might already be up to date)');
+  }
+
   console.log('✅ Database tables initialized');
 }
 
