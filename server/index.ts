@@ -184,6 +184,27 @@ app.get('/api/weather/forecast', requireAuth, async (req, res) => {
   }
 });
 
+// Weather API - Search location by name
+app.get('/api/weather/search', requireAuth, async (req, res) => {
+  try {
+    const { q } = req.query;
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'Weather API key not configured' });
+    }
+
+    const response = await fetch(
+      `https://api.openweathermap.org/geo/1.0/direct?q=${q}&limit=5&appid=${apiKey}`
+    );
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to search location' });
+  }
+});
+
 // Perplexity Chat API
 app.post('/api/chat/market', requireAuth, async (req, res) => {
   try {

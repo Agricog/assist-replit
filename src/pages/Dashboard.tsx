@@ -11,8 +11,28 @@ export default function Dashboard() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Location state
+  const [locationSearch, setLocationSearch] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showLocationSearch, setShowLocationSearch] = useState(false);
+  const [savedLocation, setSavedLocation] = useState<{ lat: number; lon: number; name: string }>(() => {
+    const saved = localStorage.getItem('farmLocation');
+    return saved ? JSON.parse(saved) : { lat: 51.5074, lon: -0.1278, name: 'London' };
+  });
+
+  const fetchWeatherData = (lat: number, lon: number) => {
+    fetch(`/api/weather?lat=${lat}&lon=${lon}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setWeather(data))
+      .catch(console.error);
+
+    fetch(`/api/weather/forecast?lat=${lat}&lon=${lon}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => setForecast(data))
+      .catch(console.error);
+  };
+
   useEffect(() => {
-    // Check authentication
     fetch('/api/user', { credentials: 'include' })
       .then(res => {
         if (!res.ok) throw new Error('Not authenticated');
@@ -21,17 +41,7 @@ export default function Dashboard() {
       .then(data => setUser(data))
       .catch(() => setLocation('/login'));
 
-    // Get current weather (using London coordinates as default)
-    fetch('/api/weather?lat=51.5074&lon=-0.1278', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setWeather(data))
-      .catch(console.error);
-
-    // Get 5-day forecast
-    fetch('/api/weather/forecast?lat=51.5074&lon=-0.1278', { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => setForecast(data))
-      .catch(console.error);
+    fetchWeatherData(savedLocation.lat, savedLocation.lon);
   }, [setLocation]);
 
   const handleLogout = async () => {
@@ -87,6 +97,34 @@ export default function Dashboard() {
     }));
   };
 
+  const handleLocationSearch = async () => {
+    if (!locationSearch.trim()) return;
+
+    try {
+      const response = await fetch(`/api/weather/search?q=${encodeURIComponent(locationSearch)}`, {
+        credentials: 'include',
+      });
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('Location search error:', error);
+    }
+  };
+
+  const selectLocation = (location: any) => {
+    const newLocation = {
+      lat: location.lat,
+      lon: location.lon,
+      name: location.name + (location.state ? `, ${location.state}` : '') + `, ${location.country}`,
+    };
+    setSavedLocation(newLocation);
+    localStorage.setItem('farmLocation', JSON.stringify(newLocation));
+    fetchWeatherData(newLocation.lat, newLocation.lon);
+    setShowLocationSearch(false);
+    setLocationSearch('');
+    setSearchResults([]);
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -119,11 +157,69 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Weather Forecast */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-            <span className="mr-2">🌤️</span>
-            5-Day Weather Forecast
-            {weather && <span className="text-sm font-normal text-gray-600 ml-4">{weather.name}</span>}
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+              <span className="mr-2">🌤️</span>
+              5-Day Weather Forecast
+              <span className="text-sm font-normal text-gray-600 ml-4">{savedLocation.name}</span>
+            </h2>
+            <button
+              onClick={() => setShowLocationSearch(!showLocationSearch)}
+              className="text-sm text-green-600 hover:text-green-700 px-3 py-1 rounded hover:bg-green-50 transition"
+            >
+              📍 Change Location
+            </button>
+          </div>
+
+          {/* Location Search Modal */}
+          {showLocationSearch && (
+            <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+              <div className="flex space-x-2 mb-3">
+                <input
+                  type="text"
+                  value={locationSearch}
+                  onChange={(e) => setLocationSearch(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
+                  placeholder="Enter town/village name..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                />
+                <button
+                  onClick={handleLocationSearch}
+                  className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition"
+                >
+                  Search
+                </button>
+                <button
+                  onClick={() => {
+                    setShowLocationSearch(false);
+                    setSearchResults([]);
+                    setLocationSearch('');
+                  }}
+                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              {searchResults.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600 mb-2">Select your location:</p>
+                  {searchResults.map((result, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => selectLocation(result)}
+                      className="w-full text-left px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition"
+                    >
+                      <div className="font-semibold">{result.name}</div>
+                      <div className="text-sm text-gray-600">
+                        {result.state && `${result.state}, `}{result.country}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {forecast ? (
             <div>
