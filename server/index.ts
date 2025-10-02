@@ -170,8 +170,11 @@ app.post('/api/chat/market', requireAuth, async (req, res) => {
     const apiKey = process.env.PERPLEXITY_API_KEY;
 
     if (!apiKey) {
+      console.error('❌ PERPLEXITY_API_KEY not found');
       return res.status(500).json({ message: 'Perplexity API key not configured' });
     }
+
+    console.log('📡 Calling Perplexity API with message:', message);
 
     const response = await fetch('https://api.perplexity.ai/chat/completions', {
       method: 'POST',
@@ -194,10 +197,18 @@ app.post('/api/chat/market', requireAuth, async (req, res) => {
       }),
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Perplexity API error:', response.status, errorText);
+      return res.status(500).json({ message: `Perplexity API error: ${response.status}` });
+    }
+
     const data = await response.json();
+    console.log('✅ Perplexity response received');
     res.json(data);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to get response' });
+  } catch (error: any) {
+    console.error('❌ Market chat error:', error.message);
+    res.status(500).json({ message: `Failed to get response: ${error.message}` });
   }
 });
 
