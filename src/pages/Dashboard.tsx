@@ -155,8 +155,97 @@ export default function Dashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Weather Forecast */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
+        {/* Main Layout: Content Left, Weather Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left: Market Intelligence and Farm Assistant */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Market Intelligence Chat */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                  <span className="mr-2">📊</span>
+                  Market Intelligence
+                </h2>
+                {messages.length > 0 && (
+                  <button
+                    onClick={() => setMessages([])}
+                    className="text-sm text-gray-500 hover:text-red-600 transition px-3 py-1 rounded hover:bg-red-50"
+                    title="Clear chat"
+                  >
+                    🗑️ Clear
+                  </button>
+                )}
+              </div>
+
+              <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+                {messages.length === 0 ? (
+                  <div className="text-gray-500 text-center mt-8">
+                    Ask me about crop prices, market trends, or farming economics!
+                  </div>
+                ) : (
+                  messages.map((msg, idx) => (
+                    <div
+                      key={idx}
+                      className={`p-4 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-green-100 ml-8'
+                          : 'bg-gray-100 mr-8'
+                      }`}
+                    >
+                      <div className="font-semibold text-sm mb-1">
+                        {msg.role === 'user' ? 'You' : 'AI Assistant'}
+                      </div>
+                      <div className="text-gray-800">{msg.content}</div>
+                    </div>
+                  ))
+                )}
+                {loading && (
+                  <div className="text-gray-500 text-center">
+                    <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                  placeholder="Ask about market trends..."
+                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                  disabled={loading}
+                />
+                <button
+                  onClick={sendMessage}
+                  disabled={loading || !input.trim()}
+                  className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+
+            {/* Farm Assistant (Fastbots) */}
+            <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                <span className="mr-2">🚜</span>
+                Farm Assistant
+              </h2>
+
+              <div className="flex-1">
+                <iframe
+                  style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
+                  src="https://app.fastbots.ai/embed/cmcuvry22008boelv6guop4fa"
+                  title="Farm Assistant Chatbot"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Weather Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center">
               <span className="mr-2">🌤️</span>
@@ -223,147 +312,67 @@ export default function Dashboard() {
 
           {forecast ? (
             <div>
-              {/* 5-Day Cards */}
-              <div className="grid grid-cols-5 gap-4 mb-6">
+              {/* 5-Day Cards - Vertical Stack */}
+              <div className="space-y-3">
                 {getDailyForecasts().map((day, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setSelectedDay(selectedDay === index ? null : index)}
-                    className={`cursor-pointer p-4 rounded-lg border-2 transition ${
-                      selectedDay === index
-                        ? 'border-green-500 bg-green-50'
-                        : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="text-center">
-                      <div className="text-sm font-semibold text-gray-700 mb-2">{day.date}</div>
-                      <img
-                        src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
-                        alt={day.description}
-                        className="w-16 h-16 mx-auto"
-                      />
-                      <div className="text-2xl font-bold text-gray-800">{day.avgTemp}°C</div>
-                      <div className="text-xs text-gray-600 capitalize">{day.description}</div>
+                  <div key={index}>
+                    <div
+                      onClick={() => setSelectedDay(selectedDay === index ? null : index)}
+                      className={`cursor-pointer p-3 rounded-lg border-2 transition ${
+                        selectedDay === index
+                          ? 'border-green-500 bg-green-50'
+                          : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={`https://openweathermap.org/img/wn/${day.icon}@2x.png`}
+                            alt={day.description}
+                            className="w-12 h-12"
+                          />
+                          <div>
+                            <div className="text-sm font-semibold text-gray-700">{day.date}</div>
+                            <div className="text-xs text-gray-600 capitalize">{day.description}</div>
+                          </div>
+                        </div>
+                        <div className="text-2xl font-bold text-gray-800">{day.avgTemp}°C</div>
+                      </div>
                     </div>
+
+                    {/* 3-Hourly Details */}
+                    {selectedDay === index && (
+                      <div className="mt-3 p-3 bg-white rounded-lg border-t-2 border-green-500">
+                        <div className="text-sm font-semibold text-gray-700 mb-2">3-Hour Intervals</div>
+                        <div className="space-y-2">
+                          {day.items.map((item: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between text-sm">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-600 font-medium w-12">
+                                  {new Date(item.dt * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                                <img
+                                  src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
+                                  alt={item.weather[0].description}
+                                  className="w-8 h-8"
+                                />
+                              </div>
+                              <div className="flex items-center space-x-3">
+                                <span className="font-bold text-gray-800">{Math.round(item.main.temp)}°C</span>
+                                <span className="text-xs text-gray-500">💧{item.main.humidity}%</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-
-              {/* 3-Hourly Details */}
-              {selectedDay !== null && (
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    3-Hourly Forecast for {getDailyForecasts()[selectedDay].date}
-                  </h3>
-                  <div className="grid grid-cols-4 gap-3">
-                    {getDailyForecasts()[selectedDay].items.map((item: any, idx: number) => (
-                      <div key={idx} className="bg-white p-3 rounded-lg shadow-sm">
-                        <div className="text-sm font-semibold text-gray-700 mb-1">
-                          {new Date(item.dt * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                        <img
-                          src={`https://openweathermap.org/img/wn/${item.weather[0].icon}.png`}
-                          alt={item.weather[0].description}
-                          className="w-12 h-12 mx-auto"
-                        />
-                        <div className="text-xl font-bold text-gray-800 text-center">{Math.round(item.main.temp)}°C</div>
-                        <div className="text-xs text-gray-600 text-center capitalize">{item.weather[0].description}</div>
-                        <div className="text-xs text-gray-500 text-center mt-1">
-                          💧 {item.main.humidity}% | 💨 {Math.round(item.wind.speed)} m/s
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="text-gray-500">Loading weather forecast...</div>
           )}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Market Intelligence Chat */}
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800 flex items-center">
-                <span className="mr-2">📊</span>
-                Market Intelligence
-              </h2>
-              {messages.length > 0 && (
-                <button
-                  onClick={() => setMessages([])}
-                  className="text-sm text-gray-500 hover:text-red-600 transition px-3 py-1 rounded hover:bg-red-50"
-                  title="Clear chat"
-                >
-                  🗑️ Clear
-                </button>
-              )}
-            </div>
-
-            <div className="flex-1 overflow-y-auto mb-4 space-y-4">
-              {messages.length === 0 ? (
-                <div className="text-gray-500 text-center mt-8">
-                  Ask me about crop prices, market trends, or farming economics!
-                </div>
-              ) : (
-                messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`p-4 rounded-lg ${
-                      msg.role === 'user'
-                        ? 'bg-green-100 ml-8'
-                        : 'bg-gray-100 mr-8'
-                    }`}
-                  >
-                    <div className="font-semibold text-sm mb-1">
-                      {msg.role === 'user' ? 'You' : 'AI Assistant'}
-                    </div>
-                    <div className="text-gray-800">{msg.content}</div>
-                  </div>
-                ))
-              )}
-              {loading && (
-                <div className="text-gray-500 text-center">
-                  <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
-                </div>
-              )}
-            </div>
-
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                placeholder="Ask about market trends..."
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
-                disabled={loading}
-              />
-              <button
-                onClick={sendMessage}
-                disabled={loading || !input.trim()}
-                className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-
-          {/* Farm Assistant (Fastbots) */}
-          <div className="bg-white rounded-xl shadow-lg p-6 flex flex-col h-[600px]">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center">
-              <span className="mr-2">🚜</span>
-              Farm Assistant
-            </h2>
-
-            <div className="flex-1">
-              <iframe
-                style={{ width: '100%', height: '100%', border: 'none', borderRadius: '8px' }}
-                src="https://app.fastbots.ai/embed/cmcuvry22008boelv6guop4fa"
-                title="Farm Assistant Chatbot"
-              />
             </div>
           </div>
         </div>
