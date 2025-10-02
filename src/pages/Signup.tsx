@@ -82,8 +82,9 @@ export default function Signup() {
             <input
               type="text"
               name="farmName"
+              required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-              placeholder="Name of your farm (optional)"
+              placeholder="Name of your farm"
             />
           </div>
 
@@ -94,8 +95,9 @@ export default function Signup() {
             <input
               type="text"
               name="location"
+              required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-              placeholder="Town/Village (optional)"
+              placeholder="Town/Village"
             />
           </div>
 

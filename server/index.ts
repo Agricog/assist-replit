@@ -67,15 +67,15 @@ app.post('/api/signup', async (req, res) => {
   try {
     const { username, password, farmName, location } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({ message: 'Name and password are required' });
+    if (!username || !password || !farmName || !location) {
+      return res.status(400).json({ message: 'All fields are required' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       'INSERT INTO users (username, password, farm_name, location) VALUES ($1, $2, $3, $4) RETURNING id, username, farm_name, location',
-      [username, hashedPassword, farmName || null, location || null]
+      [username, hashedPassword, farmName, location]
     );
 
     req.session.userId = result.rows[0].id;
