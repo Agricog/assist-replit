@@ -14,7 +14,8 @@ export default function Signup() {
 
     const formData = new FormData(e.currentTarget);
     const username = formData.get('username') as string;
-    const email = formData.get('email') as string;
+    const farmName = formData.get('farmName') as string;
+    const location = formData.get('location') as string;
     const password = formData.get('password') as string;
     const confirmPassword = formData.get('confirmPassword') as string;
 
@@ -29,7 +30,7 @@ export default function Signup() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ username, farmName, location, password }),
       });
 
       if (response.ok) {
@@ -63,27 +64,38 @@ export default function Signup() {
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Username
+              Name
             </label>
             <input
               type="text"
               name="username"
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-              placeholder="Choose a username"
+              placeholder="Your name"
             />
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              Farm Name
             </label>
             <input
-              type="email"
-              name="email"
-              required
+              type="text"
+              name="farmName"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
-              placeholder="your@email.com"
+              placeholder="Name of your farm (optional)"
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Location
+            </label>
+            <input
+              type="text"
+              name="location"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+              placeholder="Town/Village (optional)"
             />
           </div>
 

@@ -43,8 +43,9 @@ async function initDatabase() {
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username VARCHAR(255) UNIQUE NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
       password VARCHAR(255) NOT NULL,
+      farm_name VARCHAR(255),
+      location VARCHAR(255),
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);
@@ -64,17 +65,17 @@ function requireAuth(req: any, res: any, next: any) {
 // Routes
 app.post('/api/signup', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, password, farmName, location } = req.body;
 
-    if (!username || !email || !password) {
-      return res.status(400).json({ message: 'All fields required' });
+    if (!username || !password) {
+      return res.status(400).json({ message: 'Name and password are required' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email',
-      [username, email, hashedPassword]
+      'INSERT INTO users (username, password, farm_name, location) VALUES ($1, $2, $3, $4) RETURNING id, username, farm_name, location',
+      [username, hashedPassword, farmName || null, location || null]
     );
 
     req.session.userId = result.rows[0].id;
@@ -83,7 +84,7 @@ app.post('/api/signup', async (req, res) => {
     res.json({ success: true, user: result.rows[0] });
   } catch (error: any) {
     if (error.code === '23505') {
-      res.status(400).json({ message: 'Username or email already exists' });
+      res.status(400).json({ message: 'Username already exists' });
     } else {
       res.status(500).json({ message: 'Server error' });
     }
