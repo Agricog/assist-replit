@@ -127,7 +127,7 @@ app.post('/api/login', async (req, res) => {
     req.session.userId = user.id;
     req.session.username = user.username;
 
-    res.json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
+    res.json({ success: true, user: { id: user.id, username: user.username, farm_name: user.farm_name, location: user.location } });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -136,7 +136,7 @@ app.post('/api/login', async (req, res) => {
 app.get('/api/user', requireAuth, async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, username, email FROM users WHERE id = $1',
+      'SELECT id, username, farm_name, location FROM users WHERE id = $1',
       [req.session.userId]
     );
 
