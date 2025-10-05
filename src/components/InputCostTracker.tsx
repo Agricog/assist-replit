@@ -45,6 +45,7 @@ export default function InputCostTracker() {
   const [showAddPurchase, setShowAddPurchase] = useState(false);
   const [showUpdatePrice, setShowUpdatePrice] = useState(false);
   const [selectedInput, setSelectedInput] = useState<InputPrice | null>(null);
+  const [newPrice, setNewPrice] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -70,6 +71,31 @@ export default function InputCostTracker() {
       console.error('Error fetching input cost data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdatePrice = async () => {
+    if (!selectedInput || !newPrice) return;
+
+    try {
+      const response = await fetch('/api/input-prices/update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          inputId: selectedInput.id,
+          price: parseFloat(newPrice),
+        }),
+      });
+
+      if (response.ok) {
+        await fetchData();
+        setShowUpdatePrice(false);
+        setSelectedInput(null);
+        setNewPrice('');
+      }
+    } catch (error) {
+      console.error('Error updating price:', error);
     }
   };
 
@@ -198,7 +224,11 @@ export default function InputCostTracker() {
       {/* Action Buttons */}
       <div className="flex space-x-3 mb-6">
         <button
-          onClick={() => setShowUpdatePrice(true)}
+          onClick={() => {
+            setSelectedInput(null);
+            setNewPrice('');
+            setShowUpdatePrice(true);
+          }}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
         >
           📝 Update Price
@@ -351,16 +381,79 @@ export default function InputCostTracker() {
       {showUpdatePrice && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Update Price</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Feature coming soon! This will allow you to manually update prices you see from suppliers.
-            </p>
-            <button
-              onClick={() => setShowUpdatePrice(false)}
-              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              Close
-            </button>
+            <h3 className="text-xl font-bold mb-4">📝 Update Price</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Input
+              </label>
+              <select
+                value={selectedInput?.id || ''}
+                onChange={(e) => {
+                  const input = inputs.find(i => i.id === e.target.value);
+                  setSelectedInput(input || null);
+                  setNewPrice('');
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">-- Select an input --</option>
+                {inputs.map(input => (
+                  <option key={input.id} value={input.id}>
+                    {getCategoryIcon(input.category)} {input.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedInput && (
+              <>
+                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Current Price</div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {formatPrice(selectedInput.currentPrice, selectedInput.unit)}
+                  </div>
+                  {selectedInput.lastUpdated && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Last updated {new Date(selectedInput.lastUpdated).toLocaleDateString()}
+                    </div>
+                  )}
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    New Price ({selectedInput.unit === 'pence/L' ? 'pence/L' : '£/' + selectedInput.unit})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newPrice}
+                    onChange={(e) => setNewPrice(e.target.value)}
+                    placeholder={selectedInput.unit === 'pence/L' ? 'e.g. 65.5' : 'e.g. 350'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowUpdatePrice(false);
+                  setSelectedInput(null);
+                  setNewPrice('');
+                }}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdatePrice}
+                disabled={!selectedInput || !newPrice || parseFloat(newPrice) <= 0}
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Update Price
+              </button>
+            </div>
           </div>
         </div>
       )}
