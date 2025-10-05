@@ -161,6 +161,55 @@ async function initDatabase() {
     ON CONFLICT (id) DO NOTHING;
   `);
 
+  // Create equipment table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS equipment (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR(255) NOT NULL,
+      type VARCHAR(100) NOT NULL,
+      make VARCHAR(100),
+      model VARCHAR(100),
+      year INTEGER,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Create fuel_logs table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS fuel_logs (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      equipment_id INTEGER REFERENCES equipment(id) ON DELETE SET NULL,
+      equipment_name VARCHAR(255),
+      fuel_type VARCHAR(50) NOT NULL,
+      litres DECIMAL(10,2) NOT NULL,
+      cost_per_litre DECIMAL(10,2),
+      total_cost DECIMAL(10,2),
+      operation VARCHAR(100),
+      area_hectares DECIMAL(10,2),
+      litres_per_hectare DECIMAL(10,2),
+      log_date DATE NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Create fuel_tanks table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS fuel_tanks (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      tank_name VARCHAR(255) NOT NULL,
+      fuel_type VARCHAR(50) NOT NULL,
+      capacity_litres DECIMAL(10,2) NOT NULL,
+      current_level_litres DECIMAL(10,2) DEFAULT 0,
+      alert_threshold_litres DECIMAL(10,2),
+      last_filled DATE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
   console.log('✅ Database tables initialized');
 }
 
@@ -705,6 +754,183 @@ app.delete('/api/price-alerts/:id', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('❌ Delete alert error:', error);
     res.status(500).json({ message: 'Failed to delete alert' });
+  }
+});
+
+// Equipment API
+app.get('/api/equipment', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM equipment WHERE user_id = $1 ORDER BY name',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get equipment error:', error);
+    res.status(500).json({ message: 'Failed to fetch equipment' });
+  }
+});
+
+app.post('/api/equipment', requireAuth, async (req, res) => {
+  try {
+    const { name, type, make, model, year } = req.body;
+
+    if (!name || !type) {
+      return res.status(400).json({ message: 'Name and type required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO equipment (user_id, name, type, make, model, year)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [req.session.userId, name, type, make, model, year]
+    );
+
+    console.log(`✅ Added equipment: ${name}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create equipment error:', error);
+    res.status(500).json({ message: 'Failed to add equipment' });
+  }
+});
+
+app.delete('/api/equipment/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM equipment WHERE id = $1 AND user_id = $2',
+      [id, req.session.userId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete equipment error:', error);
+    res.status(500).json({ message: 'Failed to delete equipment' });
+  }
+});
+
+// Fuel Logs API
+app.get('/api/fuel-logs', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM fuel_logs WHERE user_id = $1 ORDER BY log_date DESC, created_at DESC',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get fuel logs error:', error);
+    res.status(500).json({ message: 'Failed to fetch fuel logs' });
+  }
+});
+
+app.post('/api/fuel-logs', requireAuth, async (req, res) => {
+  try {
+    const { equipmentId, equipmentName, fuelType, litres, costPerLitre, operation, areaHectares, logDate, notes } = req.body;
+
+    if (!fuelType || !litres || !logDate) {
+      return res.status(400).json({ message: 'Fuel type, litres, and date required' });
+    }
+
+    // Calculate derived values
+    const totalCost = costPerLitre ? litres * costPerLitre : null;
+    const litresPerHectare = areaHectares && areaHectares > 0 ? litres / areaHectares : null;
+
+    const result = await pool.query(
+      `INSERT INTO fuel_logs (user_id, equipment_id, equipment_name, fuel_type, litres, cost_per_litre, total_cost, operation, area_hectares, litres_per_hectare, log_date, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+       RETURNING *`,
+      [req.session.userId, equipmentId, equipmentName, fuelType, litres, costPerLitre, totalCost, operation, areaHectares, litresPerHectare, logDate, notes]
+    );
+
+    console.log(`✅ Logged fuel: ${litres}L ${fuelType} for ${operation || 'general use'}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create fuel log error:', error);
+    res.status(500).json({ message: 'Failed to log fuel usage' });
+  }
+});
+
+app.delete('/api/fuel-logs/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM fuel_logs WHERE id = $1 AND user_id = $2',
+      [id, req.session.userId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete fuel log error:', error);
+    res.status(500).json({ message: 'Failed to delete fuel log' });
+  }
+});
+
+// Fuel Tanks API
+app.get('/api/fuel-tanks', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM fuel_tanks WHERE user_id = $1 ORDER BY tank_name',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get fuel tanks error:', error);
+    res.status(500).json({ message: 'Failed to fetch fuel tanks' });
+  }
+});
+
+app.post('/api/fuel-tanks', requireAuth, async (req, res) => {
+  try {
+    const { tankName, fuelType, capacityLitres, currentLevelLitres, alertThresholdLitres } = req.body;
+
+    if (!tankName || !fuelType || !capacityLitres) {
+      return res.status(400).json({ message: 'Tank name, fuel type, and capacity required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO fuel_tanks (user_id, tank_name, fuel_type, capacity_litres, current_level_litres, alert_threshold_litres)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING *`,
+      [req.session.userId, tankName, fuelType, capacityLitres, currentLevelLitres || 0, alertThresholdLitres]
+    );
+
+    console.log(`✅ Added fuel tank: ${tankName}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create fuel tank error:', error);
+    res.status(500).json({ message: 'Failed to add fuel tank' });
+  }
+});
+
+app.put('/api/fuel-tanks/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { currentLevelLitres, lastFilled } = req.body;
+
+    const result = await pool.query(
+      `UPDATE fuel_tanks
+       SET current_level_litres = $1, last_filled = $2
+       WHERE id = $3 AND user_id = $4
+       RETURNING *`,
+      [currentLevelLitres, lastFilled, id, req.session.userId]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Update fuel tank error:', error);
+    res.status(500).json({ message: 'Failed to update fuel tank' });
+  }
+});
+
+app.delete('/api/fuel-tanks/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM fuel_tanks WHERE id = $1 AND user_id = $2',
+      [id, req.session.userId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete fuel tank error:', error);
+    res.status(500).json({ message: 'Failed to delete fuel tank' });
   }
 });
 

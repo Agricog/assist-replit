@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import SprayWindowOptimizer from '../components/SprayWindowOptimizer';
 import InputCostTracker from '../components/InputCostTracker';
+import FuelUsageTracker from '../components/FuelUsageTracker';
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -12,7 +13,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray' | 'inputs'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray' | 'inputs' | 'fuel'>('market');
   const [locationUpdated, setLocationUpdated] = useState<number>(Date.now());
 
   // Location state
@@ -260,6 +261,17 @@ export default function Dashboard() {
               <span className="text-2xl">💰</span>
               <span className="font-semibold">Input Costs</span>
             </button>
+            <button
+              onClick={() => setActiveTab('fuel')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'fuel'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">⛽</span>
+              <span className="font-semibold">Fuel Tracker</span>
+            </button>
           </nav>
         </div>
 
@@ -362,6 +374,12 @@ export default function Dashboard() {
           {activeTab === 'inputs' && (
             <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
               <InputCostTracker />
+            </div>
+          )}
+
+          {activeTab === 'fuel' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
+              <FuelUsageTracker />
             </div>
           )}
         </div>
