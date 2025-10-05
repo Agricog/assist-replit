@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 
+interface SprayWindowOptimizerProps {
+  locationUpdated?: number;
+  currentLocation?: { lat: number; lon: number; name: string };
+}
+
 interface WeatherBlock {
   time: string;
   status: 'PERFECT' | 'RISKY' | 'DONT_SPRAY' | 'NIGHT';
@@ -35,7 +40,7 @@ interface SprayAnalysis {
   lastUpdated: Date;
 }
 
-export default function SprayWindowOptimizer() {
+export default function SprayWindowOptimizer({ locationUpdated, currentLocation }: SprayWindowOptimizerProps) {
   const [analysis, setAnalysis] = useState<SprayAnalysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,12 +48,19 @@ export default function SprayWindowOptimizer() {
 
   useEffect(() => {
     fetchSprayAnalysis();
-  }, [sprayType]);
+  }, [sprayType, locationUpdated]);
 
   const fetchSprayAnalysis = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/spray-analysis?type=${sprayType}`, {
+      let url = `/api/spray-analysis?type=${sprayType}`;
+
+      // If currentLocation is provided, use it instead of user's saved location
+      if (currentLocation) {
+        url += `&lat=${currentLocation.lat}&lon=${currentLocation.lon}`;
+      }
+
+      const response = await fetch(url, {
         credentials: 'include',
       });
 
@@ -146,12 +158,17 @@ export default function SprayWindowOptimizer() {
     <div className="h-full overflow-y-auto">
       {/* Header */}
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-2">
           <h2 className="text-2xl font-bold text-gray-800">🌾 Spray Window Optimizer</h2>
           <div className="text-sm text-gray-500">
             Last updated: {new Date(analysis.lastUpdated).toLocaleTimeString()}
           </div>
         </div>
+        {currentLocation && (
+          <div className="text-sm text-gray-600 mb-4">
+            📍 Analysis for: <span className="font-semibold">{currentLocation.name}</span>
+          </div>
+        )}
 
         {/* Spray Type Selector */}
         <div className="flex space-x-2 mb-4">

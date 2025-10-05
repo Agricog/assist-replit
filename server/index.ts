@@ -275,36 +275,46 @@ app.get('/api/weather/forecast', requireAuth, async (req, res) => {
 // Spray Window Analysis
 app.get('/api/spray-analysis', requireAuth, async (req, res) => {
   try {
-    const { type = 'herbicide' } = req.query;
+    const { type = 'herbicide', lat: queryLat, lon: queryLon } = req.query;
     const apiKey = process.env.OPENWEATHER_API_KEY;
 
     if (!apiKey) {
       return res.status(500).json({ message: 'Weather API key not configured' });
     }
 
-    // Get user's farm location
-    const userResult = await pool.query(
-      'SELECT location FROM users WHERE id = $1',
-      [req.session.userId]
-    );
+    let lat: number;
+    let lon: number;
 
-    if (userResult.rows.length === 0 || !userResult.rows[0].location) {
-      return res.status(400).json({ message: 'Farm location not set. Please update your profile.' });
+    // If lat/lon provided in query (from weather location change), use those
+    if (queryLat && queryLon) {
+      lat = parseFloat(queryLat as string);
+      lon = parseFloat(queryLon as string);
+    } else {
+      // Otherwise, get user's farm location from database
+      const userResult = await pool.query(
+        'SELECT location FROM users WHERE id = $1',
+        [req.session.userId]
+      );
+
+      if (userResult.rows.length === 0 || !userResult.rows[0].location) {
+        return res.status(400).json({ message: 'Farm location not set. Please update your profile.' });
+      }
+
+      const farmLocation = userResult.rows[0].location;
+
+      // Search for location coordinates
+      const geoResponse = await fetch(
+        `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(farmLocation)}&limit=1&appid=${apiKey}`
+      );
+      const geoData = await geoResponse.json();
+
+      if (geoData.length === 0) {
+        return res.status(400).json({ message: 'Could not find coordinates for your farm location' });
+      }
+
+      lat = geoData[0].lat;
+      lon = geoData[0].lon;
     }
-
-    const farmLocation = userResult.rows[0].location;
-
-    // Search for location coordinates
-    const geoResponse = await fetch(
-      `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(farmLocation)}&limit=1&appid=${apiKey}`
-    );
-    const geoData = await geoResponse.json();
-
-    if (geoData.length === 0) {
-      return res.status(400).json({ message: 'Could not find coordinates for your farm location' });
-    }
-
-    const { lat, lon } = geoData[0];
 
     // Fetch 5-day forecast
     const forecastResponse = await fetch(

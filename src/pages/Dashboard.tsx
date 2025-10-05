@@ -12,6 +12,7 @@ export default function Dashboard() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray'>('market');
+  const [locationUpdated, setLocationUpdated] = useState<number>(Date.now());
 
   // Location state
   const [locationSearch, setLocationSearch] = useState('');
@@ -175,6 +176,8 @@ export default function Dashboard() {
     setShowLocationSearch(false);
     setLocationSearch('');
     setSearchResults([]);
+    // Trigger spray optimizer refresh
+    setLocationUpdated(Date.now());
   };
 
   if (!user) {
@@ -337,7 +340,10 @@ export default function Dashboard() {
 
           {activeTab === 'spray' && (
             <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
-              <SprayWindowOptimizer />
+              <SprayWindowOptimizer
+                locationUpdated={locationUpdated}
+                currentLocation={savedLocation}
+              />
             </div>
           )}
         </div>
