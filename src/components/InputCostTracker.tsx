@@ -41,6 +41,7 @@ export default function InputCostTracker() {
   const [alerts, setAlerts] = useState<PriceAlert[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [showAddAlert, setShowAddAlert] = useState(false);
   const [showAddPurchase, setShowAddPurchase] = useState(false);
   const [showUpdatePrice, setShowUpdatePrice] = useState(false);
@@ -179,6 +180,29 @@ export default function InputCostTracker() {
     }
   };
 
+  const handleRefreshPrices = async () => {
+    setRefreshing(true);
+    try {
+      const response = await fetch('/api/input-prices/refresh', {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        // Wait a few seconds then refresh data
+        setTimeout(() => {
+          fetchData();
+          setRefreshing(false);
+        }, 3000);
+      } else {
+        setRefreshing(false);
+      }
+    } catch (error) {
+      console.error('Error refreshing prices:', error);
+      setRefreshing(false);
+    }
+  };
+
   const getTrendIcon = (trend: string | null) => {
     switch (trend) {
       case 'UP': return '↑↑';
@@ -235,9 +259,28 @@ export default function InputCostTracker() {
   return (
     <div className="h-full overflow-y-auto">
       {/* Header */}
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">💰 Input Cost Tracker</h2>
-        <p className="text-sm text-gray-600">Track prices, set alerts, and time your purchases to save thousands</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">💰 Input Cost Tracker</h2>
+          <p className="text-sm text-gray-600">Track prices, set alerts, and time your purchases to save thousands</p>
+        </div>
+        <button
+          onClick={handleRefreshPrices}
+          disabled={refreshing}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center space-x-2"
+        >
+          {refreshing ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+              <span>Updating...</span>
+            </>
+          ) : (
+            <>
+              <span>🔄</span>
+              <span>Refresh Prices</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Active Price Alerts */}

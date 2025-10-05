@@ -4,6 +4,7 @@ import connectPg from 'connect-pg-simple';
 import cors from 'cors';
 import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
+import cron from 'node-cron';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -814,9 +815,179 @@ app.post('/api/chat/market', requireAuth, async (req, res) => {
   }
 });
 
+// Automated Price Fetching
+async function fetchInputPriceFromPerplexity(inputId: string, inputName: string, unit: string): Promise<number | null> {
+  try {
+    const apiKey = process.env.PERPLEXITY_API_KEY;
+    if (!apiKey) {
+      console.error('❌ PERPLEXITY_API_KEY not configured');
+      return null;
+    }
+
+    const prompt = `What is the current wholesale/market price for ${inputName} in the UK today?
+Please provide ONLY the price as a number in ${unit === 'pence/L' ? 'pence per litre' : '£ per ' + unit}.
+Format your response as just the number, for example: 350 or 65.5`;
+
+    console.log(`📡 Fetching price for ${inputName}...`);
+
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a UK agricultural commodity price expert. Provide only current wholesale/market prices as numbers.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`❌ Perplexity API error for ${inputName}:`, response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content || '';
+
+    // Extract number from response
+    const priceMatch = content.match(/\d+\.?\d*/);
+    if (priceMatch) {
+      const price = parseFloat(priceMatch[0]);
+      console.log(`✅ Fetched ${inputName}: ${price} ${unit}`);
+      return price;
+    }
+
+    console.error(`❌ Could not parse price from response for ${inputName}:`, content);
+    return null;
+  } catch (error) {
+    console.error(`❌ Error fetching price for ${inputName}:`, error);
+    return null;
+  }
+}
+
+async function updateInputPrices() {
+  console.log('🔄 Starting automated price update...');
+
+  try {
+    // Get all inputs
+    const result = await pool.query('SELECT * FROM input_prices ORDER BY id');
+    const inputs = result.rows;
+
+    for (const input of inputs) {
+      // Fetch new price from Perplexity
+      const newPrice = await fetchInputPriceFromPerplexity(input.id, input.name, input.unit);
+
+      if (newPrice !== null) {
+        // Calculate trend changes
+        const currentPrice = input.current_price || newPrice;
+        const weekChange = input.current_price ? newPrice - input.current_price : 0;
+        const monthChange = input.current_price ? newPrice - input.current_price : 0; // Simplified for now
+
+        let trend = 'STABLE';
+        if (Math.abs(weekChange) > (currentPrice * 0.02)) { // 2% threshold
+          trend = weekChange > 0 ? 'UP' : 'DOWN';
+        }
+
+        // Update database
+        await pool.query(
+          `UPDATE input_prices
+           SET current_price = $1, last_updated = NOW(), week_change = $2, month_change = $3, trend = $4
+           WHERE id = $5`,
+          [newPrice, weekChange, monthChange, trend, input.id]
+        );
+      }
+
+      // Rate limit: wait 2 seconds between API calls
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+
+    console.log('✅ Price update complete');
+
+    // Check alerts after price update
+    await checkPriceAlerts();
+  } catch (error) {
+    console.error('❌ Error updating prices:', error);
+  }
+}
+
+async function checkPriceAlerts() {
+  console.log('🔔 Checking price alerts...');
+
+  try {
+    // Get all active alerts
+    const alertsResult = await pool.query(
+      'SELECT * FROM price_alerts WHERE is_active = true AND triggered = false'
+    );
+
+    for (const alert of alertsResult.rows) {
+      // Get current price for this input
+      const priceResult = await pool.query(
+        'SELECT current_price FROM input_prices WHERE id = $1',
+        [alert.input_id]
+      );
+
+      if (priceResult.rows.length === 0 || priceResult.rows[0].current_price === null) {
+        continue;
+      }
+
+      const currentPrice = priceResult.rows[0].current_price;
+      let shouldTrigger = false;
+
+      if (alert.alert_type === 'BELOW' && currentPrice <= alert.target_price) {
+        shouldTrigger = true;
+      } else if (alert.alert_type === 'ABOVE' && currentPrice >= alert.target_price) {
+        shouldTrigger = true;
+      }
+
+      if (shouldTrigger) {
+        await pool.query(
+          'UPDATE price_alerts SET triggered = true WHERE id = $1',
+          [alert.id]
+        );
+        console.log(`🎯 Alert triggered for user ${alert.user_id}: ${alert.input_name} ${alert.alert_type} ${alert.target_price}`);
+      }
+    }
+
+    console.log('✅ Alert check complete');
+  } catch (error) {
+    console.error('❌ Error checking alerts:', error);
+  }
+}
+
+// Manual refresh endpoint
+app.post('/api/input-prices/refresh', requireAuth, async (req, res) => {
+  try {
+    console.log('🔄 Manual price refresh triggered by user');
+    // Run update in background, don't wait
+    updateInputPrices().catch(err => console.error('❌ Background price update error:', err));
+    res.json({ success: true, message: 'Price refresh started' });
+  } catch (error) {
+    console.error('❌ Refresh prices error:', error);
+    res.status(500).json({ message: 'Failed to start price refresh' });
+  }
+});
+
 // Start server
 async function start() {
   await initDatabase();
+
+  // Schedule daily price updates at 6am UK time
+  cron.schedule('0 6 * * *', () => {
+    console.log('⏰ Scheduled price update triggered');
+    updateInputPrices().catch(err => console.error('❌ Scheduled update error:', err));
+  });
+
+  console.log('⏰ Cron job scheduled: Daily price updates at 6am');
 
   // Serve static files in production
   if (process.env.NODE_ENV === 'production') {
