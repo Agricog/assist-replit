@@ -441,8 +441,11 @@ function findSprayWindows(timeline: any[]) {
     let currentWindow: any = null;
 
     day.blocks.forEach((block: any, idx: number) => {
+      // Only group PERFECT blocks together, or RISKY blocks together
+      // Don't mix PERFECT and RISKY in the same window
       if (block.status === 'PERFECT' || block.status === 'RISKY') {
         if (!currentWindow) {
+          // Start a new window
           currentWindow = {
             day: day.day,
             date: day.date,
@@ -450,15 +453,37 @@ function findSprayWindows(timeline: any[]) {
             blocks: [block],
             quality: block.status,
           };
-        } else {
+        } else if (currentWindow.quality === block.status) {
+          // Continue window only if same quality
           currentWindow.blocks.push(block);
-          // Upgrade quality if we find perfect conditions
-          if (block.status === 'PERFECT' && currentWindow.quality !== 'PERFECT') {
-            currentWindow.quality = 'PERFECT';
-          }
+        } else {
+          // Quality changed, close current window and start new one
+          const lastBlock = currentWindow.blocks[currentWindow.blocks.length - 1];
+          currentWindow.endTime = lastBlock.time.split('-')[1];
+          currentWindow.durationHours = currentWindow.blocks.length * 3;
+
+          const totalWind = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.wind, 0);
+          const totalTemp = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.temp, 0);
+          const maxRain = Math.max(...currentWindow.blocks.map((b: any) => b.rain));
+
+          currentWindow.avgWind = totalWind / currentWindow.blocks.length;
+          currentWindow.avgTemp = totalTemp / currentWindow.blocks.length;
+          currentWindow.rainChance = maxRain;
+
+          delete currentWindow.blocks;
+          windows.push(currentWindow);
+
+          // Start new window with current block
+          currentWindow = {
+            day: day.day,
+            date: day.date,
+            startTime: block.time.split('-')[0],
+            blocks: [block],
+            quality: block.status,
+          };
         }
       } else {
-        // Window ended
+        // Window ended (DONT_SPRAY or NIGHT)
         if (currentWindow && currentWindow.blocks.length > 0) {
           const lastBlock = currentWindow.blocks[currentWindow.blocks.length - 1];
           currentWindow.endTime = lastBlock.time.split('-')[1];
