@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import SprayWindowOptimizer from '../components/SprayWindowOptimizer';
 import InputCostTracker from '../components/InputCostTracker';
 import FuelUsageTracker from '../components/FuelUsageTracker';
+import SubsidyTracker from '../components/SubsidyTracker';
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -13,7 +14,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray' | 'inputs' | 'fuel'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray' | 'inputs' | 'fuel' | 'subsidies'>('market');
   const [locationUpdated, setLocationUpdated] = useState<number>(Date.now());
 
   // Location state
@@ -272,6 +273,17 @@ export default function Dashboard() {
               <span className="text-2xl">⛽</span>
               <span className="font-semibold">Fuel Tracker</span>
             </button>
+            <button
+              onClick={() => setActiveTab('subsidies')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'subsidies'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">🎯</span>
+              <span className="font-semibold">Subsidies</span>
+            </button>
           </nav>
         </div>
 
@@ -380,6 +392,12 @@ export default function Dashboard() {
           {activeTab === 'fuel' && (
             <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
               <FuelUsageTracker />
+            </div>
+          )}
+
+          {activeTab === 'subsidies' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
+              <SubsidyTracker />
             </div>
           )}
         </div>

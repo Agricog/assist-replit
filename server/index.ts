@@ -210,6 +210,59 @@ async function initDatabase() {
     );
   `);
 
+  // Create subsidy_schemes table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS subsidy_schemes (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      scheme_type VARCHAR(100) NOT NULL,
+      typical_amount_min DECIMAL(10,2),
+      typical_amount_max DECIMAL(10,2),
+      deadline_month INTEGER,
+      deadline_day INTEGER,
+      eligibility_summary TEXT,
+      application_url TEXT,
+      is_active BOOLEAN DEFAULT true,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Create user_applications table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS user_applications (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      scheme_id INTEGER REFERENCES subsidy_schemes(id) ON DELETE SET NULL,
+      scheme_name VARCHAR(255) NOT NULL,
+      status VARCHAR(50) NOT NULL,
+      estimated_annual_payment DECIMAL(10,2),
+      actual_annual_payment DECIMAL(10,2),
+      application_date DATE,
+      approval_date DATE,
+      start_date DATE,
+      end_date DATE,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Seed default UK subsidy schemes
+  await pool.query(`
+    INSERT INTO subsidy_schemes (name, description, scheme_type, typical_amount_min, typical_amount_max, deadline_month, deadline_day, eligibility_summary, application_url, is_active) VALUES
+    ('Sustainable Farming Incentive (SFI)', 'Annual payments for adopting sustainable farming practices like improved grassland, hedgerows, and low input farming', 'Environmental', 2000, 50000, 9, 15, 'Available to farmers managing eligible agricultural land in England. No minimum land area required.', 'https://www.gov.uk/guidance/sfi-actions-for-farmers', true),
+    ('Countryside Stewardship', 'Environmental land management scheme offering 5-10 year agreements for habitat creation, species protection, and public access', 'Environmental', 5000, 100000, 7, 31, 'Farmers, foresters, and land managers in England with environmental priorities', 'https://www.gov.uk/guidance/countryside-stewardship-get-funding-to-protect-and-improve-the-land-you-manage', true),
+    ('Farming Equipment & Technology Fund', 'Capital grants for productivity-boosting equipment (robotics, solar, slurry management)', 'Capital Grant', 1000, 25000, 11, 30, 'Farmers in England. Must purchase items from approved list. 50% grant funding up to £25k', 'https://www.gov.uk/guidance/farming-equipment-and-technology-fund-round-2-fetf2', true),
+    ('Farming Investment Fund - Water', 'Grants for water management infrastructure (reservoirs, irrigation, pumps)', 'Capital Grant', 5000, 500000, 8, 31, 'Farmers and growers in England. Variable grant rates 40-50%', 'https://www.gov.uk/guidance/farming-investment-fund', true),
+    ('Farming Investment Fund - Improving Farm Productivity', 'Grants for farm infrastructure (robotic equipment, storage, handling)', 'Capital Grant', 25000, 500000, 6, 30, 'Farmers in England. 40% grant funding for projects £25k-£500k', 'https://www.gov.uk/guidance/farming-investment-fund', true),
+    ('Tree Health Pilot Scheme', 'Payments for tree health improvements including planting, restocking, and protection', 'Environmental', 500, 10000, 12, 31, 'Woodland owners and managers in England with Statutory Plant Health Notices', 'https://www.gov.uk/guidance/tree-health-pilot-scheme', true),
+    ('Hedgerow & Boundary Grant', 'Capital grants for planting and restoring hedgerows, stone walls, and field boundaries', 'Capital Grant', 1000, 15000, 7, 31, 'Farmers and land managers in England. Part of Countryside Stewardship', 'https://www.gov.uk/guidance/countryside-stewardship-hedgerow-and-boundary-grants', true),
+    ('Animal Health & Welfare Pathway', 'Annual funding for vet visits and animal health planning (cattle, sheep, pigs)', 'Animal Health', 372, 684, 12, 31, 'Livestock keepers in England registered for the scheme', 'https://www.gov.uk/guidance/farmers-how-to-apply-for-funding-to-improve-animal-health-and-welfare', true),
+    ('Slurry Infrastructure Grant', 'Funding for slurry storage to reduce pollution and improve nutrient management', 'Capital Grant', 25000, 250000, 10, 31, 'Pig and dairy farmers in England. 50% grant funding', 'https://www.gov.uk/government/collections/slurry-infrastructure-grant-sig', true),
+    ('Woodland Creation Planning Grant', 'Funding for developing woodland creation plans and designing new woodlands', 'Environmental', 1000, 10000, 12, 31, 'Landowners and managers in England planning new woodland (min 1 hectare)', 'https://www.gov.uk/guidance/england-woodland-creation-offer', true)
+    ON CONFLICT DO NOTHING;
+  `);
+
   console.log('✅ Database tables initialized');
 }
 
@@ -931,6 +984,90 @@ app.delete('/api/fuel-tanks/:id', requireAuth, async (req, res) => {
   } catch (error) {
     console.error('❌ Delete fuel tank error:', error);
     res.status(500).json({ message: 'Failed to delete fuel tank' });
+  }
+});
+
+// Subsidy Schemes API
+app.get('/api/subsidy-schemes', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM subsidy_schemes WHERE is_active = true ORDER BY deadline_month, deadline_day'
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get subsidy schemes error:', error);
+    res.status(500).json({ message: 'Failed to fetch subsidy schemes' });
+  }
+});
+
+// User Applications API
+app.get('/api/user-applications', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM user_applications WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get user applications error:', error);
+    res.status(500).json({ message: 'Failed to fetch applications' });
+  }
+});
+
+app.post('/api/user-applications', requireAuth, async (req, res) => {
+  try {
+    const { schemeId, schemeName, status, estimatedAnnualPayment, actualAnnualPayment, applicationDate, approvalDate, startDate, endDate, notes } = req.body;
+
+    if (!schemeName || !status) {
+      return res.status(400).json({ message: 'Scheme name and status required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO user_applications (user_id, scheme_id, scheme_name, status, estimated_annual_payment, actual_annual_payment, application_date, approval_date, start_date, end_date, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       RETURNING *`,
+      [req.session.userId, schemeId, schemeName, status, estimatedAnnualPayment, actualAnnualPayment, applicationDate, approvalDate, startDate, endDate, notes]
+    );
+
+    console.log(`✅ Added application: ${schemeName}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create application error:', error);
+    res.status(500).json({ message: 'Failed to add application' });
+  }
+});
+
+app.put('/api/user-applications/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, estimatedAnnualPayment, actualAnnualPayment, applicationDate, approvalDate, startDate, endDate, notes } = req.body;
+
+    const result = await pool.query(
+      `UPDATE user_applications
+       SET status = $1, estimated_annual_payment = $2, actual_annual_payment = $3, application_date = $4, approval_date = $5, start_date = $6, end_date = $7, notes = $8
+       WHERE id = $9 AND user_id = $10
+       RETURNING *`,
+      [status, estimatedAnnualPayment, actualAnnualPayment, applicationDate, approvalDate, startDate, endDate, notes, id, req.session.userId]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Update application error:', error);
+    res.status(500).json({ message: 'Failed to update application' });
+  }
+});
+
+app.delete('/api/user-applications/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM user_applications WHERE id = $1 AND user_id = $2',
+      [id, req.session.userId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete application error:', error);
+    res.status(500).json({ message: 'Failed to delete application' });
   }
 });
 
