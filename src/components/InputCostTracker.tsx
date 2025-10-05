@@ -220,14 +220,14 @@ export default function InputCostTracker() {
     }
   };
 
-  const formatPrice = (price: number | null, unit: string) => {
-    if (price === null) return 'N/A';
+  const formatPrice = (price: number | null | undefined, unit: string) => {
+    if (price === null || price === undefined) return 'N/A';
     if (unit === 'pence/L') return `${price.toFixed(1)}p/L`;
     return `£${price.toFixed(0)}/${unit}`;
   };
 
-  const formatChange = (change: number | null) => {
-    if (change === null) return '—';
+  const formatChange = (change: number | null | undefined) => {
+    if (change === null || change === undefined) return '—';
     const sign = change > 0 ? '+' : '';
     return `${sign}£${change.toFixed(0)}`;
   };
