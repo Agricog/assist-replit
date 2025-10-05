@@ -1,0 +1,369 @@
+import { useState, useEffect } from 'react';
+
+interface InputPrice {
+  id: string;
+  name: string;
+  category: 'fertilizer' | 'seed' | 'fuel' | 'chemical';
+  unit: string;
+  currentPrice: number | null;
+  lastUpdated: string | null;
+  weekChange: number | null;
+  monthChange: number | null;
+  trend: 'UP' | 'DOWN' | 'STABLE' | null;
+}
+
+interface PriceAlert {
+  id: number;
+  inputId: string;
+  inputName: string;
+  targetPrice: number;
+  quantity: number;
+  unit: string;
+  alertType: 'BELOW' | 'ABOVE';
+  isActive: boolean;
+  triggered: boolean;
+}
+
+interface Purchase {
+  id: number;
+  inputId: string;
+  inputName: string;
+  quantity: number;
+  pricePerUnit: number;
+  totalCost: number;
+  supplier: string;
+  purchaseDate: string;
+  notes: string;
+}
+
+export default function InputCostTracker() {
+  const [inputs, setInputs] = useState<InputPrice[]>([]);
+  const [alerts, setAlerts] = useState<PriceAlert[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddAlert, setShowAddAlert] = useState(false);
+  const [showAddPurchase, setShowAddPurchase] = useState(false);
+  const [showUpdatePrice, setShowUpdatePrice] = useState(false);
+  const [selectedInput, setSelectedInput] = useState<InputPrice | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [inputsRes, alertsRes, purchasesRes] = await Promise.all([
+        fetch('/api/input-prices', { credentials: 'include' }),
+        fetch('/api/price-alerts', { credentials: 'include' }),
+        fetch('/api/purchases', { credentials: 'include' }),
+      ]);
+
+      const inputsData = await inputsRes.json();
+      const alertsData = await alertsRes.json();
+      const purchasesData = await purchasesRes.json();
+
+      setInputs(inputsData);
+      setAlerts(alertsData);
+      setPurchases(purchasesData);
+    } catch (error) {
+      console.error('Error fetching input cost data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTrendIcon = (trend: string | null) => {
+    switch (trend) {
+      case 'UP': return '↑↑';
+      case 'DOWN': return '↓↓';
+      case 'STABLE': return '→';
+      default: return '—';
+    }
+  };
+
+  const getTrendColor = (trend: string | null) => {
+    switch (trend) {
+      case 'UP': return 'text-red-600';
+      case 'DOWN': return 'text-green-600';
+      default: return 'text-gray-600';
+    }
+  };
+
+  const formatPrice = (price: number | null, unit: string) => {
+    if (price === null) return 'N/A';
+    if (unit === 'pence/L') return `${price.toFixed(1)}p/L`;
+    return `£${price.toFixed(0)}/${unit}`;
+  };
+
+  const formatChange = (change: number | null) => {
+    if (change === null) return '—';
+    const sign = change > 0 ? '+' : '';
+    return `${sign}£${change.toFixed(0)}`;
+  };
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'fertilizer': return '🌱';
+      case 'seed': return '🌾';
+      case 'fuel': return '⛽';
+      case 'chemical': return '🧪';
+      default: return '📦';
+    }
+  };
+
+  const triggeredAlerts = alerts.filter(a => a.triggered && a.isActive);
+  const activeAlerts = alerts.filter(a => a.isActive);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mb-4"></div>
+          <p className="text-gray-600">Loading input prices...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full overflow-y-auto">
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">💰 Input Cost Tracker</h2>
+        <p className="text-sm text-gray-600">Track prices, set alerts, and time your purchases to save thousands</p>
+      </div>
+
+      {/* Active Price Alerts */}
+      {triggeredAlerts.length > 0 && (
+        <div className="mb-6">
+          <div className="bg-green-50 border-2 border-green-500 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-green-800 flex items-center">
+                🔔 {triggeredAlerts.length} PRICE ALERT{triggeredAlerts.length > 1 ? 'S' : ''} TRIGGERED!
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {triggeredAlerts.map((alert) => {
+                const input = inputs.find(i => i.id === alert.inputId);
+                const currentPrice = input?.currentPrice || 0;
+                const savings = Math.abs((alert.targetPrice - currentPrice) * alert.quantity);
+
+                return (
+                  <div key={alert.id} className="bg-white rounded-lg p-4 border border-green-300">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-bold text-gray-800 mb-1">
+                          🎯 {alert.inputName} {alert.alertType === 'BELOW' ? 'dropped to' : 'rose to'} {formatPrice(currentPrice, alert.unit)}
+                        </div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          Your target: {formatPrice(alert.targetPrice, alert.unit)}
+                        </div>
+                        <div className="text-sm font-semibold text-green-700">
+                          Potential saving: £{savings.toFixed(0)} on {alert.quantity} {alert.unit}
+                        </div>
+                      </div>
+                      <div className="flex space-x-2">
+                        <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm font-medium">
+                          BUY NOW
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Active Alerts</div>
+          <div className="text-2xl font-bold text-gray-800">{activeAlerts.length}</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Purchases This Year</div>
+          <div className="text-2xl font-bold text-gray-800">{purchases.length}</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="text-sm text-gray-600 mb-1">Total Spent</div>
+          <div className="text-2xl font-bold text-gray-800">
+            £{purchases.reduce((sum, p) => sum + p.totalCost, 0).toLocaleString()}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex space-x-3 mb-6">
+        <button
+          onClick={() => setShowUpdatePrice(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+        >
+          📝 Update Price
+        </button>
+        <button
+          onClick={() => setShowAddAlert(true)}
+          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium"
+        >
+          🔔 Set Alert
+        </button>
+        <button
+          onClick={() => setShowAddPurchase(true)}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition font-medium"
+        >
+          📦 Log Purchase
+        </button>
+      </div>
+
+      {/* Input Price Dashboard */}
+      <div className="mb-6">
+        <h3 className="text-xl font-bold text-gray-800 mb-4">Input Price Dashboard</h3>
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="text-left px-4 py-3 text-sm font-semibold text-gray-700">Input</th>
+                <th className="text-right px-4 py-3 text-sm font-semibold text-gray-700">Current Price</th>
+                <th className="text-right px-4 py-3 text-sm font-semibold text-gray-700">vs Last Week</th>
+                <th className="text-right px-4 py-3 text-sm font-semibold text-gray-700">vs Last Month</th>
+                <th className="text-center px-4 py-3 text-sm font-semibold text-gray-700">Trend</th>
+                <th className="text-center px-4 py-3 text-sm font-semibold text-gray-700">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {inputs.map((input) => (
+                <tr key={input.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xl">{getCategoryIcon(input.category)}</span>
+                      <div>
+                        <div className="font-medium text-gray-800">{input.name}</div>
+                        <div className="text-xs text-gray-500">
+                          {input.lastUpdated ? `Updated ${new Date(input.lastUpdated).toLocaleDateString()}` : 'No data'}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className="font-semibold text-gray-800">
+                      {formatPrice(input.currentPrice, input.unit)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={input.weekChange && input.weekChange < 0 ? 'text-green-600' : 'text-red-600'}>
+                      {formatChange(input.weekChange)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={input.monthChange && input.monthChange < 0 ? 'text-green-600' : 'text-red-600'}>
+                      {formatChange(input.monthChange)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <span className={`text-xl font-bold ${getTrendColor(input.trend)}`}>
+                      {getTrendIcon(input.trend)}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => {
+                        setSelectedInput(input);
+                        setShowAddAlert(true);
+                      }}
+                      className="text-sm text-green-600 hover:text-green-700 font-medium"
+                    >
+                      Set Alert
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Recent Purchases */}
+      {purchases.length > 0 && (
+        <div className="mb-6">
+          <h3 className="text-xl font-bold text-gray-800 mb-4">Recent Purchases</h3>
+          <div className="bg-white rounded-lg border border-gray-200 divide-y divide-gray-200">
+            {purchases.slice(0, 5).map((purchase) => (
+              <div key={purchase.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="font-semibold text-gray-800">
+                      {purchase.quantity} {purchase.inputName} @ £{purchase.pricePerUnit}/{purchase.inputName.includes('Diesel') ? 'L' : 't'}
+                    </div>
+                    <div className="text-sm text-gray-600">
+                      {new Date(purchase.purchaseDate).toLocaleDateString()} • {purchase.supplier}
+                    </div>
+                    {purchase.notes && (
+                      <div className="text-xs text-gray-500 mt-1">{purchase.notes}</div>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-gray-800">£{purchase.totalCost.toLocaleString()}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modals would go here - simplified for now */}
+      {showAddAlert && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Set Price Alert</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Feature coming soon! This will allow you to set target prices and get notified when prices hit your targets.
+            </p>
+            <button
+              onClick={() => setShowAddAlert(false)}
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showAddPurchase && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Log Purchase</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Feature coming soon! This will allow you to record your purchases and track your spending.
+            </p>
+            <button
+              onClick={() => setShowAddPurchase(false)}
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showUpdatePrice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold mb-4">Update Price</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Feature coming soon! This will allow you to manually update prices you see from suppliers.
+            </p>
+            <button
+              onClick={() => setShowUpdatePrice(false)}
+              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

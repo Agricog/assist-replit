@@ -95,6 +95,71 @@ async function initDatabase() {
     console.log('⚠️ Database migration skipped (might already be up to date)');
   }
 
+  // Create input_prices table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS input_prices (
+      id VARCHAR(50) PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      category VARCHAR(50) NOT NULL,
+      unit VARCHAR(50) NOT NULL,
+      current_price DECIMAL(10,2),
+      last_updated TIMESTAMP,
+      week_change DECIMAL(10,2),
+      month_change DECIMAL(10,2),
+      trend VARCHAR(20)
+    );
+  `);
+
+  // Create price_alerts table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS price_alerts (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      input_id VARCHAR(50) REFERENCES input_prices(id),
+      input_name VARCHAR(255) NOT NULL,
+      target_price DECIMAL(10,2) NOT NULL,
+      quantity DECIMAL(10,2) NOT NULL,
+      unit VARCHAR(50) NOT NULL,
+      alert_type VARCHAR(10) NOT NULL,
+      is_active BOOLEAN DEFAULT true,
+      triggered BOOLEAN DEFAULT false,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Create purchases table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS purchases (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      input_id VARCHAR(50),
+      input_name VARCHAR(255) NOT NULL,
+      quantity DECIMAL(10,2) NOT NULL,
+      price_per_unit DECIMAL(10,2) NOT NULL,
+      total_cost DECIMAL(10,2) NOT NULL,
+      supplier VARCHAR(255),
+      purchase_date DATE NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
+
+  // Insert default input prices
+  await pool.query(`
+    INSERT INTO input_prices (id, name, category, unit) VALUES
+      ('an_fertilizer', 'Ammonium Nitrate (AN)', 'fertilizer', 't'),
+      ('urea', 'Urea', 'fertilizer', 't'),
+      ('liquid_n', 'Liquid Nitrogen (N32)', 'fertilizer', 't'),
+      ('tsp', 'Triple Super Phosphate (TSP)', 'fertilizer', 't'),
+      ('mop', 'Muriate of Potash (MOP)', 'fertilizer', 't'),
+      ('winter_wheat', 'Winter Wheat Seed', 'seed', 't'),
+      ('spring_barley', 'Spring Barley Seed', 'seed', 't'),
+      ('osr', 'Oilseed Rape Seed', 'seed', 'bag'),
+      ('red_diesel', 'Red Diesel', 'fuel', 'pence/L'),
+      ('adblue', 'AdBlue', 'fuel', 'L')
+    ON CONFLICT (id) DO NOTHING;
+  `);
+
   console.log('✅ Database tables initialized');
 }
 
@@ -532,6 +597,152 @@ function findSprayWindows(timeline: any[]) {
 
   return windows;
 }
+
+// Input Prices API
+app.get('/api/input-prices', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM input_prices ORDER BY category, name');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get input prices error:', error);
+    res.status(500).json({ message: 'Failed to fetch input prices' });
+  }
+});
+
+app.post('/api/input-prices/update', requireAuth, async (req, res) => {
+  try {
+    const { inputId, price } = req.body;
+
+    if (!inputId || price === null || price === undefined) {
+      return res.status(400).json({ message: 'Input ID and price are required' });
+    }
+
+    // Get current price for calculating changes
+    const currentResult = await pool.query(
+      'SELECT current_price, last_updated FROM input_prices WHERE id = $1',
+      [inputId]
+    );
+
+    let weekChange = null;
+    let monthChange = null;
+    let trend = null;
+
+    if (currentResult.rows.length > 0 && currentResult.rows[0].current_price) {
+      const priceDiff = price - currentResult.rows[0].current_price;
+      weekChange = priceDiff; // Simplified - would need historical data for accurate week/month changes
+      monthChange = priceDiff;
+
+      if (Math.abs(priceDiff) < 2) {
+        trend = 'STABLE';
+      } else if (priceDiff < 0) {
+        trend = 'DOWN';
+      } else {
+        trend = 'UP';
+      }
+    }
+
+    await pool.query(
+      `UPDATE input_prices
+       SET current_price = $1, last_updated = NOW(), week_change = $2, month_change = $3, trend = $4
+       WHERE id = $5`,
+      [price, weekChange, monthChange, trend, inputId]
+    );
+
+    console.log(`✅ Updated price for ${inputId}: £${price}`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Update price error:', error);
+    res.status(500).json({ message: 'Failed to update price' });
+  }
+});
+
+// Price Alerts API
+app.get('/api/price-alerts', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM price_alerts WHERE user_id = $1 ORDER BY created_at DESC',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get alerts error:', error);
+    res.status(500).json({ message: 'Failed to fetch alerts' });
+  }
+});
+
+app.post('/api/price-alerts', requireAuth, async (req, res) => {
+  try {
+    const { inputId, inputName, targetPrice, quantity, unit, alertType } = req.body;
+
+    if (!inputId || !targetPrice || !quantity || !unit || !alertType) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO price_alerts (user_id, input_id, input_name, target_price, quantity, unit, alert_type)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING *`,
+      [req.session.userId, inputId, inputName, targetPrice, quantity, unit, alertType]
+    );
+
+    console.log(`✅ Created alert for ${inputName} at £${targetPrice}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create alert error:', error);
+    res.status(500).json({ message: 'Failed to create alert' });
+  }
+});
+
+app.delete('/api/price-alerts/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      'DELETE FROM price_alerts WHERE id = $1 AND user_id = $2',
+      [id, req.session.userId]
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Delete alert error:', error);
+    res.status(500).json({ message: 'Failed to delete alert' });
+  }
+});
+
+// Purchases API
+app.get('/api/purchases', requireAuth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM purchases WHERE user_id = $1 ORDER BY purchase_date DESC',
+      [req.session.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('❌ Get purchases error:', error);
+    res.status(500).json({ message: 'Failed to fetch purchases' });
+  }
+});
+
+app.post('/api/purchases', requireAuth, async (req, res) => {
+  try {
+    const { inputId, inputName, quantity, pricePerUnit, totalCost, supplier, purchaseDate, notes } = req.body;
+
+    if (!inputName || !quantity || !pricePerUnit || !totalCost || !purchaseDate) {
+      return res.status(400).json({ message: 'Required fields missing' });
+    }
+
+    const result = await pool.query(
+      `INSERT INTO purchases (user_id, input_id, input_name, quantity, price_per_unit, total_cost, supplier, purchase_date, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING *`,
+      [req.session.userId, inputId, inputName, quantity, pricePerUnit, totalCost, supplier, purchaseDate, notes]
+    );
+
+    console.log(`✅ Logged purchase: ${quantity} ${inputName} at £${pricePerUnit}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('❌ Create purchase error:', error);
+    res.status(500).json({ message: 'Failed to log purchase' });
+  }
+});
 
 // Weather API - Search location by name
 app.get('/api/weather/search', requireAuth, async (req, res) => {

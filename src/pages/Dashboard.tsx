@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import SprayWindowOptimizer from '../components/SprayWindowOptimizer';
+import InputCostTracker from '../components/InputCostTracker';
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -11,7 +12,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray' | 'inputs'>('market');
   const [locationUpdated, setLocationUpdated] = useState<number>(Date.now());
 
   // Location state
@@ -248,6 +249,17 @@ export default function Dashboard() {
               <span className="text-2xl">💧</span>
               <span className="font-semibold">Spray Optimizer</span>
             </button>
+            <button
+              onClick={() => setActiveTab('inputs')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'inputs'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">💰</span>
+              <span className="font-semibold">Input Costs</span>
+            </button>
           </nav>
         </div>
 
@@ -344,6 +356,12 @@ export default function Dashboard() {
                 locationUpdated={locationUpdated}
                 currentLocation={savedLocation}
               />
+            </div>
+          )}
+
+          {activeTab === 'inputs' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
+              <InputCostTracker />
             </div>
           )}
         </div>
