@@ -272,6 +272,232 @@ app.get('/api/weather/forecast', requireAuth, async (req, res) => {
   }
 });
 
+// Spray Window Analysis
+app.get('/api/spray-analysis', requireAuth, async (req, res) => {
+  try {
+    const { type = 'herbicide' } = req.query;
+    const apiKey = process.env.OPENWEATHER_API_KEY;
+
+    if (!apiKey) {
+      return res.status(500).json({ message: 'Weather API key not configured' });
+    }
+
+    // Get user's farm location
+    const userResult = await pool.query(
+      'SELECT location FROM users WHERE id = $1',
+      [req.session.userId]
+    );
+
+    if (userResult.rows.length === 0 || !userResult.rows[0].location) {
+      return res.status(400).json({ message: 'Farm location not set. Please update your profile.' });
+    }
+
+    const farmLocation = userResult.rows[0].location;
+
+    // Search for location coordinates
+    const geoResponse = await fetch(
+      `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(farmLocation)}&limit=1&appid=${apiKey}`
+    );
+    const geoData = await geoResponse.json();
+
+    if (geoData.length === 0) {
+      return res.status(400).json({ message: 'Could not find coordinates for your farm location' });
+    }
+
+    const { lat, lon } = geoData[0];
+
+    // Fetch 5-day forecast
+    const forecastResponse = await fetch(
+      `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`
+    );
+    const forecastData = await forecastResponse.json();
+
+    // Analyze spray conditions
+    const analysis = analyzeSprayConditions(forecastData, type as string);
+
+    res.json(analysis);
+  } catch (error) {
+    console.error('❌ Spray analysis error:', error);
+    res.status(500).json({ message: 'Failed to analyze spray conditions' });
+  }
+});
+
+// Helper function to analyze spray conditions
+function analyzeSprayConditions(forecastData: any, sprayType: string) {
+  const windLimits: any = {
+    herbicide: { perfect: 10, risky: 15 },
+    fungicide: { perfect: 12, risky: 15 },
+    insecticide: { perfect: 15, risky: 18 },
+  };
+
+  const limits = windLimits[sprayType] || windLimits.herbicide;
+
+  const timeline: any[] = [];
+  const dayMap: any = {};
+
+  forecastData.list.forEach((item: any) => {
+    const dt = new Date(item.dt * 1000);
+    const dayKey = dt.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    const hour = dt.getHours();
+    const timeStr = `${hour.toString().padStart(2, '0')}:00`;
+    const nextHour = (hour + 3) % 24;
+    const timeRange = `${timeStr}-${nextHour.toString().padStart(2, '0')}:00`;
+
+    // Convert m/s to mph
+    const windMph = item.wind.speed * 2.237;
+    const rainPercent = (item.pop || 0) * 100;
+    const tempC = item.main.temp;
+
+    let status: string;
+    let reason: string;
+
+    // Check if night time (before 6am or after 8pm)
+    if (hour < 6 || hour >= 20) {
+      status = 'NIGHT';
+      reason = 'Outside spraying hours (6am-8pm)';
+    }
+    // Check PERFECT conditions
+    else if (
+      windMph >= 2 && windMph <= limits.perfect &&
+      rainPercent < 5 &&
+      tempC >= 5 && tempC <= 25
+    ) {
+      status = 'PERFECT';
+      reason = 'Ideal spraying conditions';
+    }
+    // Check RISKY conditions
+    else if (
+      (windMph > limits.perfect && windMph <= limits.risky) ||
+      (rainPercent >= 5 && rainPercent <= 20) ||
+      (tempC >= 3 && tempC < 5) || (tempC > 25 && tempC <= 28)
+    ) {
+      status = 'RISKY';
+      if (windMph > limits.perfect) reason = 'Wind approaching limit';
+      else if (rainPercent >= 5) reason = 'Light rain possible';
+      else reason = 'Temperature not ideal';
+    }
+    // DON'T SPRAY
+    else {
+      status = 'DONT_SPRAY';
+      if (windMph > limits.risky) reason = `High wind (${Math.round(windMph)}mph)`;
+      else if (rainPercent > 20) reason = `Rain forecast (${Math.round(rainPercent)}%)`;
+      else if (tempC < 3) reason = 'Too cold';
+      else if (tempC > 28) reason = 'Too hot';
+      else reason = 'Unsuitable conditions';
+    }
+
+    const block = {
+      time: timeRange,
+      status,
+      wind: windMph,
+      windDir: item.wind.deg,
+      rain: Math.round(rainPercent),
+      temp: tempC,
+      reason,
+      dt: item.dt,
+    };
+
+    if (!dayMap[dayKey]) {
+      dayMap[dayKey] = {
+        day: dt.toLocaleDateString('en-US', { weekday: 'long' }),
+        date: dt.toISOString().split('T')[0],
+        blocks: [],
+      };
+    }
+
+    dayMap[dayKey].blocks.push(block);
+  });
+
+  // Convert dayMap to timeline array
+  Object.values(dayMap).forEach((day: any) => {
+    timeline.push(day);
+  });
+
+  // Find spray windows
+  const recommendedWindows = findSprayWindows(timeline);
+
+  return {
+    recommendedWindows,
+    timeline,
+    lastUpdated: new Date(),
+  };
+}
+
+// Helper function to find continuous spray windows
+function findSprayWindows(timeline: any[]) {
+  const windows: any[] = [];
+
+  timeline.forEach((day) => {
+    let currentWindow: any = null;
+
+    day.blocks.forEach((block: any, idx: number) => {
+      if (block.status === 'PERFECT' || block.status === 'RISKY') {
+        if (!currentWindow) {
+          currentWindow = {
+            day: day.day,
+            date: day.date,
+            startTime: block.time.split('-')[0],
+            blocks: [block],
+            quality: block.status,
+          };
+        } else {
+          currentWindow.blocks.push(block);
+          // Upgrade quality if we find perfect conditions
+          if (block.status === 'PERFECT' && currentWindow.quality !== 'PERFECT') {
+            currentWindow.quality = 'PERFECT';
+          }
+        }
+      } else {
+        // Window ended
+        if (currentWindow && currentWindow.blocks.length > 0) {
+          const lastBlock = currentWindow.blocks[currentWindow.blocks.length - 1];
+          currentWindow.endTime = lastBlock.time.split('-')[1];
+          currentWindow.durationHours = currentWindow.blocks.length * 3;
+
+          const totalWind = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.wind, 0);
+          const totalTemp = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.temp, 0);
+          const maxRain = Math.max(...currentWindow.blocks.map((b: any) => b.rain));
+
+          currentWindow.avgWind = totalWind / currentWindow.blocks.length;
+          currentWindow.avgTemp = totalTemp / currentWindow.blocks.length;
+          currentWindow.rainChance = maxRain;
+
+          delete currentWindow.blocks;
+          windows.push(currentWindow);
+          currentWindow = null;
+        }
+      }
+    });
+
+    // Close any remaining window at end of day
+    if (currentWindow && currentWindow.blocks.length > 0) {
+      const lastBlock = currentWindow.blocks[currentWindow.blocks.length - 1];
+      currentWindow.endTime = lastBlock.time.split('-')[1];
+      currentWindow.durationHours = currentWindow.blocks.length * 3;
+
+      const totalWind = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.wind, 0);
+      const totalTemp = currentWindow.blocks.reduce((sum: number, b: any) => sum + b.temp, 0);
+      const maxRain = Math.max(...currentWindow.blocks.map((b: any) => b.rain));
+
+      currentWindow.avgWind = totalWind / currentWindow.blocks.length;
+      currentWindow.avgTemp = totalTemp / currentWindow.blocks.length;
+      currentWindow.rainChance = maxRain;
+
+      delete currentWindow.blocks;
+      windows.push(currentWindow);
+    }
+  });
+
+  // Sort by quality (PERFECT first) then by duration
+  windows.sort((a, b) => {
+    if (a.quality === 'PERFECT' && b.quality !== 'PERFECT') return -1;
+    if (a.quality !== 'PERFECT' && b.quality === 'PERFECT') return 1;
+    return b.durationHours - a.durationHours;
+  });
+
+  return windows;
+}
+
 // Weather API - Search location by name
 app.get('/api/weather/search', requireAuth, async (req, res) => {
   try {

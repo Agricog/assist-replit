@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
+import SprayWindowOptimizer from '../components/SprayWindowOptimizer';
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
@@ -10,7 +11,7 @@ export default function Dashboard() {
   const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'market' | 'assistant'>('market');
+  const [activeTab, setActiveTab] = useState<'market' | 'assistant' | 'spray'>('market');
 
   // Location state
   const [locationSearch, setLocationSearch] = useState('');
@@ -233,6 +234,17 @@ export default function Dashboard() {
               <span className="text-2xl">🚜</span>
               <span className="font-semibold">Farm Assistant</span>
             </button>
+            <button
+              onClick={() => setActiveTab('spray')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'spray'
+                  ? 'bg-green-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <span className="text-2xl">💧</span>
+              <span className="font-semibold">Spray Optimizer</span>
+            </button>
           </nav>
         </div>
 
@@ -320,6 +332,12 @@ export default function Dashboard() {
                   title="Farm Assistant Chatbot"
                 />
               </div>
+            </div>
+          )}
+
+          {activeTab === 'spray' && (
+            <div className="bg-white rounded-xl shadow-lg p-6 h-full overflow-hidden">
+              <SprayWindowOptimizer />
             </div>
           )}
         </div>
