@@ -105,11 +105,16 @@ export default function Dashboard() {
         body: JSON.stringify({ message: userMessage }),
       });
 
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       const data = await response.json();
       const assistantMessage = data.choices?.[0]?.message?.content || 'Sorry, I could not get a response.';
       setMessages(prev => [...prev, { role: 'assistant', content: assistantMessage }]);
     } catch (error) {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Error getting response. Please try again.' }]);
+      console.error('Market Intelligence error:', error);
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to Market Intelligence. Please try again.' }]);
     } finally {
       setLoading(false);
     }
@@ -144,10 +149,16 @@ export default function Dashboard() {
       const response = await fetch(`/api/weather/search?q=${encodeURIComponent(locationSearch)}`, {
         credentials: 'include',
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to search location');
+      }
+
       const data = await response.json();
       setSearchResults(data);
     } catch (error) {
       console.error('Location search error:', error);
+      alert('Error searching for location. Please try again.');
     }
   };
 

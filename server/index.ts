@@ -16,9 +16,41 @@ const pool = new Pool({
 // Session store
 const pgStore = connectPg(session);
 
+// Logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.path}`);
+  next();
+});
+
+// Error logging
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('❌ Uncaught Exception:', error);
+  process.exit(1);
+});
+
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+const allowedOrigins = ['https://www.agricogassist.com', 'https://agricogassist.com'];
+if (process.env.NODE_ENV === 'development') {
+  allowedOrigins.push('http://localhost:5000', 'http://localhost:5173');
+}
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+app.use(express.json({ limit: '10mb' }));
 app.use(
   session({
     store: new pgStore({
@@ -66,6 +98,23 @@ async function initDatabase() {
   console.log('✅ Database tables initialized');
 }
 
+// Input validation helpers
+function validateUsername(username: string): boolean {
+  return typeof username === 'string' && username.length >= 2 && username.length <= 100;
+}
+
+function validatePassword(password: string): boolean {
+  return typeof password === 'string' && password.length >= 6 && password.length <= 100;
+}
+
+function validateField(field: string, maxLength = 255): boolean {
+  return typeof field === 'string' && field.trim().length > 0 && field.length <= maxLength;
+}
+
+function sanitizeString(str: string): string {
+  return str.trim().substring(0, 255);
+}
+
 // Auth middleware
 function requireAuth(req: any, res: any, next: any) {
   if (req.session?.userId) {
@@ -80,26 +129,43 @@ app.post('/api/signup', async (req, res) => {
   try {
     const { username, password, farmName, location } = req.body;
 
-    if (!username || !password || !farmName || !location) {
-      return res.status(400).json({ message: 'All fields are required' });
+    // Validate all fields
+    if (!validateUsername(username)) {
+      return res.status(400).json({ message: 'Name must be between 2-100 characters' });
     }
+    if (!validatePassword(password)) {
+      return res.status(400).json({ message: 'Password must be between 6-100 characters' });
+    }
+    if (!validateField(farmName)) {
+      return res.status(400).json({ message: 'Farm name is required' });
+    }
+    if (!validateField(location)) {
+      return res.status(400).json({ message: 'Location is required' });
+    }
+
+    // Sanitize inputs
+    const cleanUsername = sanitizeString(username);
+    const cleanFarmName = sanitizeString(farmName);
+    const cleanLocation = sanitizeString(location);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const result = await pool.query(
       'INSERT INTO users (username, password, farm_name, location) VALUES ($1, $2, $3, $4) RETURNING id, username, farm_name, location',
-      [username, hashedPassword, farmName, location]
+      [cleanUsername, hashedPassword, cleanFarmName, cleanLocation]
     );
 
     req.session.userId = result.rows[0].id;
     req.session.username = result.rows[0].username;
 
+    console.log(`✅ New user registered: ${cleanUsername} (${cleanFarmName})`);
     res.json({ success: true, user: result.rows[0] });
   } catch (error: any) {
+    console.error('❌ Signup error:', error);
     if (error.code === '23505') {
       res.status(400).json({ message: 'Username already exists' });
     } else {
-      res.status(500).json({ message: 'Server error' });
+      res.status(500).json({ message: 'Server error during signup' });
     }
   }
 });
@@ -107,6 +173,11 @@ app.post('/api/signup', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    // Validate inputs
+    if (!validateUsername(username) || !validatePassword(password)) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
 
     const result = await pool.query(
       'SELECT * FROM users WHERE username = $1',
@@ -127,9 +198,11 @@ app.post('/api/login', async (req, res) => {
     req.session.userId = user.id;
     req.session.username = user.username;
 
+    console.log(`✅ User logged in: ${user.username}`);
     res.json({ success: true, user: { id: user.id, username: user.username, farm_name: user.farm_name, location: user.location } });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Login error:', error);
+    res.status(500).json({ message: 'Server error during login' });
   }
 });
 
@@ -146,7 +219,8 @@ app.get('/api/user', requireAuth, async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('❌ Get user error:', error);
+    res.status(500).json({ message: 'Server error fetching user' });
   }
 });
 
