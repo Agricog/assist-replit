@@ -46,6 +46,18 @@ export default function InputCostTracker() {
   const [showUpdatePrice, setShowUpdatePrice] = useState(false);
   const [selectedInput, setSelectedInput] = useState<InputPrice | null>(null);
   const [newPrice, setNewPrice] = useState('');
+  const [alertForm, setAlertForm] = useState({
+    targetPrice: '',
+    quantity: '',
+    alertType: 'BELOW' as 'BELOW' | 'ABOVE',
+  });
+  const [purchaseForm, setPurchaseForm] = useState({
+    quantity: '',
+    pricePerUnit: '',
+    supplier: '',
+    purchaseDate: new Date().toISOString().split('T')[0],
+    notes: '',
+  });
 
   useEffect(() => {
     fetchData();
@@ -96,6 +108,74 @@ export default function InputCostTracker() {
       }
     } catch (error) {
       console.error('Error updating price:', error);
+    }
+  };
+
+  const handleCreateAlert = async () => {
+    if (!selectedInput || !alertForm.targetPrice || !alertForm.quantity) return;
+
+    try {
+      const response = await fetch('/api/price-alerts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          inputId: selectedInput.id,
+          inputName: selectedInput.name,
+          targetPrice: parseFloat(alertForm.targetPrice),
+          quantity: parseFloat(alertForm.quantity),
+          unit: selectedInput.unit,
+          alertType: alertForm.alertType,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchData();
+        setShowAddAlert(false);
+        setSelectedInput(null);
+        setAlertForm({ targetPrice: '', quantity: '', alertType: 'BELOW' });
+      }
+    } catch (error) {
+      console.error('Error creating alert:', error);
+    }
+  };
+
+  const handleLogPurchase = async () => {
+    if (!selectedInput || !purchaseForm.quantity || !purchaseForm.pricePerUnit) return;
+
+    const totalCost = parseFloat(purchaseForm.quantity) * parseFloat(purchaseForm.pricePerUnit);
+
+    try {
+      const response = await fetch('/api/purchases', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          inputId: selectedInput.id,
+          inputName: selectedInput.name,
+          quantity: parseFloat(purchaseForm.quantity),
+          pricePerUnit: parseFloat(purchaseForm.pricePerUnit),
+          totalCost,
+          supplier: purchaseForm.supplier,
+          purchaseDate: purchaseForm.purchaseDate,
+          notes: purchaseForm.notes,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchData();
+        setShowAddPurchase(false);
+        setSelectedInput(null);
+        setPurchaseForm({
+          quantity: '',
+          pricePerUnit: '',
+          supplier: '',
+          purchaseDate: new Date().toISOString().split('T')[0],
+          notes: '',
+        });
+      }
+    } catch (error) {
+      console.error('Error logging purchase:', error);
     }
   };
 
@@ -234,13 +314,27 @@ export default function InputCostTracker() {
           📝 Update Price
         </button>
         <button
-          onClick={() => setShowAddAlert(true)}
+          onClick={() => {
+            setSelectedInput(null);
+            setAlertForm({ targetPrice: '', quantity: '', alertType: 'BELOW' });
+            setShowAddAlert(true);
+          }}
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition font-medium"
         >
           🔔 Set Alert
         </button>
         <button
-          onClick={() => setShowAddPurchase(true)}
+          onClick={() => {
+            setSelectedInput(null);
+            setPurchaseForm({
+              quantity: '',
+              pricePerUnit: '',
+              supplier: '',
+              purchaseDate: new Date().toISOString().split('T')[0],
+              notes: '',
+            });
+            setShowAddPurchase(true);
+          }}
           className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition font-medium"
         >
           📦 Log Purchase
@@ -300,6 +394,7 @@ export default function InputCostTracker() {
                     <button
                       onClick={() => {
                         setSelectedInput(input);
+                        setAlertForm({ targetPrice: '', quantity: '', alertType: 'BELOW' });
                         setShowAddAlert(true);
                       }}
                       className="text-sm text-green-600 hover:text-green-700 font-medium"
@@ -343,37 +438,274 @@ export default function InputCostTracker() {
         </div>
       )}
 
-      {/* Modals would go here - simplified for now */}
+      {/* Modals */}
       {showAddAlert && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Set Price Alert</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Feature coming soon! This will allow you to set target prices and get notified when prices hit your targets.
-            </p>
-            <button
-              onClick={() => setShowAddAlert(false)}
-              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              Close
-            </button>
+            <h3 className="text-xl font-bold mb-4">🔔 Set Price Alert</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Input
+              </label>
+              <select
+                value={selectedInput?.id || ''}
+                onChange={(e) => {
+                  const input = inputs.find(i => i.id === e.target.value);
+                  setSelectedInput(input || null);
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">-- Select an input --</option>
+                {inputs.map(input => (
+                  <option key={input.id} value={input.id}>
+                    {getCategoryIcon(input.category)} {input.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedInput && (
+              <>
+                <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                  <div className="text-sm text-gray-600 mb-1">Current Price</div>
+                  <div className="text-xl font-bold text-gray-800">
+                    {formatPrice(selectedInput.currentPrice, selectedInput.unit)}
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Alert Type
+                  </label>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setAlertForm({ ...alertForm, alertType: 'BELOW' })}
+                      className={`flex-1 px-4 py-2 rounded-lg border ${
+                        alertForm.alertType === 'BELOW'
+                          ? 'bg-green-600 text-white border-green-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      📉 Alert if BELOW
+                    </button>
+                    <button
+                      onClick={() => setAlertForm({ ...alertForm, alertType: 'ABOVE' })}
+                      className={`flex-1 px-4 py-2 rounded-lg border ${
+                        alertForm.alertType === 'ABOVE'
+                          ? 'bg-red-600 text-white border-red-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      📈 Alert if ABOVE
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Target Price ({selectedInput.unit === 'pence/L' ? 'pence/L' : '£/' + selectedInput.unit})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={alertForm.targetPrice}
+                    onChange={(e) => setAlertForm({ ...alertForm, targetPrice: e.target.value })}
+                    placeholder={selectedInput.unit === 'pence/L' ? 'e.g. 60.0' : 'e.g. 300'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantity ({selectedInput.unit})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={alertForm.quantity}
+                    onChange={(e) => setAlertForm({ ...alertForm, quantity: e.target.value })}
+                    placeholder="e.g. 100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Used to calculate potential savings
+                  </p>
+                </div>
+
+                {alertForm.targetPrice && alertForm.quantity && selectedInput.currentPrice && (
+                  <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                    <div className="text-sm text-gray-600 mb-1">Potential Savings</div>
+                    <div className="text-xl font-bold text-blue-700">
+                      £{Math.abs(
+                        (parseFloat(alertForm.targetPrice) - selectedInput.currentPrice) *
+                        parseFloat(alertForm.quantity)
+                      ).toFixed(0)}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      if price {alertForm.alertType === 'BELOW' ? 'drops' : 'rises'} to target
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowAddAlert(false);
+                  setSelectedInput(null);
+                  setAlertForm({ targetPrice: '', quantity: '', alertType: 'BELOW' });
+                }}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateAlert}
+                disabled={!selectedInput || !alertForm.targetPrice || !alertForm.quantity}
+                className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Create Alert
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {showAddPurchase && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Log Purchase</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Feature coming soon! This will allow you to record your purchases and track your spending.
-            </p>
-            <button
-              onClick={() => setShowAddPurchase(false)}
-              className="w-full bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
-            >
-              Close
-            </button>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full my-8">
+            <h3 className="text-xl font-bold mb-4">📦 Log Purchase</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Input
+              </label>
+              <select
+                value={selectedInput?.id || ''}
+                onChange={(e) => {
+                  const input = inputs.find(i => i.id === e.target.value);
+                  setSelectedInput(input || null);
+                  if (input?.currentPrice) {
+                    setPurchaseForm({ ...purchaseForm, pricePerUnit: input.currentPrice.toString() });
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">-- Select an input --</option>
+                {inputs.map(input => (
+                  <option key={input.id} value={input.id}>
+                    {getCategoryIcon(input.category)} {input.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {selectedInput && (
+              <>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Quantity ({selectedInput.unit})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={purchaseForm.quantity}
+                    onChange={(e) => setPurchaseForm({ ...purchaseForm, quantity: e.target.value })}
+                    placeholder="e.g. 100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Price per Unit ({selectedInput.unit === 'pence/L' ? 'pence/L' : '£/' + selectedInput.unit})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={purchaseForm.pricePerUnit}
+                    onChange={(e) => setPurchaseForm({ ...purchaseForm, pricePerUnit: e.target.value })}
+                    placeholder={selectedInput.unit === 'pence/L' ? 'e.g. 65.5' : 'e.g. 350'}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                {purchaseForm.quantity && purchaseForm.pricePerUnit && (
+                  <div className="bg-purple-50 rounded-lg p-3 mb-4">
+                    <div className="text-sm text-gray-600 mb-1">Total Cost</div>
+                    <div className="text-2xl font-bold text-purple-700">
+                      £{(parseFloat(purchaseForm.quantity) * parseFloat(purchaseForm.pricePerUnit)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Supplier
+                  </label>
+                  <input
+                    type="text"
+                    value={purchaseForm.supplier}
+                    onChange={(e) => setPurchaseForm({ ...purchaseForm, supplier: e.target.value })}
+                    placeholder="e.g. Yara UK, AgriSupplies Ltd"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Purchase Date
+                  </label>
+                  <input
+                    type="date"
+                    value={purchaseForm.purchaseDate}
+                    onChange={(e) => setPurchaseForm({ ...purchaseForm, purchaseDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Notes (optional)
+                  </label>
+                  <textarea
+                    value={purchaseForm.notes}
+                    onChange={(e) => setPurchaseForm({ ...purchaseForm, notes: e.target.value })}
+                    placeholder="e.g. Bought at discount, spring delivery"
+                    rows={2}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowAddPurchase(false);
+                  setSelectedInput(null);
+                  setPurchaseForm({
+                    quantity: '',
+                    pricePerUnit: '',
+                    supplier: '',
+                    purchaseDate: new Date().toISOString().split('T')[0],
+                    notes: '',
+                  });
+                }}
+                className="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleLogPurchase}
+                disabled={!selectedInput || !purchaseForm.quantity || !purchaseForm.pricePerUnit}
+                className="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              >
+                Log Purchase
+              </button>
+            </div>
           </div>
         </div>
       )}
